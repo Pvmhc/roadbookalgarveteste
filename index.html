@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#042E1B">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
@@ -111,8 +112,16 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .city-active-bar button:hover{color:var(--red)}
 
 /* ── FILTER BAR ─────────────────────────────────────────────────────── */
-.filter-bar{background:rgba(3,25,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:12px 14px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
-.fi{max-width:820px;margin:0 auto}
+.filter-bar{background:rgba(3,25,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:8px 14px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.filter-toggle{max-width:820px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;color:var(--gold);font-family:'Inter',sans-serif;font-weight:800;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:6px 0;cursor:pointer}
+.filter-toggle .ft-left{display:flex;align-items:center;gap:8px}
+.filter-toggle .ft-icon{font-size:15px;letter-spacing:0;transition:transform .2s}
+.filter-toggle.open .ft-icon{transform:rotate(180deg)}
+.filter-toggle .ft-count{display:none;background:var(--gold);color:#052E1B;border-radius:100px;padding:3px 7px;font-size:9px;letter-spacing:1px}
+.filter-toggle.has-filters .ft-count{display:inline-flex}
+.filter-panel{max-height:0;overflow:hidden;opacity:0;transition:max-height .28s ease,opacity .2s ease}
+.filter-panel.open{max-height:520px;opacity:1}
+.fi{max-width:820px;margin:0 auto;padding-top:4px}
 .fi-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
 .fi-lbl{font-family:'Inter',sans-serif;font-weight:800;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);white-space:nowrap}
 .search{flex:1;min-width:130px;background:var(--glass);border:1px solid var(--border);border-radius:100px;padding:9px 16px;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:.2s}
@@ -121,9 +130,11 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .type-row{display:flex;gap:6px;flex-wrap:wrap}
 .tbtn{background:var(--glass);border:1px solid var(--border);border-radius:100px;padding:6px 14px;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
 .tbtn.active,.tbtn:hover{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:var(--gold);color:#052E1B;font-weight:800;box-shadow:0 3px 10px rgba(228,185,63,.35)}
+.tbtn.tipo-destaque{border-color:var(--gold);box-shadow:0 0 0 1px rgba(228,185,63,.5)}
 .cuisine-row{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
 .cbtn{background:transparent;border:1px solid var(--border);border-radius:100px;padding:5px 12px;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:.2s}
 .cbtn.active,.cbtn:hover{background:var(--glassStrong);border-color:var(--gold);color:var(--gold)}
+.filter-clear{margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:6px 12px;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:.2s}.filter-clear:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ── VENUES ──────────────────────────────────────────────────────────── */
 .venues{max-width:860px;margin:0 auto;padding:26px 14px 60px}
@@ -179,8 +190,17 @@ body.admin-mode .card-edit-btn{display:flex}
 .photo-single img{width:100%;height:100%;object-fit:cover;display:block}
 /* Right panel / card body */
 .cbody{padding:16px;flex:1;display:flex;flex-direction:column;gap:8px}
-/* Flagship badge */
-.fl-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--red),#a80014);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:100px;width:fit-content;margin-bottom:2px;box-shadow:0 3px 10px rgba(228,0,26,.35)}
+/* Destaques independentes da tipologia */
+.card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
+.fl-badge,.destaque-badge{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;width:fit-content;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.fl-badge{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
+.destaque-badge{background:linear-gradient(135deg,#0E8A46,#0A6534);border:1px solid rgba(228,185,63,.8);color:var(--gold);box-shadow:0 3px 10px rgba(0,0,0,.28)}
+.highlight-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.highlight-label{font-family:'Inter',sans-serif;font-weight:800;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);white-space:nowrap;margin-right:2px}
+.dbtn{background:rgba(228,0,26,.07);border:1px solid rgba(228,185,63,.45);border-radius:100px;padding:6px 13px;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;cursor:pointer;transition:.2s}
+.dbtn.active,.dbtn:hover{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:var(--gold);color:#052E1B;font-weight:800;box-shadow:0 3px 10px rgba(228,185,63,.28)}
+.dbtn.flagship-filter{border-color:rgba(228,0,26,.7);background:rgba(228,0,26,.12)}
+.dbtn.flagship-filter.active,.dbtn.flagship-filter:hover{background:linear-gradient(135deg,var(--red),#a80014);border-color:#fff;color:#fff;box-shadow:0 3px 10px rgba(228,0,26,.35)}
 /* Name */
 .c-name{font-size:clamp(16px,4vw,21px);font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.2px}
 /* Type badge */
@@ -324,6 +344,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .so-chips{display:flex;gap:7px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--border)}
 .so-chip{background:var(--glass);border:1px solid var(--border);border-radius:100px;padding:5px 13px;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
 .so-chip.active,.so-chip:hover{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:var(--gold);color:#052E1B;font-weight:800}
+.so-chip.tipo-destaque{border-color:var(--gold);box-shadow:0 0 0 1px rgba(228,185,63,.5)}
 .so-results{flex:1;overflow-y:auto;padding:12px 16px 80px}
 .so-card{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:var(--radiusSm);border-bottom:1px solid transparent;cursor:pointer;transition:.2s}
 .so-card:hover{background:var(--glass)}
@@ -347,7 +368,10 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .card-ov-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .card-ov-sep{height:2px;background:rgba(255,255,255,.18);flex-shrink:0}
 .card-ov-info{padding:22px 20px 0}
-.card-ov-fl{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--red),#a80014);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:12px;box-shadow:0 3px 10px rgba(228,0,26,.35)}
+.card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
+.card-ov-destaque{background:linear-gradient(135deg,#0E8A46,#0A6534);border:1px solid rgba(228,185,63,.8);color:var(--gold)}
 .card-ov-name{font-family:'Poppins',sans-serif;font-size:clamp(21px,5vw,30px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:12px;letter-spacing:-.3px}
 .card-ov-typebox{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;margin-bottom:8px;background:rgba(228,185,63,.08)}
 .card-ov-typetxt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -480,6 +504,8 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .rb-beer-loader .rb-bolha2{animation:rbSubirBolha 1.5s ease-in infinite;animation-delay:.5s}
 .rb-beer-loader .rb-bolha3{animation:rbSubirBolha 1.1s ease-in infinite;animation-delay:.9s}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
 </head>
 <body>
 <div class="rb-loading-overlay" id="rbLoadingOverlay">
@@ -543,7 +569,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <div class="city-hotspot" id="hot-LAGOA" data-city="LAGOA" style="left:40.69%;top:63.32%" onclick="tocarHotspotCidade(this,'LAGOA')"><div class="dot">•</div><span class="hs-label" style="font-size:11px">Lagoa</span></div>
     <div class="city-hotspot" id="hot-SAO-BRAS-DE-ALPORTEL" data-city="SÃO BRÁS DE ALPORTEL" style="left:66.48%;top:54.77%" onclick="tocarHotspotCidade(this,'SÃO BRÁS DE ALPORTEL')"><div class="dot">•</div><span class="hs-label" style="font-size:11px">São Brás de Alportel</span></div>
     <!-- Flagship button — exact position from reference map -->
-    <div class="flagship-hotspot" id="hot-FLAGSHIP" data-city="FLAGSHIP" style="left:60.93%;top:36.73%" onclick="filterType('FLAGSHIP')"><div class="dot">FL</div></div>
+    <div class="flagship-hotspot" id="hot-FLAGSHIP" data-city="FLAGSHIP" style="left:60.93%;top:36.73%" onclick="filterDestaque('FLAGSHIP')"><div class="dot">FL</div></div>
   </div>
   <div class="map-legend">
     <div class="map-legend-item"><div class="map-legend-dot"></div> Cidade</div>
@@ -558,18 +584,30 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   <button onclick="clearCity()">✕ Ver Todas</button>
 </div>
 <div class="filter-bar">
+  <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilterPanel()" aria-expanded="false">
+    <span class="ft-left"><span class="ft-icon">⌄</span><span>Filtrar</span><span class="ft-count" id="filterCount">0</span></span>
+    <span style="font-size:10px;letter-spacing:1px;color:var(--muted)">Abrir</span>
+  </button>
+  <div class="filter-panel" id="filterPanel">
   <div class="fi">
     <div class="fi-row">
       <span class="fi-lbl">Filtrar</span>
-      <input type="search" class="search" id="q" placeholder="Pesquisar…" oninput="applyFilters()">
+      <input type="search" class="search" id="q" placeholder="Pesquisar…" oninput="applyFilters(); atualizarEstadoBotaoFiltros()">
     </div>
     <div class="type-row" id="typeRow">
-      <button class="tbtn active" data-t="ALL" onclick="filterType('ALL')">Todos</button>
-      <button class="tbtn" data-t="FLAGSHIP" onclick="filterType('FLAGSHIP')">⭐ Flagship</button>
+      <span class="highlight-label">Tipologias</span>
+      <button class="tbtn" data-t="ALL" onclick="filterType('ALL')">Todos</button>
     </div>
+    <div class="highlight-row" id="highlightRow">
+      <span class="highlight-label">Destaques</span>
+      <button class="dbtn" data-d="ALL" onclick="filterDestaque('ALL')">Todos</button>
+      <button class="dbtn flagship-filter" data-d="FLAGSHIP" onclick="filterDestaque('FLAGSHIP')">⭐ Flagship</button>
+    </div>
+    <button class="filter-clear" type="button" onclick="limparFiltros()">✕ Limpar filtros</button>
     <div class="type-row cuisine-row" id="cuisineRow" style="display:none">
-      <button class="cbtn active" data-c="ALL" onclick="filterCozinha('ALL')">Todas as cozinhas</button>
+      <button class="cbtn" data-c="ALL" onclick="filterCozinha('ALL')">Todas as cozinhas</button>
     </div>
+  </div>
   </div>
 </div>
 <section id="vSec">
@@ -607,9 +645,14 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <button class="so-back" onclick="closeSearch()">✕</button>
     <input class="so-input" id="soInput" type="search" placeholder="Nome, cidade ou tipologia…" oninput="doSearch()">
   </div>
-  <div class="so-chips" id="soChips">
+  <div class="so-chips" id="soTypeChips">
+    <span class="highlight-label">Tipologias</span>
     <button class="so-chip active" data-t="ALL" onclick="soFilterType('ALL')">Todos</button>
-    <button class="so-chip" data-t="FLAGSHIP" onclick="soFilterType('FLAGSHIP')">⭐ Flagship</button>
+  </div>
+  <div class="so-chips" id="soDestaqueChips">
+    <span class="highlight-label">Destaques</span>
+    <button class="so-chip active" data-d="ALL" onclick="soFilterDestaque('ALL')">Todos</button>
+    <button class="so-chip flagship-filter" data-d="FLAGSHIP" onclick="soFilterDestaque('FLAGSHIP')">⭐ Flagship</button>
   </div>
   <div class="so-results" id="soResults"></div>
 </div>
@@ -643,6 +686,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   <button onclick="fecharAdminMenu(); openEditorCapa()">🎨 Editar Capa e Mapas</button>
   <button onclick="fecharAdminMenu(); openEditorVideo()">🎬 Vídeo de Publicidade</button>
   <button onclick="fecharAdminMenu(); openEditorSync()">☁️ Sincronização Cloud</button>
+  <button onclick="fecharAdminMenu(); pedirPermissaoNotificacoes()">🔔 Ativar notificações</button>
   <button onclick="fecharAdminMenu(); abrirEditorEstabelecimento(null)">➕ Adicionar estabelecimento</button>
   <button id="adminResetBtn" style="display:none" onclick="fecharAdminMenu(); reporDadosOriginais()">↺ Repor dados do ficheiro</button>
   <button class="admin-menu-close" onclick="fecharAdminMenu()">Fechar</button>
@@ -667,9 +711,25 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
         <label class="ed-label">Tipologia (podes escolher mais do que uma)</label>
         <div id="eeTipoLista" style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px"></div>
         <div style="display:flex;gap:6px;margin-top:8px">
-          <input type="text" class="admin-input" id="eeNovoTipo" placeholder="Nova tipologia (ex: Mercado, Loja)" style="flex:1" autocomplete="off">
+          <input type="text" class="admin-input" id="eeNovoTipo" placeholder="Nova tipologia (ex: Beerdrive)" style="flex:1" autocomplete="off">
+          <input type="text" class="admin-input" id="eeNovoTipoIcone" placeholder="Ícone" maxlength="4" style="width:64px;text-align:center;flex:none" autocomplete="off">
           <button type="button" class="calib-row button" onclick="adicionarNovaTipologia()" style="padding:0 16px;white-space:nowrap">+ Adicionar</button>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <input type="checkbox" id="eeNovoTipoDestaque" style="width:16px;height:16px">
+          <label class="ed-label" style="margin:0" for="eeNovoTipoDestaque">⭐ Destacar esta tipologia nos filtros (como o Flagship)</label>
+        </div>
+        <p class="ed-hint" style="margin-top:4px">As tipologias definem o tipo de estabelecimento. Os <strong>destaques</strong> abaixo são categorias independentes, como Beerdrive, Sol &amp; Mar ou Embaixador.</p>
+      </div>
+      <div class="ed-field">
+        <label class="ed-label">Destaques do estabelecimento</label>
+        <div id="eeDestaqueLista" style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input type="text" class="admin-input" id="eeNovoDestaque" placeholder="Novo destaque (ex: Premium)" style="flex:1" autocomplete="off">
+          <input type="text" class="admin-input" id="eeNovoDestaqueIcone" placeholder="Ícone" maxlength="4" style="width:64px;text-align:center;flex:none" autocomplete="off">
+          <button type="button" class="calib-row button" onclick="adicionarNovoDestaque()" style="padding:0 16px;white-space:nowrap">+ Adicionar</button>
+        </div>
+        <p class="ed-hint" style="margin-top:4px">Estes destaques aparecem em <strong>filtro próprio</strong> e como etiquetas visuais no cartão, com um tratamento semelhante ao Flagship.</p>
       </div>
       <div class="ed-field" id="eeCozinhaField" style="display:none">
         <label class="ed-label">Tipo de cozinha (restaurantes)</label>
@@ -1048,7 +1108,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-4",
     "regiao": "ALGARVE",
-    "cidade": "SAGRES",
+    "cidade": "VILA DO BISPO",
     "tipo": "RESTAURANTE,BAR",
     "cozinha": "",
     "flagship": false,
@@ -1067,7 +1127,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-5",
     "regiao": "ALGARVE",
-    "cidade": "SAGRES",
+    "cidade": "VILA DO BISPO",
     "tipo": "RESTAURANTE,BAR",
     "cozinha": "",
     "flagship": false,
@@ -1086,7 +1146,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-6",
     "regiao": "ALGARVE",
-    "cidade": "SAGRES",
+    "cidade": "VILA DO BISPO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -1105,7 +1165,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-7",
     "regiao": "ALGARVE",
-    "cidade": "SAGRES",
+    "cidade": "VILA DO BISPO",
     "tipo": "ESPLANADA",
     "cozinha": "",
     "flagship": false,
@@ -2872,7 +2932,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-101",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -2891,7 +2951,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-102",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -2910,7 +2970,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-103",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE,BAR",
     "cozinha": "",
     "flagship": false,
@@ -2929,7 +2989,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-104",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -2948,7 +3008,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-105",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -2967,7 +3027,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-106",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -2986,7 +3046,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-107",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA",
     "cozinha": "",
     "flagship": false,
@@ -3005,7 +3065,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-108",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA",
     "cozinha": "",
     "flagship": false,
@@ -3024,7 +3084,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-109",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3043,7 +3103,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-110",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3062,7 +3122,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-111",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3081,7 +3141,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-112",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3100,7 +3160,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-113",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA",
     "cozinha": "",
     "flagship": false,
@@ -3119,7 +3179,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-114",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA",
     "cozinha": "",
     "flagship": false,
@@ -3138,7 +3198,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-115",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "BAR",
     "cozinha": "",
     "flagship": false,
@@ -3157,7 +3217,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-116",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "BAR",
     "cozinha": "",
     "flagship": false,
@@ -3176,7 +3236,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-117",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA_ROOFTOP_FLAGSHIP",
     "cozinha": "",
     "flagship": true,
@@ -3195,7 +3255,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-118",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE_FLAGSHIP",
     "cozinha": "",
     "flagship": true,
@@ -3214,7 +3274,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-119",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "ESPLANADA_ROOFTOP_FLAGSHIP",
     "cozinha": "",
     "flagship": true,
@@ -3290,7 +3350,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-123",
     "regiao": "ALGARVE",
-    "cidade": "SAGRES",
+    "cidade": "VILA DO BISPO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3518,7 +3578,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   {
     "id": "card-135",
     "regiao": "ALGARVE",
-    "cidade": "VILA REAL ST ANTÓNIO",
+    "cidade": "VILA REAL DE SANTO ANTÓNIO",
     "tipo": "RESTAURANTE",
     "cozinha": "",
     "flagship": false,
@@ -3564,6 +3624,28 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
    import antigo guardado no browser é automaticamente ignorado e
    limpo — para os teus novos dados nunca desaparecerem, "tapados"
    por um import de teste anterior. ──────────────────────────────── */
+// ── NORMALIZAÇÃO DE NOMES DE CIDADES ────────────────────────────────
+// Mantém os nomes dos dados, mapa, filtros e Google Sheet coerentes.
+// Versões antigas dos dados podem ainda usar SAGRES e
+// VILA REAL ST ANTÓNIO; estes aliases passam automaticamente para os
+// nomes dos concelhos apresentados no mapa.
+function normalizarCidadeRoadbook(valor){
+  const v = (valor || '').toString().trim().toUpperCase();
+  const aliases = {
+    'SAGRES': 'VILA DO BISPO',
+    'VILA REAL ST ANTÓNIO': 'VILA REAL DE SANTO ANTÓNIO',
+    'VILA REAL STO ANTONIO': 'VILA REAL DE SANTO ANTÓNIO',
+    'VILA REAL DE SANTO ANTONIO': 'VILA REAL DE SANTO ANTÓNIO'
+  };
+  return aliases[v] || v;
+}
+function normalizarCidadesDosEstabelecimentos(){
+  ESTABELECIMENTOS.forEach(e => {
+    if (e && e.cidade) e.cidade = normalizarCidadeRoadbook(e.cidade);
+  });
+}
+normalizarCidadesDosEstabelecimentos();
+
 const ESTABELECIMENTOS_ORIGINAIS = JSON.parse(JSON.stringify(ESTABELECIMENTOS));
 function hashEstabelecimentos(arr){
   const str = JSON.stringify(arr);
@@ -3593,6 +3675,7 @@ function hashEstabelecimentos(arr){
       if(Array.isArray(dados) && dados.length){
         ESTABELECIMENTOS.length = 0;
         ESTABELECIMENTOS.push(...dados);
+        normalizarCidadesDosEstabelecimentos();
       }
     }
   }catch(err){ console.warn('Não foi possível carregar dados guardados:', err); }
@@ -3606,7 +3689,7 @@ const HOTSPOTS_POR_REGIAO = {
       "top": 37.0
     },
     {
-      "cidade": "SAGRES",
+      "cidade": "VILA DO BISPO",
       "left": 5.9,
       "top": 80.6
     },
@@ -3661,7 +3744,7 @@ const HOTSPOTS_POR_REGIAO = {
       "top": 11.8
     },
     {
-      "cidade": "VILA REAL ST ANTÓNIO",
+      "cidade": "VILA REAL DE SANTO ANTÓNIO",
       "left": 95.1,
       "top": 57.6
     }
@@ -4385,9 +4468,77 @@ function formatarNomeTipo(codigo){
     .map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
   return legivel;
 }
+// Ícones e destaque escolhidos pelo utilizador para tipologias (novas ou
+// já existentes) — para se distinguirem das outras nos filtros, tal como
+// o botão ⭐ Flagship. Guardado neste dispositivo (localStorage), à
+// semelhança de outras preferências do editor (escalas, vídeos).
+let TIPOLOGIAS_CUSTOM = {};
+try { TIPOLOGIAS_CUSTOM = JSON.parse(localStorage.getItem('roadbook_tipologias_custom') || '{}'); } catch(e) { TIPOLOGIAS_CUSTOM = {}; }
+function guardarTipologiasCustom(codigoAlterado){
+  localStorage.setItem('roadbook_tipologias_custom', JSON.stringify(TIPOLOGIAS_CUSTOM));
+  if (codigoAlterado && TIPOLOGIAS_CUSTOM[codigoAlterado]) {
+    syncPost('save_tipologia_custom', { dados: Object.assign({ codigo: codigoAlterado }, TIPOLOGIAS_CUSTOM[codigoAlterado]) });
+  }
+}
+// Vai buscar à cloud as tipologias personalizadas por outras pessoas da
+// equipa (noutros equipamentos), para que os ícones/destaques apareçam
+// aqui também — corre no arranque da app.
+async function carregarTipologiasCustomCloud(){
+  const daCloud = await syncGet('list_tipologias_custom');
+  if (daCloud && typeof daCloud === 'object') {
+    TIPOLOGIAS_CUSTOM = Object.assign({}, TIPOLOGIAS_CUSTOM, daCloud);
+    localStorage.setItem('roadbook_tipologias_custom', JSON.stringify(TIPOLOGIAS_CUSTOM));
+  }
+}
+function tipoEstaDestacado(codigo){
+  return !!(TIPOLOGIAS_CUSTOM[codigo] && TIPOLOGIAS_CUSTOM[codigo].destaque);
+}
 function labelParaTipo(codigo){
+  const custom = TIPOLOGIAS_CUSTOM[codigo];
+  if (custom && custom.icone) return custom.icone + ' ' + formatarNomeTipo(codigo);
   if (TIPOLOGIAS_EDITOR[codigo]) return TIPOLOGIAS_EDITOR[codigo];
   return '🏷️ ' + formatarNomeTipo(codigo);
+}
+
+// ── DESTAQUES ───────────────────────────────────────────────────────
+const DESTAQUES_EDITOR = {
+  BEERDRIVE: '🚐 Beerdrive',
+  SOL_MAR: '☀️ Sol & Mar',
+  EMBAIXADOR: '🏅 Embaixador'
+};
+let DESTAQUES_CUSTOM = {};
+try { DESTAQUES_CUSTOM = JSON.parse(localStorage.getItem('roadbook_destaques_custom') || '{}'); } catch(e) { DESTAQUES_CUSTOM = {}; }
+function guardarDestaquesCustom(codigoAlterado){
+  localStorage.setItem('roadbook_destaques_custom', JSON.stringify(DESTAQUES_CUSTOM));
+  if (codigoAlterado && DESTAQUES_CUSTOM[codigoAlterado]) {
+    syncPost('save_destaque_custom', { dados: Object.assign({ codigo: codigoAlterado }, DESTAQUES_CUSTOM[codigoAlterado]) });
+  }
+}
+// Vai buscar à cloud os destaques personalizados por outras pessoas da
+// equipa (noutros equipamentos) — corre no arranque da app.
+async function carregarDestaquesCustomCloud(){
+  const daCloud = await syncGet('list_destaques_custom');
+  if (daCloud && typeof daCloud === 'object') {
+    DESTAQUES_CUSTOM = Object.assign({}, DESTAQUES_CUSTOM, daCloud);
+    localStorage.setItem('roadbook_destaques_custom', JSON.stringify(DESTAQUES_CUSTOM));
+  }
+}
+function normalizarCodigoDestaque(texto){
+  return (texto || '').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/&/g,' ').replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+}
+function splitDestaques(str){ return (str || '').toString().split(/[;,|/]+/).map(normalizarCodigoDestaque).filter(Boolean); }
+function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
+function labelParaDestaque(codigo){
+  const custom=DESTAQUES_CUSTOM[codigo];
+  if(custom && custom.icone) return custom.icone+' '+formatarNomeDestaque(codigo);
+  if(DESTAQUES_EDITOR[codigo]) return DESTAQUES_EDITOR[codigo];
+  return '✨ '+formatarNomeDestaque(codigo);
+}
+function listarDestaquesExistentes(){
+  const vistos=new Set(Object.keys(DESTAQUES_EDITOR));
+  ESTABELECIMENTOS.forEach(e=>splitDestaques(e.destaques).forEach(c=>vistos.add(c)));
+  Object.keys(DESTAQUES_CUSTOM).forEach(c=>vistos.add(c));
+  return Array.from(vistos).sort((a,b)=>labelParaDestaque(a).localeCompare(labelParaDestaque(b),'pt'));
 }
 
 // Separa uma tipologia escrita livremente (ex: "Restaurante & Bar",
@@ -4414,25 +4565,51 @@ function listarTiposExistentes(){
 // Reconstrói as duas barras de filtro por tipologia (lista principal e
 // overlay de pesquisa) a partir do que existe de facto nos dados.
 function renderTypeChips(){
-  const tipos = listarTiposExistentes();
-  [{ id: 'typeRow', cls: 'tbtn', fn: 'filterType', ativo: () => aT },
-   { id: 'soChips', cls: 'so-chip', fn: 'soFilterType', ativo: () => soType }
-  ].forEach(cfg => {
-    const linha = document.getElementById(cfg.id);
-    if (!linha) return;
-    linha.querySelectorAll(`.${cfg.cls}`).forEach(b => {
-      if (b.dataset.t !== 'ALL' && b.dataset.t !== 'FLAGSHIP') b.remove();
+  const tipos=listarTiposExistentes();
+  const linha=document.getElementById('typeRow');
+  if(linha){
+    linha.querySelectorAll('.tbtn').forEach(b=>{if(b.dataset.t!=='ALL')b.remove();});
+    tipos.forEach(codigo=>{
+      const btn=document.createElement('button');
+      btn.className='tbtn'+(tipoEstaDestacado(codigo)?' tipo-destaque':'');
+      btn.dataset.t=codigo;
+      btn.textContent=labelParaTipo(codigo);
+      btn.onclick=()=>filterType(codigo);
+      linha.appendChild(btn);
     });
-    const botaoFlagship = linha.querySelector('[data-t="FLAGSHIP"]');
-    tipos.forEach(codigo => {
-      const btn = document.createElement('button');
-      btn.className = cfg.cls;
-      btn.dataset.t = codigo;
-      btn.textContent = labelParaTipo(codigo);
-      btn.onclick = () => window[cfg.fn](codigo);
-      linha.insertBefore(btn, botaoFlagship);
+    linha.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t!=='ALL' && aTiposSelecionados.has(b.dataset.t)));
+  }
+  const soLinha=document.getElementById('soTypeChips');
+  if(soLinha){
+    soLinha.querySelectorAll('.so-chip').forEach(b=>{if(b.dataset.t!=='ALL')b.remove();});
+    tipos.forEach(codigo=>{
+      const btn=document.createElement('button');
+      btn.className='so-chip'+(tipoEstaDestacado(codigo)?' tipo-destaque':'');
+      btn.dataset.t=codigo;
+      btn.textContent=labelParaTipo(codigo);
+      btn.onclick=()=>soFilterType(codigo);
+      soLinha.appendChild(btn);
     });
-    linha.querySelectorAll(`.${cfg.cls}`).forEach(b => b.classList.toggle('active', b.dataset.t === cfg.ativo()));
+    soLinha.querySelectorAll('.so-chip').forEach(b=>b.classList.toggle('active',b.dataset.t==='ALL' ? soTiposSelecionados.size===0 : soTiposSelecionados.has(b.dataset.t)));
+  }
+  renderDestaqueChips();
+}
+function renderDestaqueChips(){
+  const destaques=listarDestaquesExistentes();
+  [{id:'highlightRow',cls:'dbtn',selected:()=>aDestaquesSelecionados},{id:'soDestaqueChips',cls:'so-chip',selected:()=>soDestaquesSelecionados}].forEach(cfg=>{
+    const linha=document.getElementById(cfg.id);if(!linha)return;
+    linha.querySelectorAll(`.${cfg.cls}`).forEach(b=>{if(b.dataset.d!=='ALL'&&b.dataset.d!=='FLAGSHIP')b.remove();});
+    destaques.forEach(codigo=>{
+      if(codigo==='FLAGSHIP')return;
+      const btn=document.createElement('button');
+      btn.className=cfg.cls;
+      btn.dataset.d=codigo;
+      btn.textContent=labelParaDestaque(codigo);
+      btn.onclick=()=>window[cfg.id==='highlightRow'?'filterDestaque':'soFilterDestaque'](codigo);
+      linha.appendChild(btn);
+    });
+    const selected=cfg.selected();
+    linha.querySelectorAll(`.${cfg.cls}`).forEach(b=>b.classList.toggle('active',b.dataset.d!=='ALL' && selected.has(b.dataset.d)));
   });
 }
 
@@ -4655,7 +4832,26 @@ async function carregarEscalasRegiao(){
    avaliando 4 critérios (cerveja fresca, aroma, com espuma, copo certo)
    de 0 a 5 estrelas, mais um comentário opcional. Não fica publicado
    no site — é enviado diretamente por email para o Vitor, através do
-   Apps Script (ação "enviar_feedback"). ──────────────────────────── */
+   EmailJS (envio feito no browser, sem passar pelo Apps Script).
+   ──────────────────────────────────────────────────────────────────
+   CONFIGURAÇÃO NECESSÁRIA (uma única vez, em https://www.emailjs.com):
+   1) Cria conta gratuita e liga o teu email (Gmail/Outlook/etc) como
+      "Email Service" → copia o SERVICE ID gerado.
+   2) Cria um "Email Template" com variáveis {{estabelecimento_nome}},
+      {{cidade}}, {{autor}}, {{fresca}}, {{aroma}}, {{espuma}}, {{copo}},
+      {{texto}}, {{data}} no corpo do email → copia o TEMPLATE ID.
+   3) Em "Account" → "General" copia a PUBLIC KEY.
+   4) Substitui os 3 valores abaixo por esses códigos.
+   ──────────────────────────────────────────────────────────────── */
+const EMAILJS_PUBLIC_KEY  = 'fhxBAtld3GiOiT_fv';
+const EMAILJS_SERVICE_ID  = 'service_yl1qq5c';
+const EMAILJS_TEMPLATE_ID = 'template_4zluyxc';
+const EMAILJS_DESTINO     = 'vitor.catarino@novadis.pt'; // email que recebe o feedback
+
+if (window.emailjs && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('SUBSTITUIR')) {
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+}
+
 const CRITERIOS_FEEDBACK = [
   { chave: 'fresca', label: 'Cerveja fresca' },
   { chave: 'aroma',  label: 'Aroma' },
@@ -4702,8 +4898,8 @@ function enviarComentario(){
     return;
   }
   if (!_comentarioAlvoId) return;
-  if (!SYNC_URL) {
-    alert('Sincronização não configurada — não é possível enviar o feedback por email.');
+  if (!window.emailjs || EMAILJS_PUBLIC_KEY.startsWith('SUBSTITUIR')) {
+    alert('Envio de feedback por email ainda não está configurado (falta preencher os códigos do EmailJS no ficheiro).');
     return;
   }
 
@@ -4725,13 +4921,29 @@ function enviarComentario(){
   };
 
   localStorage.setItem('roadbook_comentario_autor', autor);
-  syncPost('enviar_feedback', { dados }).catch(() => {});
 
-  mostrarToastComentario('✓ Feedback enviado por email.');
-  document.getElementById('commentTexto').value = '';
-  CRITERIOS_FEEDBACK.forEach(c => definirNotaComentario(c.chave, 0));
-  btn.disabled = false;
-  fecharComentarios();
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: EMAILJS_DESTINO,
+    estabelecimento_nome: dados.estabelecimento_nome,
+    cidade: dados.cidade,
+    autor: dados.autor,
+    texto: dados.texto || '(sem comentário escrito)',
+    data: dados.data,
+    fresca: dados.fresca || '—',
+    aroma: dados.aroma || '—',
+    espuma: dados.espuma || '—',
+    copo: dados.copo || '—'
+  }).then(() => {
+    mostrarToastComentario('✓ Feedback enviado por email.');
+  }).catch(err => {
+    console.warn('Erro a enviar feedback por email:', err);
+    mostrarToastComentario('⚠️ Não foi possível enviar. Verifica a ligação e tenta novamente.');
+  }).finally(() => {
+    document.getElementById('commentTexto').value = '';
+    CRITERIOS_FEEDBACK.forEach(c => definirNotaComentario(c.chave, 0));
+    btn.disabled = false;
+    fecharComentarios();
+  });
 }
 
 function mostrarToastComentario(texto){
@@ -4855,7 +5067,7 @@ function adicionarIconeCapa(){
    por dados antigos ou pela Google Sheet.
 ════════════════════════════════════════════════════════════════════ */
 /* ══════ SINCRONIZAÇÃO COM GOOGLE SHEETS (ESTABELECIMENTOS + VÍDEOS) ══════ */
-const SYNC_URL_PREDEFINIDO = 'https://script.google.com/macros/s/AKfycbxsKbx6aUfRzmSrrATP02kxbDlH3DLIRDz5r4PBMsYxwIZUzVBVJQ5jcmTW-m-ax9k/exec';
+const SYNC_URL_PREDEFINIDO = 'https://script.google.com/macros/s/AKfycbzuWSBUcj7ZKfHty6wqQNHYlFUFouxJZ9nUowEJesq2DLYHXonn76QUdjt5JeTz2mZD/exec';
 const _syncGuardado = localStorage.getItem('roadbook_sync_url');
 let SYNC_URL = (_syncGuardado === '__off__') ? '' : (_syncGuardado || SYNC_URL_PREDEFINIDO);
 let _syncEmCurso = false;
@@ -4895,7 +5107,7 @@ async function syncFetchComRetentativas(url, options, tentativas){
 }
 
 async function syncPost(action, extra){
-  if (!SYNC_URL) return;
+  if (!SYNC_URL) return false;
   try {
     await syncFetchComRetentativas(SYNC_URL, {
       method: 'POST',
@@ -4904,9 +5116,11 @@ async function syncPost(action, extra){
       cache: 'no-store'
     });
     atualizarEstadoSync('ok');
+    return true;
   } catch (err) {
     console.warn('Erro a sincronizar com a cloud:', err);
     atualizarEstadoSync('erro');
+    return false;
   }
 }
 
@@ -5039,41 +5253,170 @@ async function carregarDadosCloud(manual){
   if (_syncEmCurso) return;
   _syncEmCurso = true;
   atualizarEstadoSync('a-sincronizar');
-  if (!manual) mostrarLoadingCloud();
 
-  const [lista, videos] = await Promise.all([syncGet('list'), syncGet('list_videos')]);
+  // IMPORTANTE: a sincronização automática nunca bloqueia o Roadbook.
+  // O utilizador vê imediatamente os dados incorporados no HTML/localStorage
+  // e a Google Sheet é actualizada em segundo plano. Só a sincronização manual
+  // mostra feedback de espera.
+  if (manual) mostrarLoadingCloud();
 
-  if (Array.isArray(lista)) {
-    ESTABELECIMENTOS.length = 0;
-    const listaDrive = lista.map(e => {
-      const x = { ...e };
-      Object.keys(x).forEach(k => {
-        if (/^foto\d+$/i.test(k) && typeof x[k] === 'string' && /^data:image\/[^;]+;base64,/i.test(x[k])) x[k] = '';
+  let lista = null;
+  let videos = null;
+  try {
+    // A lista de estabelecimentos é prioritária. Os vídeos são carregados
+    // separadamente para não obrigarem o conteúdo principal a esperar por eles.
+    lista = await syncGet('list');
+
+    if (Array.isArray(lista)) {
+      ESTABELECIMENTOS.length = 0;
+      const listaDrive = lista.map(e => {
+        const x = { ...e };
+        Object.keys(x).forEach(k => {
+          if (/^foto\d+$/i.test(k) && typeof x[k] === 'string' && /^data:image\/[^;]+;base64,/i.test(x[k])) x[k] = '';
+        });
+        return x;
       });
-      return x;
-    });
-    ESTABELECIMENTOS.push(...listaDrive);
-    estabelecimentosRenderizados = false;
-    renderEstabelecimentos();
-    estabelecimentosRenderizados = true;
-    renderRegionMap();
-    atualizarCoverCount();
-    atualizarContadoresHotspots();
-  }
+      ESTABELECIMENTOS.push(...listaDrive);
+      normalizarCidadesDosEstabelecimentos();
+      estabelecimentosRenderizados = false;
+      renderEstabelecimentos();
+      estabelecimentosRenderizados = true;
+      renderRegionMap();
+      atualizarCoverCount();
+      atualizarContadoresHotspots();
+      guardarEstabelecimentosNoDispositivo();
+      avisarNovosEstabelecimentos(listaDrive);
+    }
 
-  if (videos && typeof videos === 'object') {
-    AD_VIDEOS_POR_CIDADE = {};
-    Object.keys(videos).forEach(codigo => {
-      if (codigo === '_padrao') AD_VIDEO_SRC = videos[codigo];
-      else AD_VIDEOS_POR_CIDADE[codigo] = videos[codigo];
-    });
-    guardarVideosNoDispositivo();
-  }
+    // Vídeos são secundários e não bloqueiam a abertura nem a renderização.
+    // Se demorarem/falharem, o Roadbook continua perfeitamente utilizável.
+    syncGet('list_videos').then(dados => {
+      if (dados && typeof dados === 'object') {
+        AD_VIDEOS_POR_CIDADE = {};
+        Object.keys(dados).forEach(codigo => {
+          if (codigo === '_padrao') AD_VIDEO_SRC = dados[codigo];
+          else AD_VIDEOS_POR_CIDADE[codigo] = dados[codigo];
+        });
+        guardarVideosNoDispositivo();
+      }
+    }).catch(err => console.warn('Vídeos cloud não disponíveis:', err));
 
-  if (lista !== null || videos !== null) atualizarEstadoSync('ok');
-  _syncEmCurso = false;
-  esconderLoadingCloud();
-  if (manual) alert('Sincronização concluída.');
+    atualizarEstadoSync('ok');
+    if (manual) alert('Sincronização concluída.');
+  } catch (err) {
+    console.warn('Sincronização automática não disponível:', err);
+    atualizarEstadoSync('erro');
+    if (manual) alert('Não foi possível concluir a sincronização. Os dados locais continuam disponíveis.');
+  } finally {
+    _syncEmCurso = false;
+    esconderLoadingCloud();
+  }
+}
+
+/* ── NOTIFICAÇÕES ──────────────────────────────────────────────────
+   Duas camadas:
+   1) Aviso dentro da app (toast), sempre que a sincronização traz
+      estabelecimentos novos desde a última vez que este dispositivo
+      sincronizou — não precisa de permissão nenhuma.
+   2) Notificação push a sério (Firebase Cloud Messaging), com
+      permissão do utilizador — chega mesmo com a app completamente
+      fechada, através do service worker (firebase-messaging-sw.js). */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyC4CEY2ErDb8DGpulStzm5xBXiOKd0GPMA",
+  authDomain: "roadbook-6c7ba.firebaseapp.com",
+  projectId: "roadbook-6c7ba",
+  storageBucket: "roadbook-6c7ba.firebasestorage.app",
+  messagingSenderId: "898469384585",
+  appId: "1:898469384585:web:f911b649dc4f3cf6abd158"
+};
+const FCM_VAPID_KEY = "BPDAX7FBAhENS3rQXLJmXclcBiFMQBw4d1csJkZc7J8SBhHH4HNEScHLvnf0HJNXmE0iq_IKAwHHDaaONFtz8po";
+
+let _fcmMessaging = null;
+function obterFcmMessaging(){
+  if (_fcmMessaging) return _fcmMessaging;
+  if (typeof firebase === 'undefined') return null;
+  if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  _fcmMessaging = firebase.messaging();
+  // Notificação chegada com a app em primeiro plano (aberta e em
+  // foco): o browser não mostra alerta do sistema sozinho, por isso
+  // mostramos o nosso toast.
+  _fcmMessaging.onMessage(payload => {
+    const texto = (payload.notification && payload.notification.body) || 'Há novidades no Road Book.';
+    mostrarToastComentario('🔔 ' + texto);
+  });
+  return _fcmMessaging;
+}
+
+async function pedirPermissaoNotificacoes(){
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    alert('Este browser não suporta notificações.');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    alert('As notificações foram bloqueadas neste browser. Ativa-as manualmente nas definições do site para as receberes aqui.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return;
+
+  localStorage.setItem('roadbook_notif_ativas', '1');
+  iniciarPollingNotificacoes();
+
+  try {
+    const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const messaging = obterFcmMessaging();
+    if (!messaging) { mostrarToastComentario('🔔 Avisos dentro da app ativados.'); return; }
+    const token = await messaging.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: registration });
+    if (token) {
+      localStorage.setItem('roadbook_fcm_token', token);
+      syncPost('save_push_token', { dados: { token, dispositivo: navigator.userAgent.slice(0, 120), data: new Date().toISOString() } });
+      mostrarToastComentario('🔔 Notificações ativadas neste dispositivo.');
+    }
+  } catch (err) {
+    console.warn('Push (Firebase) não disponível, mas os avisos dentro da app continuam ativos:', err);
+    mostrarToastComentario('🔔 Avisos dentro da app ativados.');
+  }
+}
+
+function avisarNovosEstabelecimentos(listaAtual){
+  const idsAtuais = listaAtual.map(e => e.id).filter(Boolean);
+  let idsConhecidos = [];
+  try { idsConhecidos = JSON.parse(localStorage.getItem('roadbook_ids_conhecidos') || '[]'); } catch(e) {}
+
+  // Primeira vez neste dispositivo: só regista a base, não avisa nada
+  // (senão avisaria de "novidade" para todos os estabelecimentos já
+  // existentes, o que não é útil).
+  if (idsConhecidos.length) {
+    const conhecidosSet = new Set(idsConhecidos);
+    const novos = listaAtual.filter(e => e.id && !conhecidosSet.has(e.id));
+    if (novos.length) {
+      const texto = novos.length === 1
+        ? `📍 Novo estabelecimento: ${novos[0].nome || novos[0].id}`
+        : `📍 ${novos.length} estabelecimentos novos adicionados`;
+      mostrarToastComentario(texto);
+      if (('Notification' in window) && Notification.permission === 'granted') {
+        new Notification('Road Book', { body: texto });
+      }
+    }
+  }
+  localStorage.setItem('roadbook_ids_conhecidos', JSON.stringify(idsAtuais));
+}
+
+// Volta a sincronizar de tempos a tempos (só enquanto a página está
+// aberta nalgum separador) para as notificações também dispararem sem
+// precisar de puxar manualmente. Intervalo moderado para não sobrecarregar
+// o Apps Script.
+let _pollingNotifTimer = null;
+function iniciarPollingNotificacoes(){
+  if (_pollingNotifTimer || !SYNC_URL) return;
+  _pollingNotifTimer = setInterval(() => {
+    if (document.visibilityState === 'visible' || (Notification.permission === 'granted')) {
+      carregarDadosCloud(false);
+    }
+  }, 120000); // a cada 2 minutos
+}
+if (localStorage.getItem('roadbook_notif_ativas') === '1') {
+  document.addEventListener('DOMContentLoaded', iniciarPollingNotificacoes);
 }
 
 function openEditorSync(){
@@ -5091,7 +5434,8 @@ function guardarSyncUrl(){
   if (!url) { alert('Cola primeiro o link da aplicação Web.'); return; }
   SYNC_URL = url;
   localStorage.setItem('roadbook_sync_url', url);
-  carregarDadosCloud();
+  carregarDadosCloud(false);
+  iniciarPollingCloud();
 }
 
 function removerSyncUrl(){
@@ -5219,11 +5563,24 @@ function renderEeTipoLista(tiposSelecionados){
 // um novo checkbox na hora, sem precisar de tocar em código nenhum.
 function adicionarNovaTipologia(){
   const input = document.getElementById('eeNovoTipo');
+  const iconeInput = document.getElementById('eeNovoTipoIcone');
+  const destaqueInput = document.getElementById('eeNovoTipoDestaque');
   const texto = input.value.trim();
   if (!texto) return;
   const codigo = texto.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_ÁÀÂÃÉÊÍÓÔÕÚÇ_]/g, '');
   if (!codigo) return;
-  if (!document.getElementById('eeTipo_' + codigo)) {
+
+  // Guarda o ícone escolhido e/ou o destaque — também funciona para
+  // atualizar uma tipologia já existente (basta escrever o mesmo nome).
+  const icone = (iconeInput?.value || '').trim();
+  const destaque = !!destaqueInput?.checked;
+  if (icone || destaque) {
+    TIPOLOGIAS_CUSTOM[codigo] = Object.assign({}, TIPOLOGIAS_CUSTOM[codigo], icone ? { icone } : {}, { destaque });
+    guardarTipologiasCustom(codigo);
+  }
+
+  const existente = document.getElementById('eeTipo_' + codigo);
+  if (!existente) {
     const cont = document.getElementById('eeTipoLista');
     const div = document.createElement('div');
     div.className = 'ee-tipo-row';
@@ -5231,10 +5588,30 @@ function adicionarNovaTipologia(){
       <label for="eeTipo_${codigo}">${labelParaTipo(codigo)}</label>`;
     cont.appendChild(div);
   } else {
-    document.getElementById('eeTipo_' + codigo).checked = true;
+    existente.checked = true;
+    const label = document.querySelector(`label[for="eeTipo_${codigo}"]`);
+    if (label) label.textContent = labelParaTipo(codigo);
   }
+
   input.value = '';
+  if (iconeInput) iconeInput.value = '';
+  if (destaqueInput) destaqueInput.checked = false;
+  renderTypeChips();
   atualizarVisibilidadeCozinha();
+}
+
+function renderEeDestaqueLista(destaquesSelecionados){
+  const cont=document.getElementById('eeDestaqueLista');if(!cont)return;
+  const todos=new Set(listarDestaquesExistentes());(destaquesSelecionados||[]).forEach(c=>todos.add(c));
+  const lista=Array.from(todos).sort((a,b)=>labelParaDestaque(a).localeCompare(labelParaDestaque(b),'pt'));
+  cont.innerHTML=lista.map(c=>`<div class="ee-tipo-row"><input type="checkbox" id="eeDestaque_${c}" value="${c}" ${(destaquesSelecionados||[]).includes(c)?'checked':''}><label for="eeDestaque_${c}">${labelParaDestaque(c)}</label></div>`).join('');
+}
+function adicionarNovoDestaque(){
+  const input=document.getElementById('eeNovoDestaque'), icone=document.getElementById('eeNovoDestaqueIcone');
+  const codigo=normalizarCodigoDestaque(input?.value||'');if(!codigo)return;
+  DESTAQUES_CUSTOM[codigo]=Object.assign({},DESTAQUES_CUSTOM[codigo]||{},(icone?.value||'').trim()?{icone:(icone.value||'').trim()}:{});guardarDestaquesCustom(codigo);
+  renderEeDestaqueLista(Array.from(document.querySelectorAll('#eeDestaqueLista input:checked')).map(x=>x.value).concat(codigo));
+  input.value='';if(icone)icone.value='';renderDestaqueChips();
 }
 
 // Devolve a lista (ordenada, sem repetições) de todos os valores já
@@ -5351,7 +5728,8 @@ function abrirEditorEstabelecimento(id){
     if (!e) return;
     document.getElementById('editorEstabTitulo').textContent = '✎ EDITAR ESTABELECIMENTO';
     document.getElementById('eeNome').value = e.nome || '';
-    renderEeTipoLista((e.tipo || '').split(',').map(t => t.trim()).filter(Boolean));
+    renderEeTipoLista(splitTipos(e.tipo));
+    renderEeDestaqueLista(splitDestaques(e.destaques));
     document.getElementById('eeRegiao').value = e.regiao || '';
     popularCidadesPorRegiao(e.regiao || '', e.cidade || '');
     document.getElementById('eeMorada').value = e.morada || '';
@@ -5369,6 +5747,7 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('editorEstabTitulo').textContent = '➕ ADICIONAR ESTABELECIMENTO';
     document.getElementById('eeNome').value = '';
     renderEeTipoLista(['RESTAURANTE']);
+    renderEeDestaqueLista([]);
     document.getElementById('eeRegiao').value = '';
     popularCidadesPorRegiao('');
     document.getElementById('eeMorada').value = '';
@@ -5392,11 +5771,12 @@ function fecharEditorEstabelecimento(){
   document.getElementById('editorEstabPanel').classList.remove('open');
 }
 
-function guardarEstabelecimento(){
+async function guardarEstabelecimento(){
   const nome = document.getElementById('eeNome').value.trim();
   const cidade = document.getElementById('eeCidade').value.trim();
   const morada = document.getElementById('eeMorada').value.trim();
   const tiposEscolhidos = Array.from(document.querySelectorAll('#eeTipoLista input[type="checkbox"]:checked')).map(el => el.value);
+  const destaquesEscolhidos = Array.from(document.querySelectorAll('#eeDestaqueLista input[type="checkbox"]:checked')).map(el => el.value);
   if (!nome || !cidade || !morada) {
     alert('Preenche pelo menos o nome, a cidade e a morada.');
     return;
@@ -5412,6 +5792,7 @@ function guardarEstabelecimento(){
     regiao: document.getElementById('eeRegiao').value,
     cidade,
     tipo: tiposEscolhidos.join(','),
+    destaques: destaquesEscolhidos.join(','),
     cozinha: tiposEscolhidos.includes('RESTAURANTE') ? document.getElementById('eeCozinha').value : '',
     flagship: document.getElementById('eeFlagship').checked,
     nome,
@@ -5436,12 +5817,16 @@ function guardarEstabelecimento(){
   }
 
   guardarEstabelecimentosNoDispositivo();
-  syncPost('save', { dados });
+  const sincronizado = await syncPost('save', { dados });
+  if (SYNC_URL && !sincronizado) {
+    alert('O estabelecimento foi guardado neste equipamento, mas não foi possível sincronizá-lo com a cloud. Verifica a ligação e tenta novamente.');
+  }
   estabelecimentosRenderizados = false;
   renderEstabelecimentos();
   estabelecimentosRenderizados = true;
   renderRegionMap();
   atualizarCoverCount();
+  atualizarContadoresHotspots();
 
   if (id) {
     // Estava a editar um estabelecimento já existente — fecha o painel normalmente
@@ -5465,19 +5850,23 @@ function mostrarConfirmacaoGuardado(nome){
   window._eeToastTimeout = setTimeout(() => el.classList.remove('show'), 3200);
 }
 
-function eliminarEstabelecimento(){
+async function eliminarEstabelecimento(){
   const id = document.getElementById('eeId').value;
   if (!id) return;
   if (!confirm('Tens a certeza que queres eliminar este estabelecimento?')) return;
   const indice = ESTABELECIMENTOS.findIndex(x => x.id === id);
   if (indice > -1) ESTABELECIMENTOS.splice(indice, 1);
   guardarEstabelecimentosNoDispositivo();
-  syncPost('delete', { id });
+  const sincronizado = await syncPost('delete', { id });
+  if (SYNC_URL && !sincronizado) {
+    alert('O estabelecimento foi apagado neste equipamento, mas não foi possível sincronizar a eliminação com a cloud.');
+  }
   estabelecimentosRenderizados = false;
   renderEstabelecimentos();
   estabelecimentosRenderizados = true;
   renderRegionMap();
   atualizarCoverCount();
+  atualizarContadoresHotspots();
   fecharEditorEstabelecimento();
 }
 
@@ -5493,7 +5882,26 @@ function atualizarCoverCount(){
   }
 }
 
+// Actualiza silenciosamente os estabelecimentos em segundo plano para que
+// vários equipamentos abertos vejam alterações feitas noutro equipamento.
+let _cloudPolling = null;
+function iniciarPollingCloud(){
+  if (_cloudPolling || !SYNC_URL) return;
+  _cloudPolling = setInterval(() => {
+    if (document.visibilityState === 'visible' && !_syncEmCurso) carregarDadosCloud(false);
+  }, 30000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Filtros começam sempre limpos e o painel fechado.
+  aTiposSelecionados.clear();
+  aDestaquesSelecionados.clear();
+  aCoz='ALL';
+  setTimeout(() => {
+    document.querySelectorAll('.tbtn,.dbtn,.cbtn').forEach(b=>b.classList.remove('active'));
+    toggleFilterPanel(false);
+    atualizarEstadoBotaoFiltros();
+  }, 0);
   renderRegionMap();
   atualizarContadoresHotspots();
   atualizarCoverCount();
@@ -5503,10 +5911,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adminResetBtn').style.display = 'block';
   }
   configurarAdminDot();
-  if (SYNC_URL) carregarDadosCloud();
+  if (SYNC_URL) {
+    // Arranque instantâneo: sincronização em segundo plano, sem overlay.
+    setTimeout(() => carregarDadosCloud(false), 50);
+  }
   carregarPinsManuais();
   carregarPinOverrides();
   carregarEscalasRegiao();
+  carregarTipologiasCustomCloud();
+  carregarDestaquesCustomCloud();
 });
 
 /* ── ACESSO DISCRETO ÀS FERRAMENTAS INTERNAS ───────────────────────
@@ -5639,12 +6052,15 @@ function linhaParaEstabelecimento(row, index){
     return '';
   };
   const idDoExcel = get('id', 'pasta_id', 'id_pasta');
+  const chavesDestaques = ['destaques','destaque','highlights','tags'];
+  const temColunaDestaques = Object.keys(row).some(rk => chavesDestaques.includes(rk.trim().toLowerCase()));
   return {
     id: idDoExcel || ('card-' + (index+1)),
     _idExplicito: !!idDoExcel, // true = o Excel trouxe um id de propósito (ex: pasta do Drive)
     regiao: get('regiao').toUpperCase(),
     cidade: get('cidade').toUpperCase(),
     tipo: splitTipos(get('tipo')).join(','),
+    destaques: temColunaDestaques ? splitDestaques(get('destaques','destaque','highlights','tags')).join(',') : undefined,
     cozinha: get('cozinha','culinaria','culinária','tipo_cozinha').toUpperCase(),
     flagship: valorVerdadeiro(get('flagship')),
     nome: get('nome'),
@@ -5743,6 +6159,9 @@ function importarExcel(file){
         const chave = chaveEstabelecimento(n);
         const existente = mapaExistentes.get(chave);
         if(existente){
+          // Se o Excel antigo ainda não tiver a coluna de destaques, não apaga
+          // os destaques já existentes no Road Book.
+          if(n.destaques === undefined) delete n.destaques;
           // Só mantém o ID antigo se o Excel NÃO trouxe um id de propósito
           // (célula vazia na coluna id). Se trouxeres um id explícito (ex:
           // o ID de uma pasta do Drive), esse é o que passa a valer.
@@ -5764,6 +6183,7 @@ function importarExcel(file){
       // Substitui o conteúdo do array (mantendo a mesma referência)
       ESTABELECIMENTOS.length = 0;
       ESTABELECIMENTOS.push(...listaFinal);
+      normalizarCidadesDosEstabelecimentos();
 
       localStorage.setItem('roadbook_estabelecimentos', JSON.stringify(ESTABELECIMENTOS));
       document.getElementById('adminResetBtn').style.display = 'block';
@@ -5817,6 +6237,7 @@ function reporDadosOriginais(){
   localStorage.removeItem('roadbook_estabelecimentos');
   ESTABELECIMENTOS.length = 0;
   ESTABELECIMENTOS.push(...JSON.parse(JSON.stringify(ESTABELECIMENTOS_ORIGINAIS)));
+  normalizarCidadesDosEstabelecimentos();
   document.getElementById('adminResetBtn').style.display = 'none';
   renderEstabelecimentos();
   estabelecimentosRenderizados = true;
@@ -5855,12 +6276,21 @@ function criarPinManual(container, left, top){
   const customs=JSON.parse(localStorage.getItem('roadbook_custom_pins')||'[]');
   const rec={hotspot_id:id,city:cidade,label:nome.trim(),region:container.closest('.map-sec')?.dataset.regionCode||'',left,top,fontSize:11};
   customs.push(rec); localStorage.setItem('roadbook_custom_pins',JSON.stringify(customs));
+  syncPost('save_custom_pin', { dados: rec });
   registarAlteracaoHotspot(h);
   adicionarPinAtivo=false;
   alert('Pin criado. Podes arrastá-lo para acertar a posição e usar “copiar” para guardar a posição definitiva.');
 }
-function carregarPinsManuais(){
+async function carregarPinsManuais(){
   let arr=[]; try{arr=JSON.parse(localStorage.getItem('roadbook_custom_pins')||'[]')}catch(e){}
+  // Junta os pins criados noutros equipamentos (cloud) aos que já
+  // estavam guardados neste, sem duplicar por hotspot_id.
+  const daCloud = await syncGet('list_custom_pins');
+  if (Array.isArray(daCloud)) {
+    const idsLocais = new Set(arr.map(r => r.hotspot_id));
+    daCloud.forEach(r => { if (r && r.hotspot_id && !idsLocais.has(r.hotspot_id)) arr.push(r); });
+    localStorage.setItem('roadbook_custom_pins', JSON.stringify(arr));
+  }
   arr.forEach(r=>{
     const container=document.querySelector(`section.map-sec[data-region-code="${r.region}"] .map-container`);
     if(!container || document.getElementById(r.hotspot_id)) return;
@@ -6108,6 +6538,7 @@ function renderEstabelecimentos(){
   const cityOrder = [];
   const byCity = {};
   ESTABELECIMENTOS.forEach(e => {
+    e.cidade = normalizarCidadeRoadbook(e.cidade);
     if (!byCity[e.cidade]) { byCity[e.cidade] = []; cityOrder.push(e.cidade); }
     byCity[e.cidade].push(e);
   });
@@ -6175,16 +6606,18 @@ function renderEstabelecimentos(){
            </div>`
         : '';
       const foto2html = '';  // fotos geridas pelo slideshow
-      const flBadge = isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : '';
+      const destaquesCard = splitDestaques(e.destaques);
+      const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge">${labelParaDestaque(c)}</span>`).join('');
+      const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
       // QR gerado automaticamente a partir do maps_url — não precisas de preencher o campo qr
       const qrUrl = e.qr || (e.maps_url ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(e.maps_url)}` : '');
       const qrHtml = qrUrl ? `<img class="qr-img" src="${qrUrl}" alt="QR Maps">` : '';
 
-      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
+      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-destaques="${e.destaques||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}</div>
 <div class="cbody">
-${flBadge}
+${badgesHtml}
 <h3 class="c-name">${e.nome}</h3>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
@@ -6272,92 +6705,100 @@ function garantirEstabelecimentosRenderizados(){
 }
 
 
-let aC='ALL', aT='ALL';
-
-// ── TOQUE EM DUAS FASES NOS PINS DO MAPA (espreitar → confirmar) ────
-// Em ecrãs táteis, tocar teria sempre filtrado logo o concelho, o que
-// tornava difícil só espreitar um nome sem escolher esse concelho por
-// engano. Agora: 1º toque num pin novo só mostra o nome (contorno
-// tracejado); tocar OUTRA VEZ no mesmo pin é que confirma e filtra a
-// lista. Tocar noutro pin a meio troca a pré-visualização sem confirmar
-// nada. Num pin já confirmado (ativo), um único toque continua a
-// alternar como antes, para não obrigar a 2 toques para desmarcar.
-let _pinEspreitado = null;
-function tocarHotspotCidade(el, cidade){
-  if (calibrando) return;
-  if (aC === cidade) {
-    selectCity(cidade);
-    return;
-  }
-  if (_pinEspreitado === cidade) {
-    document.querySelectorAll('.city-hotspot.peek').forEach(d => d.classList.remove('peek'));
-    _pinEspreitado = null;
-    selectCity(cidade);
-  } else {
-    document.querySelectorAll('.city-hotspot.peek').forEach(d => d.classList.remove('peek'));
-    el.classList.add('peek');
-    _pinEspreitado = cidade;
-  }
-}
-
-function selectCity(c){
-  if(calibrando) return;
-  _pinEspreitado = null;
-  document.querySelectorAll('.city-hotspot.peek').forEach(d => d.classList.remove('peek'));
-  if(aC===c){clearCity();return;}
-
-  // Vídeo de publicidade da cidade — toca só a 1ª vez que esta cidade é
-  // aberta nesta visita (a página tem de recarregar para tocar de novo).
-  const chaveCidade = normalizarChaveCidade(c);
-  if (!CIDADES_VIDEO_MOSTRADO.has(chaveCidade)) {
-    CIDADES_VIDEO_MOSTRADO.add(chaveCidade);
-    const videoDaCidade = AD_VIDEOS_POR_CIDADE[chaveCidade] || AD_VIDEO_SRC;
-    if (videoDaCidade) {
-      reproduzirVideoAnuncio(videoDaCidade, () => _aplicarSelecaoCidade(c));
-      return;
-    }
-  }
-  _aplicarSelecaoCidade(c);
-}
-
-function _aplicarSelecaoCidade(c){
-  aC=c;
-  document.querySelectorAll('.city-hotspot').forEach(d=>d.classList.toggle('active',d.dataset.city===c));
-  const hotFlagship1 = document.getElementById('hot-FLAGSHIP');
-  if(hotFlagship1) hotFlagship1.classList.remove('active');
-  document.getElementById('cityBar').classList.add('on');
-  document.getElementById('cityBarName').textContent=c;
+// ── FILTRO POR CIDADE / HOTSPOTS ───────────────────────────────────
+function selectCity(city){
+  const cidade = normalizarCidadeRoadbook(city);
+  aC = cidade;
+  garantirEstabelecimentosRenderizados();
   applyFilters();
-  setTimeout(()=>{
-    const h=document.getElementById('c-'+c.replace(/ /g,'-'));
-    if(h){
-      const y=h.getBoundingClientRect().top+window.scrollY-60;
-      window.scrollTo({top:y,behavior:'smooth'});
-    }
-  },120);
+  document.querySelectorAll('.city-hotspot').forEach(h => {
+    h.classList.toggle('active', normalizarCidadeRoadbook(h.dataset.city) === cidade);
+  });
+  setTimeout(() => {
+    const sec = document.getElementById('vSec');
+    if (sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
 }
-
 function clearCity(){
-  aC='ALL';
-  _pinEspreitado = null;
-  document.querySelectorAll('.city-hotspot').forEach(d=>d.classList.remove('active','peek'));
-  const hotFlagship2 = document.getElementById('hot-FLAGSHIP');
-  if(hotFlagship2) hotFlagship2.classList.remove('active');
-  document.getElementById('cityBar').classList.remove('on');
+  aC = 'ALL';
+  document.querySelectorAll('.city-hotspot').forEach(h => h.classList.remove('active'));
   applyFilters();
 }
+function tocarHotspotCidade(hotspot, city){
+  const cidade = normalizarCidadeRoadbook(city || (hotspot && hotspot.dataset.city));
+  if (!cidade) return;
+  if (aC === cidade) clearCity();
+  else selectCity(cidade);
+}
 
-let aCoz = 'ALL';
+let aC='ALL';
+let aTiposSelecionados=new Set();
+let aDestaquesSelecionados=new Set();
+
+// O painel de filtros fica fechado por defeito.
+// Nenhuma opção visual fica seleccionada: Set vazio = sem filtro.
+function toggleFilterPanel(force){
+  const panel=document.getElementById('filterPanel');
+  const toggle=document.getElementById('filterToggle');
+  if(!panel||!toggle)return;
+  const abrir = typeof force==='boolean' ? force : !panel.classList.contains('open');
+  panel.classList.toggle('open',abrir);
+  toggle.classList.toggle('open',abrir);
+  toggle.setAttribute('aria-expanded',abrir?'true':'false');
+  const txt=toggle.querySelector('span[style]');
+  if(txt)txt.textContent=abrir?'Fechar':'Abrir';
+}
+function atualizarEstadoBotaoFiltros(){
+  const toggle=document.getElementById('filterToggle');
+  const countEl=document.getElementById('filterCount');
+  if(!toggle)return;
+  const q=(document.getElementById('q')?.value||'').trim();
+  const total=aTiposSelecionados.size+aDestaquesSelecionados.size+(aCoz!=='ALL'?1:0)+(q?1:0)+(aC!=='ALL'?1:0);
+  toggle.classList.toggle('has-filters',total>0);
+  if(countEl)countEl.textContent=String(total);
+}
+
+// Vários filtros podem ficar ativos ao mesmo tempo.
+// Dentro de cada grupo (Tipologias / Destaques) funciona como OR.
+// Entre grupos funciona como AND.
 function filterType(t){
-  aT=t;
+  if(t==='ALL') aTiposSelecionados.clear();
+  else if(aTiposSelecionados.has(t)) aTiposSelecionados.delete(t);
+  else aTiposSelecionados.add(t);
+
   aCoz='ALL';
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
-  const linhaCozinha = document.getElementById('cuisineRow');
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t!=='ALL' && aTiposSelecionados.has(b.dataset.t)));
+  const linhaCozinha=document.getElementById('cuisineRow');
+  const restauranteAtivo=aTiposSelecionados.has('RESTAURANTE');
   if(linhaCozinha){
-    linhaCozinha.style.display = (t==='RESTAURANTE') ? 'flex' : 'none';
+    linhaCozinha.style.display=restauranteAtivo?'flex':'none';
     linhaCozinha.querySelectorAll('.cbtn').forEach(b=>b.classList.toggle('active',b.dataset.c==='ALL'));
   }
   applyFilters();
+  atualizarEstadoBotaoFiltros();
+}
+function filterDestaque(d){
+  if(d==='ALL') aDestaquesSelecionados.clear();
+  else if(aDestaquesSelecionados.has(d)) aDestaquesSelecionados.delete(d);
+  else aDestaquesSelecionados.add(d);
+  document.querySelectorAll('.dbtn').forEach(b=>b.classList.toggle('active',b.dataset.d!=='ALL' && aDestaquesSelecionados.has(b.dataset.d)));
+  applyFilters();
+  atualizarEstadoBotaoFiltros();
+}
+
+function limparFiltros(){
+  aTiposSelecionados.clear();
+  aDestaquesSelecionados.clear();
+  aC='ALL';
+  document.querySelectorAll('.city-hotspot').forEach(h=>h.classList.remove('active'));
+  aCoz='ALL';
+  document.getElementById('q').value='';
+  renderTypeChips();
+  document.querySelectorAll('.tbtn,.dbtn,.cbtn').forEach(b=>b.classList.remove('active'));
+  const linhaCozinha=document.getElementById('cuisineRow');
+  if(linhaCozinha) linhaCozinha.style.display='none';
+  applyFilters();
+  atualizarEstadoBotaoFiltros();
 }
 
 function filterCozinha(c){
@@ -6366,30 +6807,43 @@ function filterCozinha(c){
   applyFilters();
 }
 
+function cardMatchesTipo(card){
+  if(aTiposSelecionados.size===0) return true;
+  const tipo=(card.dataset.tipo||'').toUpperCase();
+  return Array.from(aTiposSelecionados).some(t=>{
+    if(t==='NIGHTLIFE') return tipo.includes('NIGHTLIFE');
+    return tipo.includes(t);
+  });
+}
+function cardMatchesDestaque(card){
+  if(aDestaquesSelecionados.size===0) return true;
+  const flagship=card.dataset.flagship==='true';
+  const destaques=(card.dataset.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
+  return Array.from(aDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? flagship : destaques.includes(d));
+}
+
 function applyFilters(){
   garantirEstabelecimentosRenderizados();
   document.getElementById('vSec').classList.add('open');
   document.getElementById('vsecPlaceholder').classList.add('hidden');
-  const q=document.getElementById('q').value.toLowerCase();
+  const q=document.getElementById('q').value.toLowerCase().trim();
   const vis=new Set();
   document.querySelectorAll('.card').forEach(card=>{
-    const city=card.dataset.city, tipo=(card.dataset.tipo||'').toUpperCase();
+    const city=normalizarCidadeRoadbook(card.dataset.city||'');
+    const tipo=(card.dataset.tipo||'').toUpperCase();
     const cozinha=(card.dataset.cozinha||'').trim();
-    const flagship=card.dataset.flagship==='true';
+    const destaques=(card.dataset.destaques||'').toUpperCase();
     const name=(card.querySelector('.c-name')?.textContent||'').toLowerCase();
     let ok=true;
-    if(aC!=='ALL'&&city!==aC)ok=false;
-    if(aT!=='ALL'){
-      if(aT==='FLAGSHIP'){if(!flagship)ok=false;}
-      else if(aT==='NIGHTLIFE'){if(!tipo.includes('NIGHTLIFE'))ok=false;}
-      else if(!tipo.includes(aT))ok=false;
-    }
-    if(aT==='RESTAURANTE'&&aCoz!=='ALL'&&cozinha!==aCoz)ok=false;
-    if(q&&!name.includes(q)&&!city.toLowerCase().includes(q)&&!tipo.toLowerCase().includes(q))ok=false;
+    if(aC!=='ALL'&&city!==normalizarCidadeRoadbook(aC))ok=false;
+    if(ok&&!cardMatchesTipo(card))ok=false;
+    if(ok&&aTiposSelecionados.has('RESTAURANTE')&&aCoz!=='ALL'&&cozinha!==aCoz)ok=false;
+    if(ok&&!cardMatchesDestaque(card))ok=false;
+    if(ok&&q&&!name.includes(q)&&!city.toLowerCase().includes(q)&&!tipo.toLowerCase().includes(q)&&!destaques.toLowerCase().includes(q))ok=false;
     card.classList.toggle('hidden',!ok);
     if(ok)vis.add(city);
   });
-  document.querySelectorAll('.ch').forEach(h=>h.classList.toggle('hidden',!vis.has(h.dataset.city)));
+  document.querySelectorAll('.ch').forEach(h=>h.classList.toggle('hidden',!vis.has(normalizarCidadeRoadbook(h.dataset.city))));
   document.querySelectorAll('.grid').forEach(g=>{
     const p=g.previousElementSibling;
     g.style.display=(p&&p.classList.contains('hidden'))?'none':'grid';
@@ -6414,7 +6868,8 @@ function goHome(){
 }
 
 /* ── SEARCH OVERLAY ─────────────────────────────────────────────── */
-let soType='ALL';
+let soTiposSelecionados=new Set();
+let soDestaquesSelecionados=new Set();
 function openSearch(){
   document.getElementById('searchOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('soInput').focus(),350);
@@ -6423,12 +6878,21 @@ function openSearch(){
 function closeSearch(){
   document.getElementById('searchOverlay').classList.remove('open');
   document.getElementById('soInput').value='';
-  soType='ALL';
-  document.querySelectorAll('.so-chip').forEach(c=>c.classList.toggle('active',c.dataset.t==='ALL'));
+  soTiposSelecionados.clear();soDestaquesSelecionados.clear();
+  renderTypeChips();
 }
 function soFilterType(t){
-  soType=t;
-  document.querySelectorAll('.so-chip').forEach(c=>c.classList.toggle('active',c.dataset.t===t));
+  if(t==='ALL') soTiposSelecionados.clear();
+  else if(soTiposSelecionados.has(t)) soTiposSelecionados.delete(t);
+  else soTiposSelecionados.add(t);
+  document.querySelectorAll('#soTypeChips .so-chip').forEach(c=>c.classList.toggle('active',c.dataset.t==='ALL' ? soTiposSelecionados.size===0 : soTiposSelecionados.has(c.dataset.t)));
+  doSearch();
+}
+function soFilterDestaque(d){
+  if(d==='ALL') soDestaquesSelecionados.clear();
+  else if(soDestaquesSelecionados.has(d)) soDestaquesSelecionados.delete(d);
+  else soDestaquesSelecionados.add(d);
+  document.querySelectorAll('#soDestaqueChips .so-chip').forEach(c=>c.classList.toggle('active',c.dataset.d==='ALL' ? soDestaquesSelecionados.size===0 : soDestaquesSelecionados.has(c.dataset.d)));
   doSearch();
 }
 function doSearch(){
@@ -6440,16 +6904,18 @@ function doSearch(){
     const city=card.dataset.city||'';
     const tipo=(card.dataset.tipo||'').toUpperCase();
     const flagship=card.dataset.flagship==='true';
+    const destaques=(card.dataset.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
     const name=(card.querySelector('.c-name')?.textContent||'').toLowerCase();
-    // Type filter
-    if(soType!=='ALL'){
-      if(soType==='FLAGSHIP'&&!flagship) return false;
-      else if(soType==='NIGHTLIFE'&&!tipo.includes('NIGHTLIFE')) return false;
-      else if(soType!=='FLAGSHIP'&&soType!=='NIGHTLIFE'&&!tipo.includes(soType)) return false;
+    if(soTiposSelecionados.size){
+      const tipoMatch=Array.from(soTiposSelecionados).some(t=>t==='NIGHTLIFE' ? tipo.includes('NIGHTLIFE') : tipo.includes(t));
+      if(!tipoMatch)return false;
     }
-    // Text search
+    if(soDestaquesSelecionados.size){
+      const destaqueMatch=Array.from(soDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? flagship : destaques.includes(d));
+      if(!destaqueMatch)return false;
+    }
     if(!q) return true;
-    return name.includes(q)||city.toLowerCase().includes(q)||tipo.toLowerCase().includes(q);
+    return name.includes(q)||city.toLowerCase().includes(q)||tipo.toLowerCase().includes(q)||destaques.join(',').toLowerCase().includes(q);
   });
   if(!matches.length){
     res.innerHTML='<div class="so-empty">Nenhum resultado encontrado</div>';
@@ -6472,6 +6938,7 @@ function doSearch(){
     </div>`;
   }).join('');
 }
+
 function openCardOverlay(cardId){
   const card=document.getElementById(cardId);
   if(!card) return;
@@ -6481,6 +6948,7 @@ function openCardOverlay(cardId){
   const tipo   = card.querySelector('.c-type-txt')?.textContent||'';
   const city   = card.dataset.city||'';
   const flagship = card.dataset.flagship==='true';
+  const destaques = splitDestaques(card.dataset.destaques||'');
   const addr   = card.querySelectorAll('.card-ov-val, .det-val')[0]?.textContent || card.querySelectorAll('[class*="det-val"]')[0]?.textContent||'';
   const park   = card.querySelectorAll('[class*="det-val"]')[1]?.textContent||'';
   const photos = [...card.querySelectorAll('.photo-top img, .photo-bot img, .photo-single img')];
@@ -6509,7 +6977,7 @@ function openCardOverlay(cardId){
   const hoursRaw = card.dataset.horario||'';
   const hoursTxt = hoursRaw;
 
-  const flHtml  = flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':'';
+  const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
   const qrSrc   = qrEl?.src || (mapsUrl && mapsUrl!=='#' ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(mapsUrl)}` : '');
   const qrHtml  = qrSrc?`<img class="card-ov-qr" src="${qrSrc}" alt="QR">`:'';
 
@@ -6519,7 +6987,7 @@ function openCardOverlay(cardId){
   document.getElementById('cardOvBody').innerHTML=`
     ${photosHtml}
     <div class="card-ov-info">
-      ${flHtml}
+      ${badgesOv}
       <div class="card-ov-name">${name}</div>
       <div class="card-ov-typebox"><span class="card-ov-typetxt">${tipo}</span></div><br>
       <div class="card-ov-city">${city}</div>
@@ -6594,12 +7062,12 @@ function goToCity(city){
 }
 function filterFlagshipCity(city){
   selectCity(city);
-  filterType('FLAGSHIP');
+  filterDestaque('FLAGSHIP');
 }
 function filterAllFlagship(){
   // Clear city filter, show all flagships across all cities
   clearCity();
-  filterType('FLAGSHIP');
+  filterDestaque('FLAGSHIP');
   // Highlight the flagship button
   const hotFlagship3 = document.getElementById('hot-FLAGSHIP');
   if(hotFlagship3) hotFlagship3.classList.add('active');
