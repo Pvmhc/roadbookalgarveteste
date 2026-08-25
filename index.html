@@ -138,11 +138,9 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .card{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,box-shadow .3s,border-color .3s;box-shadow:var(--shadow);position:relative}
 .card-edit-btn{display:none;position:absolute;top:10px;right:10px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(4,20,12,.75);border:1px solid var(--gold);color:var(--gold);font-size:14px;align-items:center;justify-content:center;cursor:pointer}
 
-/* ── COMENTÁRIOS POR ESTABELECIMENTO ─────────────────────────────── */
+/* ── FEEDBACK POR ESTABELECIMENTO ─────────────────────────────────── */
 .comment-btn{margin-top:10px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:100px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;color:var(--softwhite);cursor:pointer;transition:.2s}
 .comment-btn:hover{background:rgba(255,255,255,.09);border-color:var(--gold)}
-.comment-count{background:var(--gold);color:#052E1B;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:800;min-width:18px;text-align:center;display:none}
-.comment-count.on{display:inline-block}
 .comment-overlay{position:fixed;inset:0;z-index:700;background:rgba(3,20,12,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
 .comment-overlay.on{display:flex}
 .comment-sheet{width:100%;max-width:520px;max-height:86vh;background:linear-gradient(180deg,#0A3C22,#052E1B);border:1px solid var(--gold);border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:comentSobe .25s ease}
@@ -151,37 +149,21 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .comment-head h3{font-family:'Poppins',sans-serif;font-size:17px;font-weight:800;color:var(--white);margin:0}
 .comment-head p{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:2px 0 0}
 .comment-close{background:none;border:none;color:var(--softwhite);font-size:22px;cursor:pointer;line-height:1;padding:4px}
-.comment-list{flex:1;overflow-y:auto;padding:14px 20px}
-.comment-empty{text-align:center;color:var(--softwhite);opacity:.6;font-size:13px;padding:30px 10px;font-family:'Inter',sans-serif}
-.comment-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:10px}
-.comment-item-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:8px}
-.comment-autor{font-family:'Inter',sans-serif;font-weight:800;font-size:12.5px;color:var(--gold)}
-.comment-data{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--softwhite);opacity:.6;white-space:nowrap}
 .comment-texto{font-family:'Inter',sans-serif;font-size:13.5px;color:var(--white);line-height:1.45;white-space:pre-wrap}
-.comment-form{padding:14px 20px 20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.comment-form{padding:18px 20px 22px;display:flex;flex-direction:column;gap:12px}
 .comment-form input,.comment-form textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--white);font-family:'Inter',sans-serif;font-size:13.5px;resize:none}
 .comment-form textarea{min-height:64px}
 .comment-form input::placeholder,.comment-form textarea::placeholder{color:var(--softwhite);opacity:.5}
 .comment-send-btn{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;border:none;border-radius:100px;padding:9px 20px;font-family:'Inter',sans-serif;font-weight:800;font-size:13px;cursor:pointer}
 .comment-send-btn:disabled{opacity:.5;cursor:default}
-.comment-item.pendente{border-color:rgba(228,185,63,.4);background:rgba(228,185,63,.06)}
-.comment-badge-pendente{background:rgba(228,185,63,.18);color:var(--gold);font-size:10px;font-weight:800;padding:1px 7px;border-radius:100px;letter-spacing:.3px;text-transform:uppercase;vertical-align:middle}
-.comment-admin-actions{display:flex;gap:8px;margin-top:9px}
-.comment-aprovar-btn,.comment-rejeitar-btn{flex:1;border:none;border-radius:100px;padding:7px 10px;font-family:'Inter',sans-serif;font-weight:800;font-size:11.5px;cursor:pointer}
-.comment-aprovar-btn{background:linear-gradient(135deg,var(--green),#0a5c30);color:#fff}
-.comment-rejeitar-btn{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--softwhite)}
 .comment-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(10px);background:var(--gold);color:#052E1B;font-family:'Inter',sans-serif;font-weight:800;font-size:12.5px;padding:11px 20px;border-radius:100px;box-shadow:0 8px 20px rgba(0,0,0,.35);z-index:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;max-width:88vw;text-align:center}
 .comment-toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.comment-stars-input{display:flex;align-items:center;gap:10px;padding:2px 2px}
+.fb-criterios{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:8px 12px}
+.comment-stars-input{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px}
 .csi-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--softwhite);opacity:.75}
 .csi-stars{display:flex;gap:2px}
-.csi-star{background:none;border:none;font-size:24px;line-height:1;padding:2px;cursor:pointer;color:rgba(255,255,255,.25);transition:color .12s ease, transform .12s ease}
+.csi-star{background:none;border:none;font-size:22px;line-height:1;padding:2px;cursor:pointer;color:rgba(255,255,255,.25);transition:color .12s ease, transform .12s ease}
 .csi-star.on{color:var(--gold);transform:scale(1.08)}
-.comment-item-stars{color:var(--gold);font-size:12px;letter-spacing:1px;margin-bottom:3px}
-.comment-item-stars .off{color:rgba(255,255,255,.22)}
-.card-rating{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:var(--gold);margin-left:8px}
-.card-rating .stars{letter-spacing:1px;font-size:12px}
-.card-rating .count{color:var(--softwhite);font-weight:600;opacity:.75}
 body.admin-mode .card-edit-btn{display:flex}
 .card.vis{opacity:1;transform:translateY(0)}
 .card.hidden{display:none!important}
@@ -411,6 +393,8 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 
 /* City hotspot labels (region maps show municipality names under the pin) */
 .city-hotspot.empty{display:none}
+/* Alcoutim manual pin: fica sempre visível até ser calibrado */
+#hot-ALCOUTIM{display:block !important;opacity:1 !important;visibility:visible !important;left:65.5% !important;top:61.8% !important;}
 .map-container.calib-on .city-hotspot.empty{display:block;opacity:.45}
 .map-resize-ctrl{display:none;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;width:fit-content;background:rgba(3,20,12,0.85);border:1px solid var(--gold);border-radius:100px;padding:5px 10px}
 .map-resize-ctrl.on{display:flex}
@@ -607,9 +591,9 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <span class="blbl">Início</span>
   </button>
   <div class="bnav-sep"></div>
-  <button class="bnav-btn" onclick="goToRegion('ALGARVE')">
-    <span class="bico">🗺️</span>
-    <span class="blbl">Regiões</span>
+  <button class="bnav-btn" onclick="openCities()">
+    <span class="bico">▦</span>
+    <span class="blbl">Cidades</span>
   </button>
   <div class="bnav-sep"></div>
   <button class="bnav-btn" onclick="openSearch()">
@@ -656,6 +640,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 <div class="admin-menu" id="adminMenu">
   <button onclick="fecharAdminMenu(); document.getElementById('excelFileInput').click()">📥 Importar Excel</button>
   <button onclick="fecharAdminMenu(); toggleCalibracao()">🎯 Calibrar mapa</button>
+  <button onclick="fecharAdminMenu(); iniciarAdicionarPin()">📍 Adicionar pin</button>
   <button onclick="fecharAdminMenu(); openEditorCapa()">🎨 Editar Capa e Mapas</button>
   <button onclick="fecharAdminMenu(); openEditorVideo()">🎬 Vídeo de Publicidade</button>
   <button onclick="fecharAdminMenu(); openEditorSync()">☁️ Sincronização Cloud</button>
@@ -844,8 +829,8 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   </div>
   <div class="admin-body">
     <div class="ed-section">
-      <div class="ed-section-title">📍 Para qual região é este vídeo?</div>
-      <p class="ed-hint">Escolhe "Vídeo padrão" para o vídeo geral (usado em qualquer região sem vídeo próprio), ou escolhe uma região específica para lhe dares um vídeo diferente.</p>
+      <div class="ed-section-title">📍 Para qual cidade é este vídeo?</div>
+      <p class="ed-hint">Escolhe "Vídeo padrão" para o vídeo geral (usado em qualquer cidade sem vídeo próprio), ou escolhe uma cidade específica para lhe dares um vídeo diferente. O vídeo toca só a primeira vez que se toca em cada cidade em cada visita ao Road Book.</p>
       <select class="admin-input" id="edVideoRegiaoSelect"></select>
     </div>
 
@@ -854,7 +839,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
       <p class="ed-hint">Cola aqui um link do YouTube (vídeo "Não listado") — é a opção mais simples e fiável. Também aceita um link direto de vídeo alojado no OneDrive/SharePoint, Google Drive, etc. Mantém o ficheiro do Road Book leve — o vídeo carrega da internet na hora. Precisa de ligação à internet para ver o vídeo.</p>
       <p class="ed-hint">💡 Link do OneDrive? Podes colar o link de partilha normal (1drv.ms ou onedrive.live.com) — a app converte-o automaticamente no formato direto. Para outros sítios (Google Drive, SharePoint), tem de ser mesmo o link "direto" para o ficheiro de vídeo, não a página de pré-visualização.</p>
       <input type="text" class="admin-input" id="edVideoUrlInput" placeholder="https://.../video.mp4">
-      <button class="admin-fetch-btn" style="width:100%;margin-top:10px" onclick="usarLinkVideoPublicidade()">Usar este link (para a região escolhida acima)</button>
+      <button class="admin-fetch-btn" style="width:100%;margin-top:10px" onclick="usarLinkVideoPublicidade()">Usar este link (para a cidade escolhida acima)</button>
     </div>
 
     <div class="ed-section">
@@ -866,15 +851,15 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 
     <div class="ed-section">
       <div class="ed-field" id="edVideoPreviewWrap" style="margin-top:0;display:none">
-        <label class="ed-label">Pré-visualização (da região escolhida acima)</label>
+        <label class="ed-label">Pré-visualização (da cidade escolhida acima)</label>
         <video id="edVideoPreview" controls muted style="width:100%;border-radius:10px;background:#000"></video>
         <iframe id="edVideoPreviewYoutube" style="display:none;width:100%;aspect-ratio:16/9;border:none;border-radius:10px;background:#000" allow="autoplay"></iframe>
       </div>
-      <button class="ed-icon-remove" style="margin-top:8px" onclick="removerVideoPublicidade()">Remover vídeo desta região</button>
+      <button class="ed-icon-remove" style="margin-top:8px" onclick="removerVideoPublicidade()">Remover vídeo desta cidade</button>
     </div>
 
     <div class="ed-section">
-      <div class="ed-section-title">📋 Regiões com vídeo próprio</div>
+      <div class="ed-section-title">📋 Cidades com vídeo próprio</div>
       <div id="edVideosRegiaoLista"></div>
     </div>
   </div>
@@ -929,26 +914,57 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   <div class="comment-sheet">
     <div class="comment-head">
       <div>
-        <h3 id="commentTitulo">Comentários</h3>
+        <h3 id="commentTitulo">Feedback</h3>
         <p id="commentSubtitulo"></p>
       </div>
       <button class="comment-close" onclick="fecharComentarios()">✕</button>
     </div>
-    <div class="comment-list" id="commentList"></div>
     <div class="comment-form">
       <input type="text" id="commentAutor" placeholder="O teu nome" autocomplete="off">
-      <div class="comment-stars-input" id="commentStarsInput">
-        <span class="csi-label">Avaliação</span>
-        <span class="csi-stars" id="csiStars">
-          <button type="button" class="csi-star" data-v="1" onclick="definirNotaComentario(1)">★</button>
-          <button type="button" class="csi-star" data-v="2" onclick="definirNotaComentario(2)">★</button>
-          <button type="button" class="csi-star" data-v="3" onclick="definirNotaComentario(3)">★</button>
-          <button type="button" class="csi-star" data-v="4" onclick="definirNotaComentario(4)">★</button>
-          <button type="button" class="csi-star" data-v="5" onclick="definirNotaComentario(5)">★</button>
-        </span>
+      <div class="fb-criterios">
+        <div class="comment-stars-input">
+          <span class="csi-label">Cerveja fresca</span>
+          <span class="csi-stars" data-criterio-stars="fresca">
+            <button type="button" class="csi-star" data-v="1" onclick="definirNotaComentario('fresca',1)">★</button>
+            <button type="button" class="csi-star" data-v="2" onclick="definirNotaComentario('fresca',2)">★</button>
+            <button type="button" class="csi-star" data-v="3" onclick="definirNotaComentario('fresca',3)">★</button>
+            <button type="button" class="csi-star" data-v="4" onclick="definirNotaComentario('fresca',4)">★</button>
+            <button type="button" class="csi-star" data-v="5" onclick="definirNotaComentario('fresca',5)">★</button>
+          </span>
+        </div>
+        <div class="comment-stars-input">
+          <span class="csi-label">Aroma</span>
+          <span class="csi-stars" data-criterio-stars="aroma">
+            <button type="button" class="csi-star" data-v="1" onclick="definirNotaComentario('aroma',1)">★</button>
+            <button type="button" class="csi-star" data-v="2" onclick="definirNotaComentario('aroma',2)">★</button>
+            <button type="button" class="csi-star" data-v="3" onclick="definirNotaComentario('aroma',3)">★</button>
+            <button type="button" class="csi-star" data-v="4" onclick="definirNotaComentario('aroma',4)">★</button>
+            <button type="button" class="csi-star" data-v="5" onclick="definirNotaComentario('aroma',5)">★</button>
+          </span>
+        </div>
+        <div class="comment-stars-input">
+          <span class="csi-label">Com espuma</span>
+          <span class="csi-stars" data-criterio-stars="espuma">
+            <button type="button" class="csi-star" data-v="1" onclick="definirNotaComentario('espuma',1)">★</button>
+            <button type="button" class="csi-star" data-v="2" onclick="definirNotaComentario('espuma',2)">★</button>
+            <button type="button" class="csi-star" data-v="3" onclick="definirNotaComentario('espuma',3)">★</button>
+            <button type="button" class="csi-star" data-v="4" onclick="definirNotaComentario('espuma',4)">★</button>
+            <button type="button" class="csi-star" data-v="5" onclick="definirNotaComentario('espuma',5)">★</button>
+          </span>
+        </div>
+        <div class="comment-stars-input">
+          <span class="csi-label">Copo certo</span>
+          <span class="csi-stars" data-criterio-stars="copo">
+            <button type="button" class="csi-star" data-v="1" onclick="definirNotaComentario('copo',1)">★</button>
+            <button type="button" class="csi-star" data-v="2" onclick="definirNotaComentario('copo',2)">★</button>
+            <button type="button" class="csi-star" data-v="3" onclick="definirNotaComentario('copo',3)">★</button>
+            <button type="button" class="csi-star" data-v="4" onclick="definirNotaComentario('copo',4)">★</button>
+            <button type="button" class="csi-star" data-v="5" onclick="definirNotaComentario('copo',5)">★</button>
+          </span>
+        </div>
       </div>
-      <textarea id="commentTexto" placeholder="Escreve um comentário sobre este estabelecimento…" maxlength="600"></textarea>
-      <button class="comment-send-btn" id="commentSendBtn" onclick="enviarComentario()">Publicar</button>
+      <textarea id="commentTexto" placeholder="Escreve um comentário (opcional)…" maxlength="600"></textarea>
+      <button class="comment-send-btn" id="commentSendBtn" onclick="enviarComentario()">Enviar</button>
     </div>
   </div>
 </div>
@@ -3743,12 +3759,7 @@ function goToRegion(code){
     alert('Esta região ainda não tem mapa disponível.');
     return;
   }
-  const videoDaRegiao = AD_VIDEOS_POR_REGIAO[code] || AD_VIDEO_SRC;
-  if (videoDaRegiao) {
-    reproduzirVideoAnuncio(videoDaRegiao, () => irParaMapaRegiao(sec));
-  } else {
-    irParaMapaRegiao(sec);
-  }
+  irParaMapaRegiao(sec);
 }
 
 function irParaMapaRegiao(sec){
@@ -3856,8 +3867,8 @@ document.getElementById('adVideoEl').addEventListener('ended', () => {
 });
 
 function edVideoSrcAtual(){
-  const codigo = document.getElementById('edVideoRegiaoSelect').value;
-  return codigo ? (AD_VIDEOS_POR_REGIAO[codigo] || '') : AD_VIDEO_SRC;
+  const chave = document.getElementById('edVideoRegiaoSelect').value;
+  return chave ? (AD_VIDEOS_POR_CIDADE[chave] || '') : AD_VIDEO_SRC;
 }
 
 function atualizarPreviewVideo(){
@@ -3892,41 +3903,44 @@ function atualizarPreviewVideo(){
 
 function renderListaVideosPorRegiao(){
   const cont = document.getElementById('edVideosRegiaoLista');
-  const codigos = Object.keys(AD_VIDEOS_POR_REGIAO).filter(c => AD_VIDEOS_POR_REGIAO[c]);
-  if (codigos.length === 0) {
-    cont.innerHTML = '<p class="ed-hint">Nenhuma região tem vídeo próprio configurado — todas usam o vídeo padrão (se existir).</p>';
+  const chaves = Object.keys(AD_VIDEOS_POR_CIDADE).filter(c => AD_VIDEOS_POR_CIDADE[c]);
+  if (chaves.length === 0) {
+    cont.innerHTML = '<p class="ed-hint">Nenhuma cidade tem vídeo próprio configurado — todas usam o vídeo padrão (se existir).</p>';
     return;
   }
-  cont.innerHTML = codigos.map(codigo => {
-    const nome = NOMES_REGIOES_EDITOR[codigo] || codigo;
+  const nomes = new Map(listarCidadesParaVideo().map(c => [c.chave, c.nome]));
+  cont.innerHTML = chaves.map(chave => {
+    const nome = nomes.get(chave) || chave;
     return `<div class="ee-tipo-row" style="justify-content:space-between;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px">
       <label>📍 ${nome}</label>
-      <button class="ed-icon-remove" onclick="removerVideoDeRegiao('${codigo}')">Remover</button>
+      <button class="ed-icon-remove" onclick="removerVideoDeRegiao('${chave}')">Remover</button>
     </div>`;
   }).join('');
 }
 
-function removerVideoDeRegiao(codigo){
+function removerVideoDeRegiao(chave){
   marcarAlteracoesPorExportar();
-  delete AD_VIDEOS_POR_REGIAO[codigo];
+  delete AD_VIDEOS_POR_CIDADE[chave];
   guardarVideosNoDispositivo();
-  if (document.getElementById('edVideoRegiaoSelect').value === codigo) atualizarPreviewVideo();
+  if (document.getElementById('edVideoRegiaoSelect').value === chave) atualizarPreviewVideo();
   renderListaVideosPorRegiao();
 }
 
 function openEditorVideo(){
   const sel = document.getElementById('edVideoRegiaoSelect');
-  if (sel.options.length === 0) {
-    const optPadrao = document.createElement('option');
-    optPadrao.value = '';
-    optPadrao.textContent = '— Vídeo padrão (todas as regiões sem vídeo próprio) —';
-    sel.appendChild(optPadrao);
-    Object.keys(NOMES_REGIOES_EDITOR).forEach(codigo => {
-      const opt = document.createElement('option');
-      opt.value = codigo;
-      opt.textContent = NOMES_REGIOES_EDITOR[codigo];
-      sel.appendChild(opt);
-    });
+  sel.innerHTML = '';
+  const optPadrao = document.createElement('option');
+  optPadrao.value = '';
+  optPadrao.textContent = '— Vídeo padrão (todas as cidades sem vídeo próprio) —';
+  sel.appendChild(optPadrao);
+  listarCidadesParaVideo().forEach(({chave, nome}) => {
+    const opt = document.createElement('option');
+    opt.value = chave;
+    opt.textContent = nome;
+    sel.appendChild(opt);
+  });
+  if (!sel.dataset.ligado) {
+    sel.dataset.ligado = '1';
     sel.addEventListener('change', () => {
       const urlInput = document.getElementById('edVideoUrlInput');
       const src = edVideoSrcAtual();
@@ -3974,11 +3988,11 @@ function usarLinkVideoPublicidade(){
   if (url !== linkOriginal) {
     document.getElementById('edVideoUrlInput').value = url;
   }
-  const codigo = document.getElementById('edVideoRegiaoSelect').value;
-  if (codigo) AD_VIDEOS_POR_REGIAO[codigo] = url;
+  const chave = document.getElementById('edVideoRegiaoSelect').value;
+  if (chave) AD_VIDEOS_POR_CIDADE[chave] = url;
   else AD_VIDEO_SRC = url;
   guardarVideosNoDispositivo();
-  syncPost('save_video', { regiao: codigo, url });
+  syncPost('save_video', { regiao: chave, url });
   atualizarPreviewVideo();
   renderListaVideosPorRegiao();
 }
@@ -3986,8 +4000,8 @@ function usarLinkVideoPublicidade(){
 function substituirVideoPublicidade(file){
   if (!SYNC_URL) marcarAlteracoesPorExportar();
   lerImagemComoDataURL(file, dataUrl => {
-    const codigo = document.getElementById('edVideoRegiaoSelect').value;
-    if (codigo) AD_VIDEOS_POR_REGIAO[codigo] = dataUrl;
+    const chave = document.getElementById('edVideoRegiaoSelect').value;
+    if (chave) AD_VIDEOS_POR_CIDADE[chave] = dataUrl;
     else AD_VIDEO_SRC = dataUrl;
     document.getElementById('edVideoUrlInput').value = '';
     guardarVideosNoDispositivo();
@@ -3999,7 +4013,7 @@ function substituirVideoPublicidade(file){
         alert('Este vídeo é grande demais para sincronizar automaticamente entre telemóveis (limite da Google Sheet). Vai ficar só neste aparelho. Para sincronizar em todos os telemóveis, usa a opção de link (YouTube ou vídeo alojado) em vez de carregar o ficheiro.');
         marcarAlteracoesPorExportar();
       } else {
-        syncPost('save_video', { regiao: codigo, url: dataUrl });
+        syncPost('save_video', { regiao: chave, url: dataUrl });
       }
     }
     atualizarPreviewVideo();
@@ -4009,13 +4023,13 @@ function substituirVideoPublicidade(file){
 
 function removerVideoPublicidade(){
   if (!SYNC_URL) marcarAlteracoesPorExportar();
-  const codigo = document.getElementById('edVideoRegiaoSelect').value;
-  if (codigo) delete AD_VIDEOS_POR_REGIAO[codigo];
+  const chave = document.getElementById('edVideoRegiaoSelect').value;
+  if (chave) delete AD_VIDEOS_POR_CIDADE[chave];
   else AD_VIDEO_SRC = '';
   document.getElementById('edVideoInput').value = '';
   document.getElementById('edVideoUrlInput').value = '';
   guardarVideosNoDispositivo();
-  syncPost('delete_video', { regiao: codigo });
+  syncPost('delete_video', { regiao: chave });
   atualizarPreviewVideo();
   renderListaVideosPorRegiao();
 }
@@ -4208,7 +4222,14 @@ function atualizarContadoresHotspots(){
     const dot = h.querySelector('.dot');
     const n = contagem[city] || 0;
     if (dot) dot.textContent = n;
-    h.classList.toggle('empty', n === 0);
+    // Alcoutim foi adicionado manualmente ao mapa e deve permanecer visível
+    // mesmo quando os dados locais/importados ainda não estiverem sincronizados.
+    if (h.id === 'hot-ALCOUTIM') {
+      h.classList.remove('empty');
+      if (dot && n === 0) dot.textContent = 3;
+    } else {
+      h.classList.toggle('empty', n === 0);
+    }
   });
   const secAberta = document.querySelector('.map-sec.open');
   if (secAberta) resolverColisoesLabels(secAberta);
@@ -4237,7 +4258,18 @@ function atualizarContadoresHotspots(){
 const TIPOS_ICONES_CAPA = ['galo','bridge','castle','castle2','box','tram','house'];
 
 let AD_VIDEO_SRC = /*__ADVIDEO_START__*/''/*__ADVIDEO_END__*/;
-let AD_VIDEOS_POR_REGIAO = /*__ADVIDEOSREGIAO_START__*/{}/*__ADVIDEOSREGIAO_END__*/;
+let AD_VIDEOS_POR_CIDADE = /*__ADVIDEOSCIDADE_START__*/{}/*__ADVIDEOSCIDADE_END__*/;
+
+// Chave normalizada (maiúsculas, sem acentos, sem espaços extra) usada para
+// indexar AD_VIDEOS_POR_CIDADE — assim "Portimão" e "PORTIMAO" apontam para
+// o mesmo vídeo, independentemente de como o nome vem escrito.
+function normalizarChaveCidade(s){
+  return (s || '')
+    .toString()
+    .trim()
+    .toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
 
 /* ── Se existirem vídeos de publicidade guardados neste dispositivo,
    substituem os vídeos de fábrica acima (mesmo padrão dos estabelecimentos) ── */
@@ -4245,10 +4277,10 @@ let AD_VIDEOS_POR_REGIAO = /*__ADVIDEOSREGIAO_START__*/{}/*__ADVIDEOSREGIAO_END_
   try{
     const vGuardado = localStorage.getItem('roadbook_ad_video_src');
     if (vGuardado !== null) AD_VIDEO_SRC = vGuardado;
-    const vrGuardado = localStorage.getItem('roadbook_ad_videos_regiao');
-    if (vrGuardado){
-      const dados = JSON.parse(vrGuardado);
-      if (dados && typeof dados === 'object') AD_VIDEOS_POR_REGIAO = dados;
+    const vcGuardado = localStorage.getItem('roadbook_ad_videos_cidade') || localStorage.getItem('roadbook_ad_videos_regiao');
+    if (vcGuardado){
+      const dados = JSON.parse(vcGuardado);
+      if (dados && typeof dados === 'object') AD_VIDEOS_POR_CIDADE = dados;
     }
   }catch(err){ console.warn('Não foi possível carregar vídeos guardados:', err); }
 })();
@@ -4256,9 +4288,13 @@ let AD_VIDEOS_POR_REGIAO = /*__ADVIDEOSREGIAO_START__*/{}/*__ADVIDEOSREGIAO_END_
 function guardarVideosNoDispositivo(){
   try{
     localStorage.setItem('roadbook_ad_video_src', AD_VIDEO_SRC || '');
-    localStorage.setItem('roadbook_ad_videos_regiao', JSON.stringify(AD_VIDEOS_POR_REGIAO));
+    localStorage.setItem('roadbook_ad_videos_cidade', JSON.stringify(AD_VIDEOS_POR_CIDADE));
   }catch(err){ console.warn('Não foi possível guardar vídeos neste dispositivo:', err); }
 }
+
+// Cidades já "apresentadas" (vídeo já tocado) nesta visita — reinicia
+// sempre que a página é recarregada.
+const CIDADES_VIDEO_MOSTRADO = new Set();
 
 const COVER_MAP_ICONS = /*__ICONS_START__*/[
   { tipo: 'galo',    x: 300, y: 155,  escala: 2 },
@@ -4615,59 +4651,33 @@ async function carregarEscalasRegiao(){
   });
 }
 
-/* ── COMENTÁRIOS POR ESTABELECIMENTO ─────────────────────────────────
-   Qualquer pessoa da equipa pode deixar uma nota/comentário num PDV
-   específico (ex: "falei com o gerente, mostrou interesse na Sagres").
-   Fica gravado na cloud (nova folha "Comentarios") e visível para
-   todos os equipamentos, tal como os pins e a escala dos mapas. ──── */
-let COMENTARIOS = {}; // { estabelecimento_id: [ {id, autor, texto, data, nota}, ... ] }
+/* ── FEEDBACK POR ESTABELECIMENTO ─────────────────────────────────────
+   Qualquer pessoa da equipa pode enviar feedback sobre um PDV,
+   avaliando 4 critérios (cerveja fresca, aroma, com espuma, copo certo)
+   de 0 a 5 estrelas, mais um comentário opcional. Não fica publicado
+   no site — é enviado diretamente por email para o Vitor, através do
+   Apps Script (ação "enviar_feedback"). ──────────────────────────── */
+const CRITERIOS_FEEDBACK = [
+  { chave: 'fresca', label: 'Cerveja fresca' },
+  { chave: 'aroma',  label: 'Aroma' },
+  { chave: 'espuma', label: 'Com espuma' },
+  { chave: 'copo',   label: 'Copo certo' }
+];
 let _comentarioAlvoId = null;
-let _notaSelecionada = 0;
+let _comentarioAlvoNome = '';
+let _comentarioAlvoCidade = '';
+let _notasSelecionadas = { fresca: 0, aroma: 0, espuma: 0, copo: 0 };
 
-async function carregarComentarios(){
-  let dados = {};
-  try{
-    const local = localStorage.getItem('roadbook_comentarios');
-    if (local) dados = JSON.parse(local);
-  }catch(err){}
-  if (SYNC_URL) {
-    const daCloud = await syncGet('list_comentarios');
-    if (daCloud && typeof daCloud === 'object') {
-      dados = daCloud;
-      localStorage.setItem('roadbook_comentarios', JSON.stringify(dados));
-    }
-  }
-  COMENTARIOS = dados || {};
-  atualizarTodosContadoresComentarios();
-}
-
-function atualizarTodosContadoresComentarios(){
-  Object.keys(COMENTARIOS).forEach(id => {
-    atualizarContadorComentarios(id);
-    atualizarClassificacaoCartao(id);
-  });
-}
-
-function atualizarContadorComentarios(estabelecimentoId){
-  const todos = COMENTARIOS[estabelecimentoId] || [];
-  const isAdmin = document.body.classList.contains('admin-mode');
-  const n = isAdmin ? todos.length : todos.filter(c => c.aprovado).length;
-  const el = document.getElementById('commentCount-' + estabelecimentoId);
-  if (!el) return;
-  el.textContent = n;
-  el.classList.toggle('on', n > 0);
-}
-
-function abrirComentarios(estabelecimentoId, nomeEstabelecimento){
+function abrirComentarios(estabelecimentoId, nomeEstabelecimento, cidade){
   _comentarioAlvoId = estabelecimentoId;
-  document.getElementById('commentTitulo').textContent = '💬 Comentários';
-  document.getElementById('commentSubtitulo').textContent = nomeEstabelecimento || '';
+  _comentarioAlvoNome = nomeEstabelecimento || '';
+  _comentarioAlvoCidade = cidade || '';
+  document.getElementById('commentTitulo').textContent = '📝 Feedback';
+  document.getElementById('commentSubtitulo').textContent = [nomeEstabelecimento, cidade].filter(Boolean).join(' · ');
   const autorGuardado = localStorage.getItem('roadbook_comentario_autor') || '';
   document.getElementById('commentAutor').value = autorGuardado;
   document.getElementById('commentTexto').value = '';
-  _notaSelecionada = 0;
-  definirNotaComentario(0);
-  renderListaComentarios();
+  CRITERIOS_FEEDBACK.forEach(c => definirNotaComentario(c.chave, 0));
   document.getElementById('commentOverlay').classList.add('on');
 }
 
@@ -4676,152 +4686,53 @@ function fecharComentarios(){
   _comentarioAlvoId = null;
 }
 
-function definirNotaComentario(v){
-  _notaSelecionada = v;
-  document.querySelectorAll('#csiStars .csi-star').forEach(btn => {
+function definirNotaComentario(criterio, v){
+  _notasSelecionadas[criterio] = v;
+  document.querySelectorAll('.csi-stars[data-criterio-stars="' + criterio + '"] .csi-star').forEach(btn => {
     btn.classList.toggle('on', Number(btn.dataset.v) <= v);
   });
-}
-
-function estrelasHtml(nota){
-  if (!nota) return '';
-  let s = '';
-  for (let i = 1; i <= 5; i++) s += i <= nota ? '★' : '<span class="off">★</span>';
-  return `<div class="comment-item-stars">${s}</div>`;
-}
-
-function calcularMediaEstabelecimento(estabelecimentoId){
-  const lista = (COMENTARIOS[estabelecimentoId] || []).filter(c => c.aprovado && Number(c.nota) > 0);
-  if (!lista.length) return null;
-  const soma = lista.reduce((acc, c) => acc + Number(c.nota), 0);
-  return { media: soma / lista.length, total: lista.length };
-}
-
-function estrelasMediaHtml(media){
-  let s = '';
-  const arredondada = Math.round(media * 2) / 2; // permite meias-estrelas
-  for (let i = 1; i <= 5; i++) {
-    if (arredondada >= i) s += '★';
-    else if (arredondada >= i - 0.5) s += '⯨';
-    else s += '<span class="off" style="color:rgba(255,255,255,.22)">★</span>';
-  }
-  return s;
-}
-
-function atualizarClassificacaoCartao(estabelecimentoId){
-  const el = document.getElementById('cardRating-' + estabelecimentoId);
-  if (!el) return;
-  const info = calcularMediaEstabelecimento(estabelecimentoId);
-  if (!info) { el.innerHTML = ''; return; }
-  el.innerHTML = `<span class="stars">${estrelasMediaHtml(info.media)}</span>${info.media.toFixed(1)} <span class="count">(${info.total})</span>`;
-}
-
-function renderListaComentarios(){
-  const isAdmin = document.body.classList.contains('admin-mode');
-  const todos = COMENTARIOS[_comentarioAlvoId] || [];
-  const lista = isAdmin ? todos : todos.filter(c => c.aprovado);
-  const cont = document.getElementById('commentList');
-  if (!lista.length) {
-    cont.innerHTML = isAdmin
-      ? '<p class="comment-empty">Ainda não há comentários.</p>'
-      : '<p class="comment-empty">Ainda não há comentários aprovados. Sê o primeiro a escrever um.</p>';
-    return;
-  }
-  const ordenada = [...lista].sort((a, b) => (b.data || '').localeCompare(a.data || ''));
-  cont.innerHTML = ordenada.map(c => `
-    <div class="comment-item${c.aprovado ? '' : ' pendente'}">
-      <div class="comment-item-head">
-        <span class="comment-autor">${escaparHtml(c.autor || 'Anónimo')}${c.aprovado ? '' : ' <span class="comment-badge-pendente">⏳ pendente</span>'}</span>
-        <span class="comment-data">${formatarDataComentario(c.data)}</span>
-      </div>
-      ${estrelasHtml(Number(c.nota))}
-      <div class="comment-texto">${escaparHtml(c.texto || '')}</div>
-      ${(isAdmin && !c.aprovado) ? `
-        <div class="comment-admin-actions">
-          <button class="comment-aprovar-btn" onclick="aprovarComentario('${c.id}')">✓ Aprovar</button>
-          <button class="comment-rejeitar-btn" onclick="rejeitarComentario('${c.id}')">✕ Rejeitar</button>
-        </div>` : ''}
-    </div>
-  `).join('');
-}
-
-function escaparHtml(s){
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-function formatarDataComentario(iso){
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d)) return '';
-  const hoje = new Date();
-  const mesmodia = d.toDateString() === hoje.toDateString();
-  const hora = d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
-  if (mesmodia) return 'Hoje, ' + hora;
-  return d.toLocaleDateString('pt-PT', {day:'2-digit', month:'2-digit', year:'2-digit'}) + ' · ' + hora;
 }
 
 function enviarComentario(){
   const autor = document.getElementById('commentAutor').value.trim();
   const texto = document.getElementById('commentTexto').value.trim();
-  if (!autor || !texto) {
-    alert('Escreve o teu nome e o comentário antes de publicar.');
+  const notas = { ..._notasSelecionadas };
+  const temAvaliacao = CRITERIOS_FEEDBACK.some(c => Number(notas[c.chave]) > 0);
+  if (!autor || !temAvaliacao) {
+    alert('Escreve o teu nome e avalia pelo menos um critério antes de enviar.');
     return;
   }
   if (!_comentarioAlvoId) return;
+  if (!SYNC_URL) {
+    alert('Sincronização não configurada — não é possível enviar o feedback por email.');
+    return;
+  }
 
   const btn = document.getElementById('commentSendBtn');
   btn.disabled = true;
 
-  const comentario = {
-    id: 'com-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+  const dados = {
+    id: 'fb-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
     estabelecimento_id: _comentarioAlvoId,
+    estabelecimento_nome: _comentarioAlvoNome,
+    cidade: _comentarioAlvoCidade,
     autor,
     texto,
-    nota: _notaSelecionada || '',
     data: new Date().toISOString(),
-    aprovado: false
+    fresca: notas.fresca || '',
+    aroma: notas.aroma || '',
+    espuma: notas.espuma || '',
+    copo: notas.copo || ''
   };
 
   localStorage.setItem('roadbook_comentario_autor', autor);
-  if (!COMENTARIOS[_comentarioAlvoId]) COMENTARIOS[_comentarioAlvoId] = [];
-  COMENTARIOS[_comentarioAlvoId].push(comentario);
-  localStorage.setItem('roadbook_comentarios', JSON.stringify(COMENTARIOS));
+  syncPost('enviar_feedback', { dados }).catch(() => {});
 
-  renderListaComentarios();
-  atualizarContadorComentarios(_comentarioAlvoId);
+  mostrarToastComentario('✓ Feedback enviado por email.');
   document.getElementById('commentTexto').value = '';
-  definirNotaComentario(0);
+  CRITERIOS_FEEDBACK.forEach(c => definirNotaComentario(c.chave, 0));
   btn.disabled = false;
-  mostrarToastComentario('✓ Comentário enviado — fica visível assim que for aprovado.');
-
-  if (SYNC_URL) {
-    syncPost('save_comentario', { dados: comentario }).catch(() => {});
-  }
-}
-
-function aprovarComentario(id){
-  const lista = COMENTARIOS[_comentarioAlvoId] || [];
-  const c = lista.find(x => x.id === id);
-  if (!c) return;
-  c.aprovado = true;
-  localStorage.setItem('roadbook_comentarios', JSON.stringify(COMENTARIOS));
-  renderListaComentarios();
-  atualizarContadorComentarios(_comentarioAlvoId);
-  atualizarClassificacaoCartao(_comentarioAlvoId);
-  if (SYNC_URL) syncPost('aprovar_comentario', { id }).catch(() => {});
-}
-
-function rejeitarComentario(id){
-  if (!confirm('Eliminar este comentário? Não pode ser desfeito.')) return;
-  const lista = COMENTARIOS[_comentarioAlvoId] || [];
-  COMENTARIOS[_comentarioAlvoId] = lista.filter(x => x.id !== id);
-  localStorage.setItem('roadbook_comentarios', JSON.stringify(COMENTARIOS));
-  renderListaComentarios();
-  atualizarContadorComentarios(_comentarioAlvoId);
-  atualizarClassificacaoCartao(_comentarioAlvoId);
-  if (SYNC_URL) syncPost('delete_comentario', { id }).catch(() => {});
+  fecharComentarios();
 }
 
 function mostrarToastComentario(texto){
@@ -5152,10 +5063,10 @@ async function carregarDadosCloud(manual){
   }
 
   if (videos && typeof videos === 'object') {
-    AD_VIDEOS_POR_REGIAO = {};
+    AD_VIDEOS_POR_CIDADE = {};
     Object.keys(videos).forEach(codigo => {
       if (codigo === '_padrao') AD_VIDEO_SRC = videos[codigo];
-      else AD_VIDEOS_POR_REGIAO[codigo] = videos[codigo];
+      else AD_VIDEOS_POR_CIDADE[codigo] = videos[codigo];
     });
     guardarVideosNoDispositivo();
   }
@@ -5229,7 +5140,7 @@ function exportarHTML(){
   html = bakeArrayIntoHtml(html, '/*__ESTAB_START__*/', '/*__ESTAB_END__*/', ESTABELECIMENTOS);
   html = bakeArrayIntoHtml(html, '/*__ICONS_START__*/', '/*__ICONS_END__*/', COVER_MAP_ICONS);
   html = bakeArrayIntoHtml(html, '/*__ADVIDEO_START__*/', '/*__ADVIDEO_END__*/', AD_VIDEO_SRC);
-  html = bakeArrayIntoHtml(html, '/*__ADVIDEOSREGIAO_START__*/', '/*__ADVIDEOSREGIAO_END__*/', AD_VIDEOS_POR_REGIAO);
+  html = bakeArrayIntoHtml(html, '/*__ADVIDEOSCIDADE_START__*/', '/*__ADVIDEOSCIDADE_END__*/', AD_VIDEOS_POR_CIDADE);
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -5370,6 +5281,27 @@ function renderCuisineChips(){
     linha.appendChild(btn);
   });
   if (aCoz !== 'ALL' && !cozinhas.includes(aCoz)) filterCozinha('ALL');
+}
+
+// Lista as cidades que já existem nos dados (nome "bonito" + chave
+// normalizada), para preencher o seletor de vídeo por cidade no admin.
+function listarCidadesParaVideo(){
+  const porChave = new Map(); // chave normalizada -> nome de exibição
+  ESTABELECIMENTOS.forEach(e => {
+    const nome = (e.cidade || '').toString().trim();
+    if (!nome) return;
+    const chave = normalizarChaveCidade(nome);
+    if (!porChave.has(chave)) porChave.set(chave, nome);
+  });
+  document.querySelectorAll('.city-hotspot[data-city]').forEach(h => {
+    const nome = (h.dataset.city || '').toString().trim();
+    if (!nome) return;
+    const chave = normalizarChaveCidade(nome);
+    if (!porChave.has(chave)) porChave.set(chave, nome);
+  });
+  return Array.from(porChave.entries())
+    .map(([chave, nome]) => ({ chave, nome }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
 }
 
 function popularCidadesPorRegiao(codigoRegiao, cidadeSelecionada){
@@ -5573,9 +5505,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   configurarAdminDot();
   if (SYNC_URL) carregarDadosCloud();
+  carregarPinsManuais();
   carregarPinOverrides();
   carregarEscalasRegiao();
-  carregarComentarios();
 });
 
 /* ── ACESSO DISCRETO ÀS FERRAMENTAS INTERNAS ───────────────────────
@@ -5896,6 +5828,54 @@ function reporDadosOriginais(){
   applyFilters();
 }
 
+/* ── ADICIONAR PINS ──────────────────────────────────────────────── */
+let adicionarPinAtivo = false;
+function iniciarAdicionarPin(){
+  calibrando = true;
+  adicionarPinAtivo = true;
+  document.getElementById('calibPanel').classList.add('on');
+  document.querySelectorAll('.map-container').forEach(c => c.classList.add('calib-on'));
+  alert('Adicionar pin: clique no local do mapa onde quer colocar o novo pin.');
+}
+function criarPinManual(container, left, top){
+  const nome = prompt('Nome da cidade para o novo pin:');
+  if(!nome || !nome.trim()) return;
+  const cidade = nome.trim().toUpperCase();
+  const id = 'hot-' + cidade.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,'-').replace(/^-|-$/g,'');
+  let h = document.getElementById(id);
+  if(h){ h.style.left=left+'%'; h.style.top=top+'%'; h.style.display='block'; h.classList.remove('empty'); return; }
+  h=document.createElement('div');
+  h.className='city-hotspot'; h.id=id; h.dataset.city=cidade;
+  h.style.left=left+'%'; h.style.top=top+'%';
+  h.innerHTML='<div class="dot">0</div><span class="hs-label" style="font-size:11px"></span>';
+  h.querySelector('.hs-label').textContent=nome.trim();
+  h.onclick=function(e){ if(calibrando) return; tocarHotspotCidade(h,cidade); };
+  container.appendChild(h);
+  h.addEventListener('mousedown', e=>{ if(!calibrando) return; e.preventDefault(); e.stopPropagation(); beginHotspotDrag(h,e.clientX,e.clientY); });
+  h.addEventListener('touchstart', e=>{ if(!calibrando) return; e.preventDefault(); e.stopPropagation(); const t=e.touches[0]; beginHotspotDrag(h,t.clientX,t.clientY); },{passive:false});
+  const customs=JSON.parse(localStorage.getItem('roadbook_custom_pins')||'[]');
+  const rec={hotspot_id:id,city:cidade,label:nome.trim(),region:container.closest('.map-sec')?.dataset.regionCode||'',left,top,fontSize:11};
+  customs.push(rec); localStorage.setItem('roadbook_custom_pins',JSON.stringify(customs));
+  registarAlteracaoHotspot(h);
+  adicionarPinAtivo=false;
+  alert('Pin criado. Podes arrastá-lo para acertar a posição e usar “copiar” para guardar a posição definitiva.');
+}
+function carregarPinsManuais(){
+  let arr=[]; try{arr=JSON.parse(localStorage.getItem('roadbook_custom_pins')||'[]')}catch(e){}
+  arr.forEach(r=>{
+    const container=document.querySelector(`section.map-sec[data-region-code="${r.region}"] .map-container`);
+    if(!container || document.getElementById(r.hotspot_id)) return;
+    const h=document.createElement('div'); h.className='city-hotspot'; h.id=r.hotspot_id; h.dataset.city=r.city;
+    h.style.left=r.left+'%'; h.style.top=r.top+'%';
+    h.innerHTML='<div class="dot">0</div><span class="hs-label" style="font-size:'+Number(r.fontSize||11)+'px"></span>';
+    h.querySelector('.hs-label').textContent=r.label||r.city;
+    h.onclick=function(){ if(!calibrando) tocarHotspotCidade(h,r.city); };
+    container.appendChild(h);
+    h.addEventListener('mousedown',e=>{if(!calibrando)return;e.preventDefault();e.stopPropagation();beginHotspotDrag(h,e.clientX,e.clientY)});
+    h.addEventListener('touchstart',e=>{if(!calibrando)return;e.preventDefault();e.stopPropagation();const t=e.touches[0];beginHotspotDrag(h,t.clientX,t.clientY)},{passive:false});
+  });
+}
+
 /* ── CALIBRAÇÃO DE PINS (ferramenta interna, não afeta produção) ──── */
 let calibrando = false;
 
@@ -5950,6 +5930,7 @@ document.querySelectorAll('.map-container').forEach(container => {
     const rect = container.getBoundingClientRect();
     const left = (((e.clientX - rect.left) / rect.width) * 100).toFixed(1);
     const top = (((e.clientY - rect.top) / rect.height) * 100).toFixed(1);
+    if(adicionarPinAtivo){ criarPinManual(container, left, top); return; }
 
     const marker = document.createElement('div');
     marker.className = 'calib-marker';
@@ -6070,6 +6051,9 @@ async function carregarPinOverrides(){
   Object.values(overrides).forEach(o => {
     const hotspot = document.getElementById(o.hotspot_id);
     if (!hotspot) return;
+    // Alcoutim é um pin manual/provisório; não deixar um override antigo da cloud
+    // devolvê-lo à posição errada. A posição pode ser ajustada pelo modo de calibração.
+    if (hotspot.id === 'hot-ALCOUTIM') return;
     if (o.left !== undefined && o.left !== '') hotspot.style.left = parseFloat(o.left).toFixed(2) + '%';
     if (o.top !== undefined && o.top !== '') hotspot.style.top = parseFloat(o.top).toFixed(2) + '%';
     const label = hotspot.querySelector('.hs-label');
@@ -6202,7 +6186,7 @@ function renderEstabelecimentos(){
 <div class="photos">${foto1html}</div>
 <div class="cbody">
 ${flBadge}
-<h3 class="c-name">${e.nome} <span class="card-rating" id="cardRating-${e.id}"></span></h3>
+<h3 class="c-name">${e.nome}</h3>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
 <div class="c-divider"></div>
@@ -6220,8 +6204,8 @@ ${e.telefone ? `<a href="tel:${e.telefone}" class="call-btn"><svg viewBox="0 0 2
 <a href="${e.maps_url}" target="_blank" rel="noopener" class="maps-btn"><span class="pin">📍</span> Maps</a>
 ${e.instagram ? `<a href="${e.instagram}" target="_blank" rel="noopener" class="ig-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>` : ''}
 </div>
-<button class="comment-btn" onclick="event.stopPropagation(); abrirComentarios('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
-  💬 <span class="comment-btn-txt">Comentários</span> <span class="comment-count" id="commentCount-${e.id}"></span>
+<button class="comment-btn" onclick="event.stopPropagation(); abrirComentarios('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}', '${(e.cidade||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+  📝 <span class="comment-btn-txt">Feedback</span>
 </button>
 </div>
 </div>`;
@@ -6261,7 +6245,6 @@ ${e.instagram ? `<a href="${e.instagram}" target="_blank" rel="noopener" class="
 
   renderTypeChips();
   renderCuisineChips();
-  atualizarTodosContadoresComentarios();
 
   // Liga o motor dos slideshows (ciclo automático, bolinhas, swipe) aos
   // cards que acabaram de ser construídos. Sem isto, um card com foto1-4
@@ -6323,6 +6306,22 @@ function selectCity(c){
   _pinEspreitado = null;
   document.querySelectorAll('.city-hotspot.peek').forEach(d => d.classList.remove('peek'));
   if(aC===c){clearCity();return;}
+
+  // Vídeo de publicidade da cidade — toca só a 1ª vez que esta cidade é
+  // aberta nesta visita (a página tem de recarregar para tocar de novo).
+  const chaveCidade = normalizarChaveCidade(c);
+  if (!CIDADES_VIDEO_MOSTRADO.has(chaveCidade)) {
+    CIDADES_VIDEO_MOSTRADO.add(chaveCidade);
+    const videoDaCidade = AD_VIDEOS_POR_CIDADE[chaveCidade] || AD_VIDEO_SRC;
+    if (videoDaCidade) {
+      reproduzirVideoAnuncio(videoDaCidade, () => _aplicarSelecaoCidade(c));
+      return;
+    }
+  }
+  _aplicarSelecaoCidade(c);
+}
+
+function _aplicarSelecaoCidade(c){
   aC=c;
   document.querySelectorAll('.city-hotspot').forEach(d=>d.classList.toggle('active',d.dataset.city===c));
   const hotFlagship1 = document.getElementById('hot-FLAGSHIP');
@@ -6410,7 +6409,7 @@ function goHome(){
   document.querySelectorAll('.map-sec').forEach(s => s.classList.remove('open'));
   document.getElementById('vSec').classList.remove('open');
   document.getElementById('vsecPlaceholder').classList.remove('hidden');
-  const alvo = document.getElementById('ptMapSec');
+  const alvo = document.getElementById('mapSec');
   if (alvo) alvo.scrollIntoView({behavior:'smooth'});
   else window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -6549,9 +6548,27 @@ function openCardOverlay(cardId){
   document.getElementById('cardOverlay').scrollTop=0;
 }
 
-/* ── REGIONS OVERLAY ────────────────────────────────────────────── */
+/* ── CIDADES / REGIÕES OVERLAYS ───────────────────────────────── */
+function openCities(){
+  const list = document.getElementById('coList');
+  const cidades = [...new Set(ESTABELECIMENTOS.map(e => (e.cidade||'').toString().trim()).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,'pt',{sensitivity:'base'}));
+  list.innerHTML = cidades.map(city => {
+    const cnt = ESTABELECIMENTOS.filter(e => (e.cidade||'').toString().trim().toUpperCase() === city.toUpperCase()).length;
+    const safe = city.replace(/'/g,"\\'");
+    return `<div class="co-item" onclick="goToCity('${safe}')">
+      <span class="co-item-name">${city}</span>
+      <span class="co-item-cnt">${cnt}</span>
+    </div>`;
+  }).join('');
+  document.querySelector('.co-title').textContent = 'Cidades';
+  document.getElementById('citiesOverlay').classList.add('open');
+}
+
+/* ── REGIÕES OVERLAY ───────────────────────────────────────────── */
 function openRegions(){
   atualizarRegioesProntas();
+  document.querySelector('.co-title').textContent = 'Regiões';
   const list=document.getElementById('coList');
   list.innerHTML=REGIOES_MAPA_PT.map(r=>{
     const cnt = ESTABELECIMENTOS.filter(e => (e.regiao||'').toUpperCase() === r.code).length;
