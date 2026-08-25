@@ -393,6 +393,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 
 /* City hotspot labels (region maps show municipality names under the pin) */
 .city-hotspot.empty{display:none}
+/* Alcoutim manual pin: fica sempre visível até ser calibrado */}
 .map-container.calib-on .city-hotspot.empty{display:block;opacity:.45}
 .map-resize-ctrl{display:none;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;width:fit-content;background:rgba(3,20,12,0.85);border:1px solid var(--gold);border-radius:100px;padding:5px 10px}
 .map-resize-ctrl.on{display:flex}
@@ -536,7 +537,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <div class="city-hotspot" id="hot-FARO" data-city="FARO" style="left:59.81%;top:77.47%" onclick="tocarHotspotCidade(this,'FARO')"><div class="dot">10</div><span class="hs-label" style="font-size:11px">Faro</span></div>
     <div class="city-hotspot" id="hot-OLHÃO" data-city="OLHÃO" style="left:69.34%;top:77.47%" onclick="tocarHotspotCidade(this,'OLHÃO')"><div class="dot">12</div><span class="hs-label" style="font-size:11px">Olhão</span></div>
     <div class="city-hotspot" id="hot-TAVIRA" data-city="TAVIRA" style="left:77.19%;top:59.05%" onclick="tocarHotspotCidade(this,'TAVIRA')"><div class="dot">9</div><span class="hs-label" style="font-size:11px">Tavira</span></div>
-    <div class="city-hotspot" id="hot-ALCOUTIM" data-city="ALCOUTIM" style="left:84.3%;top:11.1%" onclick="tocarHotspotCidade(this,'ALCOUTIM')"><div class="dot">3</div><span class="hs-label" style="font-size:11px">Alcoutim</span></div>
+    <div class="city-hotspot" id="hot-ALCOUTIM" data-city="ALCOUTIM" style="left:83.7%;top:8.04%" onclick="tocarHotspotCidade(this,'ALCOUTIM')"><div class="dot">3</div><span class="hs-label" style="font-size:11px">Alcoutim</span></div>
     <div class="city-hotspot" id="hot-VILA-REAL-ST-ANTÓNIO" data-city="VILA REAL DE SANTO ANTÓNIO" style="left:85.61%;top:51.54%" onclick="tocarHotspotCidade(this,'VILA REAL DE SANTO ANTÓNIO')"><div class="dot">20</div><span class="hs-label" style="font-size:11px">Vila Real de Santo António</span></div>
     <div class="city-hotspot" id="hot-CASTRO-MARIM" data-city="CASTRO MARIM" style="left:81.16%;top:38.62%" onclick="tocarHotspotCidade(this,'CASTRO MARIM')"><div class="dot">•</div><span class="hs-label" style="font-size:11px">Castro Marim</span></div>
     <div class="city-hotspot" id="hot-LAGOA" data-city="LAGOA" style="left:40.69%;top:63.32%" onclick="tocarHotspotCidade(this,'LAGOA')"><div class="dot">•</div><span class="hs-label" style="font-size:11px">Lagoa</span></div>
@@ -4220,7 +4221,10 @@ function atualizarContadoresHotspots(){
     const dot = h.querySelector('.dot');
     const n = contagem[city] || 0;
     if (dot) dot.textContent = n;
-       h.classList.remove('empty');
+    // Alcoutim foi adicionado manualmente ao mapa e deve permanecer visível
+    // mesmo quando os dados locais/importados ainda não estiverem sincronizados.
+    if (h.id === 'hot-ALCOUTIM') {
+      h.classList.remove('empty');
       if (dot && n === 0) dot.textContent = 3;
     } else {
       h.classList.toggle('empty', n === 0);
@@ -6042,6 +6046,18 @@ async function carregarPinOverrides(){
       overrides = Object.assign({}, overrides, daCloud);
       localStorage.setItem('roadbook_pin_overrides', JSON.stringify(overrides));
     }
+  }
+  Object.values(overrides).forEach(o => {
+    const hotspot = document.getElementById(o.hotspot_id);
+    if (!hotspot) return;
+    // Alcoutim é um pin manual/provisório; não deixar um override antigo da cloud
+    // devolvê-lo à posição errada. A posição pode ser ajustada pelo modo de calibração.
+    if (hotspot.id === 'hot-ALCOUTIM') return;
+    if (o.left !== undefined && o.left !== '') hotspot.style.left = parseFloat(o.left).toFixed(2) + '%';
+    if (o.top !== undefined && o.top !== '') hotspot.style.top = parseFloat(o.top).toFixed(2) + '%';
+    const label = hotspot.querySelector('.hs-label');
+    if (label && o.fontSize !== undefined && o.fontSize !== '') label.style.fontSize = parseFloat(o.fontSize).toFixed(1) + 'px';
+  });
 }
 
 function ajustarTamanhoLabel(hotspotId, delta){
