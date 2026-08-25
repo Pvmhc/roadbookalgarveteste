@@ -4220,10 +4220,7 @@ function atualizarContadoresHotspots(){
     const dot = h.querySelector('.dot');
     const n = contagem[city] || 0;
     if (dot) dot.textContent = n;
-    // Alcoutim foi adicionado manualmente ao mapa e deve permanecer visível
-    // mesmo quando os dados locais/importados ainda não estiverem sincronizados.
-    if (h.id === 'hot-ALCOUTIM') {
-      h.classList.remove('empty');
+       h.classList.remove('empty');
       if (dot && n === 0) dot.textContent = 3;
     } else {
       h.classList.toggle('empty', n === 0);
@@ -6045,18 +6042,6 @@ async function carregarPinOverrides(){
       overrides = Object.assign({}, overrides, daCloud);
       localStorage.setItem('roadbook_pin_overrides', JSON.stringify(overrides));
     }
-  }
-  Object.values(overrides).forEach(o => {
-    const hotspot = document.getElementById(o.hotspot_id);
-    if (!hotspot) return;
-    // Alcoutim é um pin manual/provisório; não deixar um override antigo da cloud
-    // devolvê-lo à posição errada. A posição pode ser ajustada pelo modo de calibração.
-    if (hotspot.id === 'hot-ALCOUTIM') return;
-    if (o.left !== undefined && o.left !== '') hotspot.style.left = parseFloat(o.left).toFixed(2) + '%';
-    if (o.top !== undefined && o.top !== '') hotspot.style.top = parseFloat(o.top).toFixed(2) + '%';
-    const label = hotspot.querySelector('.hs-label');
-    if (label && o.fontSize !== undefined && o.fontSize !== '') label.style.fontSize = parseFloat(o.fontSize).toFixed(1) + 'px';
-  });
 }
 
 function ajustarTamanhoLabel(hotspotId, delta){
