@@ -1018,6 +1018,14 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <span class="admin-title">📧 CAMPANHA DE EMAIL</span>
   </div>
   <div class="admin-body">
+    <div class="ed-section" style="padding:14px 16px">
+      <div class="ed-section-title">✉️ Subscrição de email no popup de boas-vindas</div>
+      <p class="ed-hint">Quando ativo, o popup de boas-vindas (primeira visita) mostra também um campo para deixar o email, além do botão de ativar notificações. Quando desativado, esse campo fica oculto e só aparece a opção de notificações — podes voltar a ativar aqui a qualquer momento.</p>
+      <label class="ee-flagship-card" for="edMostrarSubscricaoEmail">
+        <input type="checkbox" id="edMostrarSubscricaoEmail" onchange="alternarSubscricaoEmailWelcome(this.checked)">
+        <span>✉️ Mostrar campo de subscrição por email no popup</span>
+      </label>
+    </div>
     <div class="ed-section">
       <div class="ed-section-title">✍️ Nova mensagem</div>
       <p class="ed-hint">Envia um email a todos os subscritores (quem deixou o email no popup de boas-vindas). Usa para promoções, novidades gerais, etc. Os novos estabelecimentos já são avisados automaticamente — não precisas de usar isto para isso.</p>
@@ -5749,8 +5757,37 @@ function removerSyncUrl(){
 }
 
 /* ══════ CAMPANHA DE EMAIL (promoções / novidades manuais) ══════ */
+
+// NOVO: chave usada para mostrar/ocultar o campo de subscrição por email
+// no popup de boas-vindas. Por omissão fica OCULTO (só o botão de
+// notificações aparece); o admin pode reativar aqui a qualquer momento.
+const CHAVE_MOSTRAR_SUBSCRICAO_EMAIL = 'roadbook_mostrar_subscricao_email';
+
+function mostrarSubscricaoEmailAtiva(){
+  // Só fica ativo se o admin tiver explicitamente ligado o interruptor
+  // (valor '1' guardado). Qualquer outro estado (incluindo nunca ter
+  // sido definido) conta como oculto.
+  return localStorage.getItem(CHAVE_MOSTRAR_SUBSCRICAO_EMAIL) === '1';
+}
+
+function alternarSubscricaoEmailWelcome(ativo){
+  localStorage.setItem(CHAVE_MOSTRAR_SUBSCRICAO_EMAIL, ativo ? '1' : '0');
+  aplicarVisibilidadeSubscricaoEmailWelcome();
+}
+
+function aplicarVisibilidadeSubscricaoEmailWelcome(){
+  const divisor = document.querySelector('.notif-welcome-divider');
+  const linha = document.querySelector('.notif-welcome-email-row');
+  const msg = document.getElementById('notifWelcomeEmailMsg');
+  const ativo = mostrarSubscricaoEmailAtiva();
+  if (divisor) divisor.style.display = ativo ? '' : 'none';
+  if (linha) linha.style.display = ativo ? '' : 'none';
+  if (msg) msg.style.display = ativo ? '' : 'none';
+}
+
 function openEditorEmail(){
   document.getElementById('edEmailEstado').textContent = '';
+  document.getElementById('edMostrarSubscricaoEmail').checked = mostrarSubscricaoEmailAtiva();
   document.getElementById('editorEmailPanel').classList.add('open');
 }
 
@@ -7399,48 +7436,47 @@ function doSearch(){
 }
 
 function openCardOverlay(cardId){
-  const card=document.getElementById(cardId);
-  if(!card) return;
+  // CORRIGIDO: em vez de "adivinhar" os dados fazendo scraping ao HTML
+  // já desenhado no cartão (por posição/índice de elementos .det-val),
+  // vamos diretamente à fonte de verdade: o objeto do estabelecimento
+  // em ESTABELECIMENTOS. Isto evita que campos como o estacionamento
+  // apareçam em branco ou trocados sempre que a estrutura do cartão
+  // muda ou quando algum campo opcional (ex: horário) não existe.
+  const e = ESTABELECIMENTOS.find(x => x.id === cardId);
+  if(!e) return;
 
-  // Extract data from card DOM
-  const name   = card.querySelector('.c-name')?.textContent||'';
-  const tipo   = card.querySelector('.c-type-txt')?.textContent||'';
-  const city   = card.dataset.city||'';
-  const flagship = card.dataset.flagship==='true';
-  const destaques = splitDestaques(card.dataset.destaques||'');
-  const addr   = card.querySelectorAll('.card-ov-val, .det-val')[0]?.textContent || card.querySelectorAll('[class*="det-val"]')[0]?.textContent||'';
-  const park   = card.querySelectorAll('[class*="det-val"]')[1]?.textContent||'';
-  const photos = [...card.querySelectorAll('.photo-top img, .photo-bot img, .photo-single img')];
-  const qrEl   = card.querySelector('.qr-img');
-  const mapsEl = card.querySelector('.maps-btn');
+  const name = e.nome || '';
+  const tipo = splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ') + (e.cozinha ? ' · ' + e.cozinha : '');
+  const city = e.cidade || '';
+  const flagship = !!e.flagship;
+  const destaques = splitDestaques(e.destaques);
+  const addrTxt  = e.morada || '';
+  const parkTxt  = e.estacionamento || '';
+  const hoursTxt = e.horario || '';
+  const phoneTxt = e.telefone || '';
+  const mapsUrl  = e.maps_url || '#';
 
-  // Build photo HTML
+  // Fotos diretamente do objeto (foto1..fotoN), tal como no cartão pequeno
+  const photos = [];
+  let fi = 1;
+  while(e['foto'+fi]){ photos.push(e['foto'+fi]); fi++; }
+
   let photosHtml='';
   if(photos.length>=2){
     photosHtml=`<div class="card-ov-photos">
-      <div class="card-ov-photo"><img src="${photos[0].src}" alt=""></div>
+      <div class="card-ov-photo"><img src="${photos[0]}" alt=""></div>
       <div class="card-ov-sep"></div>
-      <div class="card-ov-photo"><img src="${photos[1].src}" alt=""></div>
+      <div class="card-ov-photo"><img src="${photos[1]}" alt=""></div>
     </div>`;
   } else if(photos.length===1){
     photosHtml=`<div class="card-ov-photos">
-      <div class="card-ov-photo" style="height:300px"><img src="${photos[0].src}" alt=""></div>
+      <div class="card-ov-photo" style="height:300px"><img src="${photos[0]}" alt=""></div>
     </div>`;
   }
 
-  // Get address/parking from det-val elements
-  const detVals=[...card.querySelectorAll('.det-val')];
-  const addrTxt  = detVals[0]?.textContent||'';
-  const parkTxt  = detVals[1]?.textContent||'';
-  const phoneTxt = card.dataset.telefone||'';
-  const hoursRaw = card.dataset.horario||'';
-  const hoursTxt = hoursRaw;
-
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
-  const qrSrc   = qrEl?.src || (mapsUrl && mapsUrl!=='#' ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(mapsUrl)}` : '');
+  const qrSrc   = e.qr || (mapsUrl && mapsUrl!=='#' ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(mapsUrl)}` : '');
   const qrHtml  = qrSrc?`<img class="card-ov-qr" src="${qrSrc}" alt="QR">`:'';
-
-  const mapsUrl = mapsEl?.href||'#';
 
   document.getElementById('cardOvTitle').textContent=name;
   document.getElementById('cardOvBody').innerHTML=`
@@ -7453,15 +7489,14 @@ function openCardOverlay(cardId){
       <div class="card-ov-divider"></div>
       <div class="card-ov-lbl">MORADA</div>
       <div class="card-ov-val">${addrTxt}</div>
-      <div class="card-ov-lbl">ESTACIONAMENTO</div>
-      <div class="card-ov-val">${parkTxt}</div>
+      ${parkTxt ? `<div class="card-ov-lbl">ESTACIONAMENTO</div><div class="card-ov-val">${parkTxt}</div>` : ''}
       ${hoursTxt ? `<div class="card-ov-lbl">HORÁRIO</div><div class="card-ov-val">${hoursTxt}</div>` : ''}
       ${qrHtml}
     </div>
     <div class="btn-row" style="padding:0 18px 16px">
       ${phoneTxt ? `<a href="tel:${phoneTxt}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Ligar</a>` : ''}
       <a href="${mapsUrl}" target="_blank" rel="noopener" class="card-ov-mapsbtn" style="margin:0;flex:1">📍 Maps</a>
-      ${card.dataset.instagram ? `<a href="${card.dataset.instagram}" target="_blank" rel="noopener" class="ig-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>` : ''}
+      ${e.instagram ? `<a href="${e.instagram}" target="_blank" rel="noopener" class="ig-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>` : ''}
     </div>
   `;
 
@@ -7926,6 +7961,7 @@ function setStatus(msg, type){
       localStorage.setItem(CHAVE, '1');
       return;
     }
+    aplicarVisibilidadeSubscricaoEmailWelcome();
     el.classList.add('show');
   }
 
