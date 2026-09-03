@@ -383,9 +383,6 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
 .card-ov-destaque{background:rgb(var(--dc,14,138,70));border:1px solid rgba(var(--dc,14,138,70),.9);color:#fff}
-.tag-chips-row{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 4px}
-.tag-chip-ambiente{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--softwhite)}
-.tag-chip-marca{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(228,0,26,.14);border:1px solid rgba(228,0,26,.4);color:var(--white)}
 .card-ov-name{font-family:'Poppins',sans-serif;font-size:clamp(21px,5vw,30px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:12px;letter-spacing:-.3px}
 .card-ov-typebox{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;margin-bottom:8px;background:rgba(228,185,63,.08)}
 .card-ov-typetxt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -545,6 +542,23 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .notif-welcome-email-btn{flex-shrink:0;border:none;border-radius:100px;padding:0 16px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;font-family:'Inter',sans-serif;font-size:16px;font-weight:800;cursor:pointer}
 .notif-welcome-email-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
 .notif-welcome-email-msg{font-family:'Inter',sans-serif;font-size:11px;margin-top:8px;min-height:14px;color:rgba(255,255,255,.7)}
+
+/* ══════ ÍCONE FIXO DE SUBSCRIÇÃO POR EMAIL (visível sempre) ══════ */
+.email-fab-btn{position:fixed;left:14px;bottom:76px;z-index:130;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#052E1B;font-size:19px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;transition:.2s}
+.email-fab-btn:hover{transform:scale(1.06)}
+.email-fab-overlay{display:none;position:fixed;inset:0;z-index:12500;background:rgba(2,18,11,.75);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:20px}
+.email-fab-overlay.show{display:flex}
+.email-fab-modal{width:100%;max-width:380px;background:linear-gradient(180deg,#0E8A46,#052E1B);border:1px solid rgba(228,185,63,.5);border-radius:20px;padding:24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.email-fab-modal h3{font-family:'Playfair Display',serif;color:#fff;font-size:19px;margin:0 0 6px}
+.email-fab-modal p{font-family:'Inter',sans-serif;color:rgba(255,255,255,.75);font-size:12.5px;margin:0 0 16px;line-height:1.4}
+.email-fab-modal label{font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,255,255,.6);display:block;margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.email-fab-modal input,.email-fab-modal select{width:100%;box-sizing:border-box;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:#fff;padding:11px 13px;font-family:'Inter',sans-serif;font-size:13px;outline:none;margin-bottom:14px}
+.email-fab-modal input:focus,.email-fab-modal select:focus{border-color:rgba(228,185,63,.75)}
+.email-fab-modal select option{background:#052E1B;color:#fff}
+.email-fab-actions{display:flex;gap:10px;margin-top:4px}
+.email-fab-submit{flex:1;border:none;border-radius:100px;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;cursor:pointer}
+.email-fab-cancel{border:1px solid rgba(255,255,255,.3);border-radius:100px;padding:12px 18px;background:transparent;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer}
+.email-fab-msg{font-family:'Inter',sans-serif;font-size:11.5px;margin-top:12px;min-height:14px;color:rgba(255,255,255,.75)}
 </style>
 </head>
 <body>
@@ -714,6 +728,24 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   <div class="admin-dot-inner">📍</div>
 </div>
 
+<!-- ══════ ÍCONE FIXO: subscrição por email para promoções deste PDV ══════ -->
+<button class="email-fab-btn" id="emailFabBtn" onclick="abrirEmailFab()" title="Subscrever novidades por email">✉️</button>
+<div class="email-fab-overlay" id="emailFabOverlay">
+  <div class="email-fab-modal">
+    <h3>Novidades e promoções</h3>
+    <p>Escolhe o tipo de espaço que te interessa e deixa o teu email para receberes promoções específicas desse tipo.</p>
+    <label>Tipologia</label>
+    <select id="emailFabTipoSelect"></select>
+    <label>O teu email</label>
+    <input type="email" id="emailFabEmailInput" placeholder="o-teu-email@exemplo.com" autocomplete="email">
+    <div class="email-fab-actions">
+      <button class="email-fab-submit" onclick="subscreverEmailFab()">Subscrever</button>
+      <button class="email-fab-cancel" onclick="fecharEmailFab()">Fechar</button>
+    </div>
+    <div class="email-fab-msg" id="emailFabMsg"></div>
+  </div>
+</div>
+
 <div class="aviso-exportar-banner" id="avisoExportarBanner">
   <span>⚠️ Tens alterações por exportar — abre e partilha o ficheiro que descarregares a seguir, não o ficheiro antigo.</span>
   <button onclick="exportarHTML()">⬇️ Exportar agora</button>
@@ -823,16 +855,6 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
       <div class="ed-field">
         <label class="ed-label">Horário</label>
         <input type="text" class="admin-input" id="eeHorario" placeholder="Ex: 10h–00h">
-      </div>
-
-      <div class="ed-section" style="padding:14px 16px">
-        <div class="ed-section-title">🌿 Ambiente</div>
-        <div id="eeAmbienteLista" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-      </div>
-
-      <div class="ed-section" style="padding:14px 16px">
-        <div class="ed-section-title">🍺 Marcas disponíveis no local</div>
-        <div id="eeMarcasLista" style="display:flex;flex-wrap:wrap;gap:8px"></div>
       </div>
       <div class="ed-field">
         <label class="ed-label">Telefone</label>
@@ -1031,22 +1053,20 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <span class="admin-title">📧 CAMPANHA DE EMAIL</span>
   </div>
   <div class="admin-body">
-    <div class="ed-section" style="padding:14px 16px">
-      <div class="ed-section-title">✉️ Subscrição de email no popup de boas-vindas</div>
-      <p class="ed-hint">Quando ativo, o popup de boas-vindas (primeira visita) mostra também um campo para deixar o email, além do botão de ativar notificações. Quando desativado, esse campo fica oculto e só aparece a opção de notificações — podes voltar a ativar aqui a qualquer momento.</p>
-      <label class="ee-flagship-card" for="edMostrarSubscricaoEmail">
-        <input type="checkbox" id="edMostrarSubscricaoEmail" onchange="alternarSubscricaoEmailWelcome(this.checked)">
-        <span>✉️ Mostrar campo de subscrição por email no popup</span>
-      </label>
-    </div>
     <div class="ed-section">
       <div class="ed-section-title">✍️ Nova mensagem</div>
-      <p class="ed-hint">Envia um email a todos os subscritores (quem deixou o email no popup de boas-vindas). Usa para promoções, novidades gerais, etc. Os novos estabelecimentos já são avisados automaticamente — não precisas de usar isto para isso.</p>
-      <label class="ed-label">Assunto</label>
+      <p class="ed-hint">Envia um email aos subscritores. Usa para promoções, novidades gerais, etc. Os novos estabelecimentos já são avisados automaticamente — não precisas de usar isto para isso.</p>
+      <label class="ed-label">Enviar para</label>
+      <select class="admin-input" id="edEmailDestino" onchange="atualizarDestinoEmailCampanha()">
+        <option value="">Todos os subscritores</option>
+        <option value="__tipo__">Subscritores de uma tipologia específica</option>
+      </select>
+      <select class="admin-input" id="edEmailTipoSelect" style="display:none;margin-top:8px"></select>
+      <label class="ed-label" style="margin-top:10px;display:block">Assunto</label>
       <input type="text" class="admin-input" id="edEmailAssunto" placeholder="Ex: Nova promoção Sagres este fim de semana">
       <label class="ed-label" style="margin-top:10px;display:block">Mensagem</label>
       <textarea class="admin-input" id="edEmailCorpo" rows="8" style="width:100%;resize:vertical" placeholder="Escreve aqui a mensagem…"></textarea>
-      <button class="admin-fetch-btn" style="width:100%;margin-top:10px" onclick="enviarCampanhaEmail()">📤 Enviar a todos os subscritores</button>
+      <button class="admin-fetch-btn" style="width:100%;margin-top:10px" onclick="enviarCampanhaEmail()">📤 Enviar campanha</button>
       <p class="ed-hint" id="edEmailEstado" style="margin-top:8px"></p>
     </div>
   </div>
@@ -4648,6 +4668,30 @@ function normalizarCodigoDestaque(texto){
   return (texto || '').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/&/g,' ').replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
 }
 function splitDestaques(str){ return (str || '').toString().split(/[;,|/]+/).map(normalizarCodigoDestaque).filter(Boolean); }
+
+// ── Preçário automático (€ a €€€€) ──────────────────────────────────
+// Não há campo de preço nos dados; o nível é estimado a partir da
+// tipologia (campo "tipo") e reforçado se o estabelecimento é FLAGSHIP.
+const NIVEL_PRECO_POR_TIPO = {
+  ESPLANADA: 2,
+  BAR: 2,
+  NIGHTLIFE: 3,
+  RESTAURANTE: 3,
+  ROOFTOP: 4
+};
+function calcularNivelPreco(tipoStr, flagship){
+  const tipos = splitTipos(tipoStr || '');
+  let nivel = tipos.reduce((max, t) => Math.max(max, NIVEL_PRECO_POR_TIPO[t] || 2), 2);
+  if (flagship) nivel = Math.min(4, nivel + 1);
+  return nivel;
+}
+function precoHtml(tipoStr, flagship){
+  const nivel = calcularNivelPreco(tipoStr, flagship);
+  const cheio = '€'.repeat(nivel);
+  const vazio = '€'.repeat(4 - nivel);
+  return `<div class="qr-side"><span style="font-size:19px;font-weight:800;color:var(--gold);line-height:1">${cheio}<span style="opacity:.28">${vazio}</span></span><span class="qr-lbl">Preçário</span></div>`;
+}
+
 function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
 function labelParaDestaque(codigo){
   return iconeDestaqueHtml(codigo)+' '+nomeDestaqueTexto(codigo);
@@ -4698,81 +4742,6 @@ function listarDestaquesExistentes(){
   Array.from(vistos).forEach(c => { if (DESTAQUES_CUSTOM[c] && DESTAQUES_CUSTOM[c].removido) vistos.delete(c); });
   return Array.from(vistos).sort((a,b)=>nomeDestaqueTexto(a).localeCompare(nomeDestaqueTexto(b),'pt'));
 }
-
-// ── AMBIENTE (NOVO) ──────────────────────────────────────────────────
-// Lista fixa e simples (ao contrário dos destaques, não é preciso criar
-// novos nem sincronizar ícones personalizados) — só marcar quais se
-// aplicam a cada estabelecimento. Guardado no campo 'ambiente', com o
-// mesmo formato separado por vírgulas que os outros campos de tags.
-const AMBIENTE_OPCOES = [
-  { codigo: 'ESPLANADA',       label: 'Esplanada',        icone: '🌿' },
-  { codigo: 'VISTA_MAR',       label: 'Vista mar',         icone: '🌊' },
-  { codigo: 'MUSICA_AO_VIVO',  label: 'Música ao vivo',    icone: '🎵' },
-  { codigo: 'GRUPOS',          label: 'Ideal p/ grupos',   icone: '👥' },
-  { codigo: 'ROMANTICO',       label: 'Romântico',         icone: '💕' },
-  { codigo: 'FAMILIA',         label: 'Família',           icone: '👨‍👩‍👧' },
-  { codigo: 'ANIMAIS',         label: 'Aceita animais',    icone: '🐾' },
-  { codigo: 'PISCINA',         label: 'Piscina',           icone: '🏊' }
-];
-function labelParaAmbiente(codigo){
-  const o = AMBIENTE_OPCOES.find(x => x.codigo === codigo);
-  return o ? `${o.icone} ${o.label}` : codigo;
-}
-function splitAmbiente(str){ return (str || '').toString().split(/[;,|/]+/).map(s=>s.trim().toUpperCase()).filter(Boolean); }
-
-// ── MARCAS DISPONÍVEIS (NOVO) ────────────────────────────────────────
-// Portfólio comercial (Central de Cervejas/Heineken Portugal). Guardado
-// no campo 'marcas', mesmo formato separado por vírgulas. Ajusta esta
-// lista livremente se o portfólio mudar — não precisa de mais nada.
-const MARCAS_OPCOES = [
-  { codigo: 'HEINEKEN',   label: 'Heineken',   icone: '🍺' },
-  { codigo: 'AMSTEL',     label: 'Amstel',     icone: '🍺' },
-  { codigo: 'CRISTAL',    label: 'Cristal',    icone: '🍺' },
-  { codigo: 'SOMERSBY',   label: 'Somersby',   icone: '🍏' },
-  { codigo: 'DESPERADOS', label: 'Desperados', icone: '🌵' },
-  { codigo: 'AFFLIGEM',   label: 'Affligem',   icone: '🍺' }
-];
-function labelParaMarca(codigo){
-  const o = MARCAS_OPCOES.find(x => x.codigo === codigo);
-  return o ? `${o.icone} ${o.label}` : codigo;
-}
-function splitMarcas(str){ return (str || '').toString().split(/[;,|/]+/).map(s=>s.trim().toUpperCase()).filter(Boolean); }
-
-// Gera as chips de checkboxes para Ambiente/Marcas no editor, reutilizando
-// o mesmo estilo visual (.ee-destaque-chip) já usado nos destaques.
-function renderChipsGenericas(containerId, opcoes, selecionados, corRGB){
-  const cont = document.getElementById(containerId);
-  if (!cont) return;
-  cont.innerHTML = opcoes.map(o => {
-    const marcado = selecionados.includes(o.codigo);
-    return `<span class="ee-destaque-chip${marcado?' checked':''}" style="--dc:${corRGB}">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-        <input type="checkbox" data-chip-codigo="${o.codigo}" ${marcado?'checked':''} onchange="this.closest('.ee-destaque-chip').classList.toggle('checked',this.checked)">${o.icone} ${o.label}
-      </label>
-    </span>`;
-  }).join('');
-}
-function renderEeAmbienteLista(selecionados){
-  renderChipsGenericas('eeAmbienteLista', AMBIENTE_OPCOES, selecionados, '16,185,129');
-}
-function renderEeMarcasLista(selecionados){
-  renderChipsGenericas('eeMarcasLista', MARCAS_OPCOES, selecionados, '228,0,26');
-}
-function lerChipsMarcadas(containerId){
-  return Array.from(document.querySelectorAll(`#${containerId} input[data-chip-codigo]:checked`)).map(el => el.dataset.chipCodigo);
-}
-// Gera o HTML (só leitura) das tags de ambiente/marcas para mostrar nos
-// cartões e na ficha — não confundir com renderChipsGenericas, que é a
-// versão editável (com checkboxes) usada no painel de admin.
-function tagsChipsHtml(e){
-  const ambiente = splitAmbiente(e.ambiente);
-  const marcas = splitMarcas(e.marcas);
-  if (!ambiente.length && !marcas.length) return '';
-  const ambienteHtml = ambiente.map(c => `<span class="tag-chip-ambiente">${labelParaAmbiente(c)}</span>`).join('');
-  const marcasHtml = marcas.map(c => `<span class="tag-chip-marca">${labelParaMarca(c)}</span>`).join('');
-  return `<div class="tag-chips-row">${ambienteHtml}${marcasHtml}</div>`;
-}
-
 
 // Separa uma tipologia escrita livremente (ex: "Restaurante & Bar",
 // "Esplanada, Rooftop, Flagship") em códigos individuais e normalizados
@@ -5845,37 +5814,22 @@ function removerSyncUrl(){
 }
 
 /* ══════ CAMPANHA DE EMAIL (promoções / novidades manuais) ══════ */
-
-// NOVO: chave usada para mostrar/ocultar o campo de subscrição por email
-// no popup de boas-vindas. Por omissão fica OCULTO (só o botão de
-// notificações aparece); o admin pode reativar aqui a qualquer momento.
-const CHAVE_MOSTRAR_SUBSCRICAO_EMAIL = 'roadbook_mostrar_subscricao_email';
-
-function mostrarSubscricaoEmailAtiva(){
-  // Só fica ativo se o admin tiver explicitamente ligado o interruptor
-  // (valor '1' guardado). Qualquer outro estado (incluindo nunca ter
-  // sido definido) conta como oculto.
-  return localStorage.getItem(CHAVE_MOSTRAR_SUBSCRICAO_EMAIL) === '1';
-}
-
-function alternarSubscricaoEmailWelcome(ativo){
-  localStorage.setItem(CHAVE_MOSTRAR_SUBSCRICAO_EMAIL, ativo ? '1' : '0');
-  aplicarVisibilidadeSubscricaoEmailWelcome();
-}
-
-function aplicarVisibilidadeSubscricaoEmailWelcome(){
-  const divisor = document.querySelector('.notif-welcome-divider');
-  const linha = document.querySelector('.notif-welcome-email-row');
-  const msg = document.getElementById('notifWelcomeEmailMsg');
-  const ativo = mostrarSubscricaoEmailAtiva();
-  if (divisor) divisor.style.display = ativo ? '' : 'none';
-  if (linha) linha.style.display = ativo ? '' : 'none';
-  if (msg) msg.style.display = ativo ? '' : 'none';
-}
-
 function openEditorEmail(){
   document.getElementById('edEmailEstado').textContent = '';
-  document.getElementById('edMostrarSubscricaoEmail').checked = mostrarSubscricaoEmailAtiva();
+  const tipoSelect = document.getElementById('edEmailTipoSelect');
+  if (tipoSelect.options.length === 0) {
+    const optPlaceholder = document.createElement('option');
+    optPlaceholder.value = '';
+    optPlaceholder.textContent = '— Escolhe a tipologia —';
+    tipoSelect.appendChild(optPlaceholder);
+    (typeof listarTipologiasRoadbook === 'function' ? listarTipologiasRoadbook() : [])
+      .forEach(tipo => {
+        const opt = document.createElement('option');
+        opt.value = tipo;
+        opt.textContent = tipo.charAt(0) + tipo.slice(1).toLowerCase();
+        tipoSelect.appendChild(opt);
+      });
+  }
   document.getElementById('editorEmailPanel').classList.add('open');
 }
 
@@ -5883,10 +5837,17 @@ function closeEditorEmail(){
   document.getElementById('editorEmailPanel').classList.remove('open');
 }
 
+function atualizarDestinoEmailCampanha(){
+  const destino = document.getElementById('edEmailDestino').value;
+  document.getElementById('edEmailTipoSelect').style.display = (destino === '__tipo__') ? '' : 'none';
+}
+
 async function enviarCampanhaEmail(){
   const assunto = document.getElementById('edEmailAssunto').value.trim();
   const corpo = document.getElementById('edEmailCorpo').value.trim();
   const estado = document.getElementById('edEmailEstado');
+  const destino = document.getElementById('edEmailDestino').value;
+  const tipoSelect = document.getElementById('edEmailTipoSelect');
   if (!assunto || !corpo) {
     alert('Preenche o assunto e a mensagem.');
     return;
@@ -5895,11 +5856,25 @@ async function enviarCampanhaEmail(){
     alert('É preciso ter a sincronização cloud ligada (☁️ Sincronização Cloud) para enviar campanhas de email.');
     return;
   }
-  if (!confirm('Enviar este email a todos os subscritores?')) return;
+  let tipologia = '';
+  if (destino === '__tipo__') {
+    if (!tipoSelect.value) {
+      alert('Escolhe a tipologia para a qual queres enviar a campanha.');
+      return;
+    }
+    tipologia = tipoSelect.value;
+  }
+  const alvoTexto = tipologia ? ('subscritores de "' + tipologia.charAt(0) + tipologia.slice(1).toLowerCase() + '"') : 'todos os subscritores';
+  if (!confirm('Enviar este email a ' + alvoTexto + '?')) return;
   estado.textContent = '🔄 A enviar…';
-  const ok = await syncPost('send_campaign_email', { assunto, corpo, pin: ADMIN_PIN });
+  const ok = await syncPost('send_campaign_email', {
+    assunto,
+    corpo,
+    pin: ADMIN_PIN,
+    tipologia: tipologia
+  });
   if (ok) {
-    estado.textContent = '✅ Campanha enviada com sucesso.';
+    estado.textContent = '✅ Campanha enviada com sucesso a ' + alvoTexto + '.';
     document.getElementById('edEmailAssunto').value = '';
     document.getElementById('edEmailCorpo').value = '';
   } else {
@@ -6316,8 +6291,6 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeMorada').value = e.morada || '';
     document.getElementById('eeEstacionamento').value = e.estacionamento || '';
     document.getElementById('eeHorario').value = e.horario || '';
-    renderEeAmbienteLista(splitAmbiente(e.ambiente));
-    renderEeMarcasLista(splitMarcas(e.marcas));
     document.getElementById('eeTelefone').value = e.telefone || '';
     document.getElementById('eeInstagram').value = e.instagram || '';
     document.getElementById('eeMapsUrl').value = e.maps_url || '';
@@ -6336,8 +6309,6 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeMorada').value = '';
     document.getElementById('eeEstacionamento').value = '';
     document.getElementById('eeHorario').value = '';
-    renderEeAmbienteLista([]);
-    renderEeMarcasLista([]);
     document.getElementById('eeTelefone').value = '';
     document.getElementById('eeInstagram').value = '';
     document.getElementById('eeMapsUrl').value = '';
@@ -6383,12 +6354,10 @@ async function guardarEstabelecimento(){
     nome,
     morada,
     estacionamento: document.getElementById('eeEstacionamento').value.trim(),
-    horario: document.getElementById('eeHorario').value.trim(),
-    ambiente: lerChipsMarcadas('eeAmbienteLista').join(','),
-    marcas: lerChipsMarcadas('eeMarcasLista').join(','),
     maps_url: document.getElementById('eeMapsUrl').value.trim(),
     telefone: document.getElementById('eeTelefone').value.trim(),
     instagram: document.getElementById('eeInstagram').value.trim(),
+    horario: document.getElementById('eeHorario').value.trim(),
     foto1: _eeFotosAtual[0] || '',
     foto2: _eeFotosAtual[1] || '',
     foto3: _eeFotosAtual[2] || '',
@@ -7199,9 +7168,8 @@ function renderEstabelecimentos(){
       const destaquesCard = splitDestaques(e.destaques);
       const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('');
       const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
-      // QR gerado automaticamente a partir do maps_url — não precisas de preencher o campo qr
-      const qrUrl = e.qr || (e.maps_url ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(e.maps_url)}` : '');
-      const qrHtml = qrUrl ? `<img class="qr-img" src="${qrUrl}" alt="QR Maps">` : '';
+      // Preçário automático em vez do QR code (que duplicava o botão "📍 Maps")
+      const qrHtml = precoHtml(e.tipo, isFL);
 
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-destaques="${e.destaques||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
@@ -7211,7 +7179,6 @@ ${badgesHtml}
 <h3 class="c-name">${e.nome}</h3>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
-${tagsChipsHtml(e)}
 <div class="c-divider"></div>
 <div class="info-qr-row">
   <div class="info-fields">
@@ -7220,7 +7187,7 @@ ${tagsChipsHtml(e)}
     ${e.estacionamento ? `<div class="det-lbl">ESTACIONAMENTO</div><div class="det-val">${e.estacionamento}</div>` : ''}
     ${e.horario ? `<div class="det-lbl">HORÁRIO</div><div class="det-val-contact">${e.horario}</div>` : ''}
   </div>
-  ${qrHtml ? `<div class="qr-side">${qrHtml}<span class="qr-lbl">Maps</span></div>` : ''}
+  ${qrHtml}
 </div>
 <div class="btn-row">
 ${e.telefone ? `<a href="tel:${e.telefone}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Ligar</a>` : ''}
@@ -7531,47 +7498,47 @@ function doSearch(){
 }
 
 function openCardOverlay(cardId){
-  // CORRIGIDO: em vez de "adivinhar" os dados fazendo scraping ao HTML
-  // já desenhado no cartão (por posição/índice de elementos .det-val),
-  // vamos diretamente à fonte de verdade: o objeto do estabelecimento
-  // em ESTABELECIMENTOS. Isto evita que campos como o estacionamento
-  // apareçam em branco ou trocados sempre que a estrutura do cartão
-  // muda ou quando algum campo opcional (ex: horário) não existe.
-  const e = ESTABELECIMENTOS.find(x => x.id === cardId);
-  if(!e) return;
+  const card=document.getElementById(cardId);
+  if(!card) return;
 
-  const name = e.nome || '';
-  const tipo = splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ') + (e.cozinha ? ' · ' + e.cozinha : '');
-  const city = e.cidade || '';
-  const flagship = !!e.flagship;
-  const destaques = splitDestaques(e.destaques);
-  const addrTxt  = e.morada || '';
-  const parkTxt  = e.estacionamento || '';
-  const hoursTxt = e.horario || '';
-  const phoneTxt = e.telefone || '';
-  const mapsUrl  = e.maps_url || '#';
+  // Extract data from card DOM
+  const name   = card.querySelector('.c-name')?.textContent||'';
+  const tipo   = card.querySelector('.c-type-txt')?.textContent||'';
+  const city   = card.dataset.city||'';
+  const flagship = card.dataset.flagship==='true';
+  const destaques = splitDestaques(card.dataset.destaques||'');
+  const addr   = card.querySelectorAll('.card-ov-val, .det-val')[0]?.textContent || card.querySelectorAll('[class*="det-val"]')[0]?.textContent||'';
+  const park   = card.querySelectorAll('[class*="det-val"]')[1]?.textContent||'';
+  const photos = [...card.querySelectorAll('.photo-top img, .photo-bot img, .photo-single img')];
+  const qrEl   = card.querySelector('.qr-img');
+  const mapsEl = card.querySelector('.maps-btn');
 
-  // Fotos diretamente do objeto (foto1..fotoN), tal como no cartão pequeno
-  const photos = [];
-  let fi = 1;
-  while(e['foto'+fi]){ photos.push(e['foto'+fi]); fi++; }
-
+  // Build photo HTML
   let photosHtml='';
   if(photos.length>=2){
     photosHtml=`<div class="card-ov-photos">
-      <div class="card-ov-photo"><img src="${photos[0]}" alt=""></div>
+      <div class="card-ov-photo"><img src="${photos[0].src}" alt=""></div>
       <div class="card-ov-sep"></div>
-      <div class="card-ov-photo"><img src="${photos[1]}" alt=""></div>
+      <div class="card-ov-photo"><img src="${photos[1].src}" alt=""></div>
     </div>`;
   } else if(photos.length===1){
     photosHtml=`<div class="card-ov-photos">
-      <div class="card-ov-photo" style="height:300px"><img src="${photos[0]}" alt=""></div>
+      <div class="card-ov-photo" style="height:300px"><img src="${photos[0].src}" alt=""></div>
     </div>`;
   }
 
+  // Get address/parking from det-val elements
+  const detVals=[...card.querySelectorAll('.det-val')];
+  const addrTxt  = detVals[0]?.textContent||'';
+  const parkTxt  = detVals[1]?.textContent||'';
+  const phoneTxt = card.dataset.telefone||'';
+  const hoursRaw = card.dataset.horario||'';
+  const hoursTxt = hoursRaw;
+
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
-  const qrSrc   = e.qr || (mapsUrl && mapsUrl!=='#' ? `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=000000&bgcolor=ffffff&data=${encodeURIComponent(mapsUrl)}` : '');
-  const qrHtml  = qrSrc?`<img class="card-ov-qr" src="${qrSrc}" alt="QR">`:'';
+  const qrHtml  = precoHtml(card.dataset.tipo, flagship);
+
+  const mapsUrl = mapsEl?.href||'#';
 
   document.getElementById('cardOvTitle').textContent=name;
   document.getElementById('cardOvBody').innerHTML=`
@@ -7581,18 +7548,18 @@ function openCardOverlay(cardId){
       <div class="card-ov-name">${name}</div>
       <div class="card-ov-typebox"><span class="card-ov-typetxt">${tipo}</span></div><br>
       <div class="card-ov-city">${city}</div>
-      ${tagsChipsHtml(e)}
       <div class="card-ov-divider"></div>
       <div class="card-ov-lbl">MORADA</div>
       <div class="card-ov-val">${addrTxt}</div>
-      ${parkTxt ? `<div class="card-ov-lbl">ESTACIONAMENTO</div><div class="card-ov-val">${parkTxt}</div>` : ''}
+      <div class="card-ov-lbl">ESTACIONAMENTO</div>
+      <div class="card-ov-val">${parkTxt}</div>
       ${hoursTxt ? `<div class="card-ov-lbl">HORÁRIO</div><div class="card-ov-val">${hoursTxt}</div>` : ''}
       ${qrHtml}
     </div>
     <div class="btn-row" style="padding:0 18px 16px">
       ${phoneTxt ? `<a href="tel:${phoneTxt}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Ligar</a>` : ''}
       <a href="${mapsUrl}" target="_blank" rel="noopener" class="card-ov-mapsbtn" style="margin:0;flex:1">📍 Maps</a>
-      ${e.instagram ? `<a href="${e.instagram}" target="_blank" rel="noopener" class="ig-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>` : ''}
+      ${card.dataset.instagram ? `<a href="${card.dataset.instagram}" target="_blank" rel="noopener" class="ig-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>` : ''}
     </div>
   `;
 
@@ -8057,7 +8024,6 @@ function setStatus(msg, type){
       localStorage.setItem(CHAVE, '1');
       return;
     }
-    aplicarVisibilidadeSubscricaoEmailWelcome();
     el.classList.add('show');
   }
 
@@ -8100,6 +8066,75 @@ function setStatus(msg, type){
       localStorage.setItem(CHAVE, '1');
       if (msg) { msg.textContent = '✅ Subscrito! Vais receber novidades e promoções por email.'; msg.style.color = '#c9f2c9'; }
       setTimeout(() => fecharNotifWelcome(true), 1400);
+    } else {
+      if (msg) { msg.textContent = 'Não foi possível subscrever agora. Tenta novamente mais tarde.'; msg.style.color = '#ffb4b4'; }
+    }
+  };
+
+  window.listarTipologiasRoadbook = function(){
+    const set = new Set();
+    (typeof ESTABELECIMENTOS !== 'undefined' ? ESTABELECIMENTOS : []).forEach(e => {
+      String(e.tipo || '').split(',').forEach(t => {
+        t = t.trim().toUpperCase();
+        if (t) set.add(t);
+      });
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt'));
+  };
+
+  window.abrirEmailFab = function(){
+    const select = document.getElementById('emailFabTipoSelect');
+    const msg = document.getElementById('emailFabMsg');
+    if (msg) msg.textContent = '';
+    if (select && select.options.length === 0) {
+      const optGeral = document.createElement('option');
+      optGeral.value = '';
+      optGeral.textContent = '— Novidades gerais (todas as tipologias) —';
+      select.appendChild(optGeral);
+      listarTipologiasRoadbook().forEach(tipo => {
+        const opt = document.createElement('option');
+        opt.value = tipo;
+        opt.textContent = tipo.charAt(0) + tipo.slice(1).toLowerCase();
+        select.appendChild(opt);
+      });
+    }
+    document.getElementById('emailFabOverlay').classList.add('show');
+  };
+
+  window.fecharEmailFab = function(){
+    document.getElementById('emailFabOverlay').classList.remove('show');
+  };
+
+  window.subscreverEmailFab = async function(){
+    const input = document.getElementById('emailFabEmailInput');
+    const select = document.getElementById('emailFabTipoSelect');
+    const msg = document.getElementById('emailFabMsg');
+    const email = (input.value || '').trim();
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValido) {
+      if (msg) { msg.textContent = 'Introduz um email válido.'; msg.style.color = '#ffb4b4'; }
+      return;
+    }
+    const tipologia = select.value || '';
+    if (msg) { msg.textContent = 'A subscrever…'; msg.style.color = 'rgba(255,255,255,.7)'; }
+    let ok = false;
+    try {
+      ok = await syncPost('subscribe_email', {
+        email,
+        tipologia: tipologia
+      });
+    } catch(err) {
+      console.warn('Não foi possível subscrever o email:', err);
+    }
+    if (ok) {
+      if (msg) {
+        msg.textContent = tipologia
+          ? '✅ Subscrito! Vais receber promoções de ' + tipologia.charAt(0) + tipologia.slice(1).toLowerCase() + ' por email.'
+          : '✅ Subscrito! Vais receber novidades gerais por email.';
+        msg.style.color = '#c9f2c9';
+      }
+      input.value = '';
+      setTimeout(() => fecharEmailFab(), 1600);
     } else {
       if (msg) { msg.textContent = 'Não foi possível subscrever agora. Tenta novamente mais tarde.'; msg.style.color = '#ffb4b4'; }
     }
