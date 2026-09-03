@@ -383,6 +383,9 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
 .card-ov-destaque{background:rgb(var(--dc,14,138,70));border:1px solid rgba(var(--dc,14,138,70),.9);color:#fff}
+.tag-chips-row{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 4px}
+.tag-chip-ambiente{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--softwhite)}
+.tag-chip-marca{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(228,0,26,.14);border:1px solid rgba(228,0,26,.4);color:var(--white)}
 .card-ov-name{font-family:'Poppins',sans-serif;font-size:clamp(21px,5vw,30px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:12px;letter-spacing:-.3px}
 .card-ov-typebox{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;margin-bottom:8px;background:rgba(228,185,63,.08)}
 .card-ov-typetxt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -820,6 +823,16 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
       <div class="ed-field">
         <label class="ed-label">Horário</label>
         <input type="text" class="admin-input" id="eeHorario" placeholder="Ex: 10h–00h">
+      </div>
+
+      <div class="ed-section" style="padding:14px 16px">
+        <div class="ed-section-title">🌿 Ambiente</div>
+        <div id="eeAmbienteLista" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+
+      <div class="ed-section" style="padding:14px 16px">
+        <div class="ed-section-title">🍺 Marcas disponíveis no local</div>
+        <div id="eeMarcasLista" style="display:flex;flex-wrap:wrap;gap:8px"></div>
       </div>
       <div class="ed-field">
         <label class="ed-label">Telefone</label>
@@ -4686,6 +4699,81 @@ function listarDestaquesExistentes(){
   return Array.from(vistos).sort((a,b)=>nomeDestaqueTexto(a).localeCompare(nomeDestaqueTexto(b),'pt'));
 }
 
+// ── AMBIENTE (NOVO) ──────────────────────────────────────────────────
+// Lista fixa e simples (ao contrário dos destaques, não é preciso criar
+// novos nem sincronizar ícones personalizados) — só marcar quais se
+// aplicam a cada estabelecimento. Guardado no campo 'ambiente', com o
+// mesmo formato separado por vírgulas que os outros campos de tags.
+const AMBIENTE_OPCOES = [
+  { codigo: 'ESPLANADA',       label: 'Esplanada',        icone: '🌿' },
+  { codigo: 'VISTA_MAR',       label: 'Vista mar',         icone: '🌊' },
+  { codigo: 'MUSICA_AO_VIVO',  label: 'Música ao vivo',    icone: '🎵' },
+  { codigo: 'GRUPOS',          label: 'Ideal p/ grupos',   icone: '👥' },
+  { codigo: 'ROMANTICO',       label: 'Romântico',         icone: '💕' },
+  { codigo: 'FAMILIA',         label: 'Família',           icone: '👨‍👩‍👧' },
+  { codigo: 'ANIMAIS',         label: 'Aceita animais',    icone: '🐾' },
+  { codigo: 'PISCINA',         label: 'Piscina',           icone: '🏊' }
+];
+function labelParaAmbiente(codigo){
+  const o = AMBIENTE_OPCOES.find(x => x.codigo === codigo);
+  return o ? `${o.icone} ${o.label}` : codigo;
+}
+function splitAmbiente(str){ return (str || '').toString().split(/[;,|/]+/).map(s=>s.trim().toUpperCase()).filter(Boolean); }
+
+// ── MARCAS DISPONÍVEIS (NOVO) ────────────────────────────────────────
+// Portfólio comercial (Central de Cervejas/Heineken Portugal). Guardado
+// no campo 'marcas', mesmo formato separado por vírgulas. Ajusta esta
+// lista livremente se o portfólio mudar — não precisa de mais nada.
+const MARCAS_OPCOES = [
+  { codigo: 'HEINEKEN',   label: 'Heineken',   icone: '🍺' },
+  { codigo: 'AMSTEL',     label: 'Amstel',     icone: '🍺' },
+  { codigo: 'CRISTAL',    label: 'Cristal',    icone: '🍺' },
+  { codigo: 'SOMERSBY',   label: 'Somersby',   icone: '🍏' },
+  { codigo: 'DESPERADOS', label: 'Desperados', icone: '🌵' },
+  { codigo: 'AFFLIGEM',   label: 'Affligem',   icone: '🍺' }
+];
+function labelParaMarca(codigo){
+  const o = MARCAS_OPCOES.find(x => x.codigo === codigo);
+  return o ? `${o.icone} ${o.label}` : codigo;
+}
+function splitMarcas(str){ return (str || '').toString().split(/[;,|/]+/).map(s=>s.trim().toUpperCase()).filter(Boolean); }
+
+// Gera as chips de checkboxes para Ambiente/Marcas no editor, reutilizando
+// o mesmo estilo visual (.ee-destaque-chip) já usado nos destaques.
+function renderChipsGenericas(containerId, opcoes, selecionados, corRGB){
+  const cont = document.getElementById(containerId);
+  if (!cont) return;
+  cont.innerHTML = opcoes.map(o => {
+    const marcado = selecionados.includes(o.codigo);
+    return `<span class="ee-destaque-chip${marcado?' checked':''}" style="--dc:${corRGB}">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" data-chip-codigo="${o.codigo}" ${marcado?'checked':''} onchange="this.closest('.ee-destaque-chip').classList.toggle('checked',this.checked)">${o.icone} ${o.label}
+      </label>
+    </span>`;
+  }).join('');
+}
+function renderEeAmbienteLista(selecionados){
+  renderChipsGenericas('eeAmbienteLista', AMBIENTE_OPCOES, selecionados, '16,185,129');
+}
+function renderEeMarcasLista(selecionados){
+  renderChipsGenericas('eeMarcasLista', MARCAS_OPCOES, selecionados, '228,0,26');
+}
+function lerChipsMarcadas(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} input[data-chip-codigo]:checked`)).map(el => el.dataset.chipCodigo);
+}
+// Gera o HTML (só leitura) das tags de ambiente/marcas para mostrar nos
+// cartões e na ficha — não confundir com renderChipsGenericas, que é a
+// versão editável (com checkboxes) usada no painel de admin.
+function tagsChipsHtml(e){
+  const ambiente = splitAmbiente(e.ambiente);
+  const marcas = splitMarcas(e.marcas);
+  if (!ambiente.length && !marcas.length) return '';
+  const ambienteHtml = ambiente.map(c => `<span class="tag-chip-ambiente">${labelParaAmbiente(c)}</span>`).join('');
+  const marcasHtml = marcas.map(c => `<span class="tag-chip-marca">${labelParaMarca(c)}</span>`).join('');
+  return `<div class="tag-chips-row">${ambienteHtml}${marcasHtml}</div>`;
+}
+
+
 // Separa uma tipologia escrita livremente (ex: "Restaurante & Bar",
 // "Esplanada, Rooftop, Flagship") em códigos individuais e normalizados
 // — para o estabelecimento ficar disponível em cada filtro separado,
@@ -6228,6 +6316,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeMorada').value = e.morada || '';
     document.getElementById('eeEstacionamento').value = e.estacionamento || '';
     document.getElementById('eeHorario').value = e.horario || '';
+    renderEeAmbienteLista(splitAmbiente(e.ambiente));
+    renderEeMarcasLista(splitMarcas(e.marcas));
     document.getElementById('eeTelefone').value = e.telefone || '';
     document.getElementById('eeInstagram').value = e.instagram || '';
     document.getElementById('eeMapsUrl').value = e.maps_url || '';
@@ -6246,6 +6336,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeMorada').value = '';
     document.getElementById('eeEstacionamento').value = '';
     document.getElementById('eeHorario').value = '';
+    renderEeAmbienteLista([]);
+    renderEeMarcasLista([]);
     document.getElementById('eeTelefone').value = '';
     document.getElementById('eeInstagram').value = '';
     document.getElementById('eeMapsUrl').value = '';
@@ -6291,10 +6383,12 @@ async function guardarEstabelecimento(){
     nome,
     morada,
     estacionamento: document.getElementById('eeEstacionamento').value.trim(),
+    horario: document.getElementById('eeHorario').value.trim(),
+    ambiente: lerChipsMarcadas('eeAmbienteLista').join(','),
+    marcas: lerChipsMarcadas('eeMarcasLista').join(','),
     maps_url: document.getElementById('eeMapsUrl').value.trim(),
     telefone: document.getElementById('eeTelefone').value.trim(),
     instagram: document.getElementById('eeInstagram').value.trim(),
-    horario: document.getElementById('eeHorario').value.trim(),
     foto1: _eeFotosAtual[0] || '',
     foto2: _eeFotosAtual[1] || '',
     foto3: _eeFotosAtual[2] || '',
@@ -7117,6 +7211,7 @@ ${badgesHtml}
 <h3 class="c-name">${e.nome}</h3>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
+${tagsChipsHtml(e)}
 <div class="c-divider"></div>
 <div class="info-qr-row">
   <div class="info-fields">
@@ -7486,6 +7581,7 @@ function openCardOverlay(cardId){
       <div class="card-ov-name">${name}</div>
       <div class="card-ov-typebox"><span class="card-ov-typetxt">${tipo}</span></div><br>
       <div class="card-ov-city">${city}</div>
+      ${tagsChipsHtml(e)}
       <div class="card-ov-divider"></div>
       <div class="card-ov-lbl">MORADA</div>
       <div class="card-ov-val">${addrTxt}</div>
