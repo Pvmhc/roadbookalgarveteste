@@ -86,6 +86,10 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .map-container.a-arrastar{cursor:grabbing}
 .map-container.a-animar{transition:transform .28s cubic-bezier(.22,.61,.36,1)}
 .map-zoom-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--softwhite);text-align:center;margin:8px 0 0;opacity:.7}
+.map-zoom-controls{position:absolute;right:10px;bottom:10px;z-index:30;display:flex;flex-direction:column;gap:6px}
+.map-zoom-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:rgba(3,20,12,0.85);backdrop-filter:blur(4px);color:var(--gold);font-family:'Inter',sans-serif;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35);touch-action:manipulation}
+.map-zoom-btn:active{background:var(--gold);color:#052E1B}
+.map-zoom-btn.reset{font-size:13px}
 .map-img{width:100%;display:block;border-radius:var(--radius);pointer-events:none}
 .cover-bg-layer{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
 .cover-bg-layer img{width:100%;height:100%;object-fit:cover;display:block}
@@ -440,6 +444,8 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .city-hotspot.peek .hs-label,.city-hotspot.active .hs-label{opacity:1;z-index:20}
 .city-hotspot.active .hs-label{background:var(--gold);color:#052E1B;border-color:var(--gold)}
 .city-hotspot.peek .dot{outline:2px dashed var(--gold);outline-offset:3px}
+.map-container.mostrar-nomes .city-hotspot .hs-label{opacity:1;transition:opacity .25s ease}
+.map-container.mostrar-nomes .city-hotspot .hs-label.lbl-collapsed{opacity:0}
 .map-container.calib-on .city-hotspot{pointer-events:auto;cursor:grab}
 .map-container.calib-on .city-hotspot.dragging{cursor:grabbing;z-index:60}
 .map-container.calib-on .city-hotspot .hs-label{opacity:1;outline:1px dashed rgba(255,255,255,0.5)}
@@ -825,6 +831,18 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
           <option value="Cervejarias / Marisqueira">Cervejarias / Marisqueira</option>
           <option value="Restaurante de Especialidade">Restaurante de Especialidade</option>
           <option value="Restaurante Standard">Restaurante Standard</option>
+        </select>
+      </div>
+
+      <div class="ed-section" style="padding:14px 16px">
+        <div class="ed-section-title">💶 Preçário</div>
+        <p class="ed-hint">Deixa em "Automático" para calcular a partir da tipologia, ou escolhe manualmente.</p>
+        <select class="admin-input" id="eePreco">
+          <option value="">Automático (com base na tipologia)</option>
+          <option value="1">€ — Económico</option>
+          <option value="2">€€ — Moderado</option>
+          <option value="3">€€€ — Elevado</option>
+          <option value="4">€€€€ — Premium</option>
         </select>
       </div>
 
@@ -4269,6 +4287,18 @@ window.addEventListener('resize', () => {
 // o duplo-toque/pinça do utilizador ampliam por cima disso, temporariamente.
 const _mapZoomStates = new WeakMap();
 const ZOOM_MIN = 1, ZOOM_MAX = 3.2, ZOOM_TOQUE = 2.2;
+// A partir deste nível de zoom total (repouso × utilizador) considera-se
+// que já há espaço suficiente entre os pins para mostrar os nomes das
+// cidades sem precisares de tocar em cada um. resolverColisoesLabels()
+// continua a esconder individualmente os que mesmo assim colidem.
+const LIMIAR_ZOOM_NOMES = 1.15;
+
+function _atualizarVisibilidadeNomes(cont){
+  const st = _zoomState(cont);
+  const total = st.repouso * st.utilizador;
+  cont.classList.toggle('mostrar-nomes', total >= LIMIAR_ZOOM_NOMES);
+  resolverColisoesLabels(cont.closest('.map-sec'));
+}
 
 function _zoomState(cont){
   let st = _mapZoomStates.get(cont);
@@ -4310,12 +4340,41 @@ function iniciarZoomPanMapas(){
       wrap.insertAdjacentElement('afterend', dicaToque);
       const dica = document.createElement('p');
       dica.className = 'map-zoom-hint';
-      dica.textContent = '💡 Aproxima os dedos ou toca 2x para ampliar';
+      dica.textContent = '💡 Usa os botões + / − para ampliar, ou aproxima os dedos';
       dicaToque.insertAdjacentElement('afterend', dica);
+
+      const controlos = document.createElement('div');
+      controlos.className = 'map-zoom-controls';
+      controlos.innerHTML = `
+        <button type="button" class="map-zoom-btn" data-zoom-acao="in" title="Ampliar">+</button>
+        <button type="button" class="map-zoom-btn" data-zoom-acao="out" title="Reduzir">−</button>
+        <button type="button" class="map-zoom-btn reset" data-zoom-acao="reset" title="Repor">⟲</button>
+      `;
+      wrap.appendChild(controlos);
+      controlos.addEventListener('click', e => {
+        const btn = e.target.closest('.map-zoom-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        const st = _zoomState(mc);
+        mc.classList.add('a-animar');
+        if (btn.dataset.zoomAcao === 'in') {
+          st.utilizador = Math.min(ZOOM_MAX / st.repouso, st.utilizador * 1.5);
+        } else if (btn.dataset.zoomAcao === 'out') {
+          st.utilizador = Math.max(ZOOM_MIN / st.repouso, st.utilizador / 1.5);
+          if (st.utilizador <= 1.02) { st.tx = 0; st.ty = 0; }
+        } else {
+          st.utilizador = 1; st.tx = 0; st.ty = 0;
+        }
+        _clampPan(mc, st);
+        _aplicarTransform(mc);
+        _atualizarVisibilidadeNomes(mc);
+        setTimeout(() => resolverColisoesLabels(mc.closest('.map-sec')), 300);
+      });
     }
 
     const st = _zoomState(mc);
     _aplicarTransform(mc);
+    _atualizarVisibilidadeNomes(mc);
 
     const pointers = new Map();
     let distInicial = 0, utilizadorInicial = 1;
@@ -4349,6 +4408,7 @@ function iniciarZoomPanMapas(){
           st.utilizador = Math.max(ZOOM_MIN / st.repouso, Math.min(ZOOM_MAX / st.repouso, utilizadorInicial * (dist / distInicial)));
           _clampPan(mc, st);
           _aplicarTransform(mc);
+          _atualizarVisibilidadeNomes(mc);
         }
       } else if (pointers.size === 1 && arrasteInicio) {
         const dx = e.clientX - arrasteInicio.x, dy = e.clientY - arrasteInicio.y;
@@ -4390,6 +4450,7 @@ function iniciarZoomPanMapas(){
       if (!aAmpliar) { st.tx = 0; st.ty = 0; }
       _clampPan(mc, st);
       _aplicarTransform(mc);
+      _atualizarVisibilidadeNomes(mc);
       setTimeout(() => resolverColisoesLabels(mc.closest('.map-sec')), 300);
     });
   });
@@ -4679,14 +4740,16 @@ const NIVEL_PRECO_POR_TIPO = {
   RESTAURANTE: 3,
   ROOFTOP: 4
 };
-function calcularNivelPreco(tipoStr, flagship){
+function calcularNivelPreco(tipoStr, flagship, precoManual){
+  const manual = parseInt(precoManual, 10);
+  if (manual >= 1 && manual <= 4) return manual;
   const tipos = splitTipos(tipoStr || '');
   let nivel = tipos.reduce((max, t) => Math.max(max, NIVEL_PRECO_POR_TIPO[t] || 2), 2);
   if (flagship) nivel = Math.min(4, nivel + 1);
   return nivel;
 }
-function precoHtml(tipoStr, flagship){
-  const nivel = calcularNivelPreco(tipoStr, flagship);
+function precoHtml(tipoStr, flagship, precoManual){
+  const nivel = calcularNivelPreco(tipoStr, flagship, precoManual);
   const cheio = '€'.repeat(nivel);
   const vazio = '€'.repeat(4 - nivel);
   return `<div class="qr-side"><span style="font-size:19px;font-weight:800;color:var(--gold);line-height:1">${cheio}<span style="opacity:.28">${vazio}</span></span><span class="qr-lbl">Preçário</span></div>`;
@@ -6295,6 +6358,7 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeInstagram').value = e.instagram || '';
     document.getElementById('eeMapsUrl').value = e.maps_url || '';
     document.getElementById('eeFlagship').checked = !!e.flagship;
+    document.getElementById('eePreco').value = e.preco || '';
     popularSelectCozinha();
     document.getElementById('eeCozinha').value = e.cozinha || '';
     _eeFotosAtual = [e.foto1||'', e.foto2||'', e.foto3||'', e.foto4||''];
@@ -6313,6 +6377,7 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeInstagram').value = '';
     document.getElementById('eeMapsUrl').value = '';
     document.getElementById('eeFlagship').checked = false;
+    document.getElementById('eePreco').value = '';
     popularSelectCozinha();
     document.getElementById('eeCozinha').value = '';
     _eeFotosAtual = ['', '', '', ''];
@@ -6351,6 +6416,7 @@ async function guardarEstabelecimento(){
     destaques: destaquesEscolhidos.join(','),
     cozinha: tiposEscolhidos.includes('RESTAURANTE') ? document.getElementById('eeCozinha').value : '',
     flagship: document.getElementById('eeFlagship').checked,
+    preco: document.getElementById('eePreco').value,
     nome,
     morada,
     estacionamento: document.getElementById('eeEstacionamento').value.trim(),
@@ -6613,6 +6679,8 @@ function linhaParaEstabelecimento(row, index){
   const idDoExcel = get('id', 'pasta_id', 'id_pasta');
   const chavesDestaques = ['destaques','destaque','highlights','tags'];
   const temColunaDestaques = Object.keys(row).some(rk => chavesDestaques.includes(rk.trim().toLowerCase()));
+  const chavesPreco = ['preco','preço','preçario','preçário','nivel_preco','nível_preço'];
+  const temColunaPreco = Object.keys(row).some(rk => chavesPreco.includes(rk.trim().toLowerCase()));
   return {
     id: idDoExcel || ('card-' + (index+1)),
     _idExplicito: !!idDoExcel, // true = o Excel trouxe um id de propósito (ex: pasta do Drive)
@@ -6622,6 +6690,7 @@ function linhaParaEstabelecimento(row, index){
     destaques: temColunaDestaques ? splitDestaques(get('destaques','destaque','highlights','tags')).join(',') : undefined,
     cozinha: get('cozinha','culinaria','culinária','tipo_cozinha').toUpperCase(),
     flagship: valorVerdadeiro(get('flagship')),
+    preco: temColunaPreco ? (() => { const p = get('preco','preço','preçario','preçário','nivel_preco','nível_preço'); const nEuros = (p.match(/€/g)||[]).length; const n = nEuros>0 ? nEuros : parseInt(p,10); return (n>=1&&n<=4) ? String(n) : ''; })() : undefined,
     nome: get('nome'),
     morada: get('morada'),
     estacionamento: get('estacionamento'),
@@ -6721,6 +6790,9 @@ function importarExcel(file){
           // Se o Excel antigo ainda não tiver a coluna de destaques, não apaga
           // os destaques já existentes no Road Book.
           if(n.destaques === undefined) delete n.destaques;
+          // O mesmo para o preçário: se este Excel não tiver coluna de preço,
+          // mantém o valor já definido (manual ou automático) em vez de o apagar.
+          if(n.preco === undefined) delete n.preco;
           // Só mantém o ID antigo se o Excel NÃO trouxe um id de propósito
           // (célula vazia na coluna id). Se trouxeres um id explícito (ex:
           // o ID de uma pasta do Drive), esse é o que passa a valer.
@@ -7169,9 +7241,9 @@ function renderEstabelecimentos(){
       const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('');
       const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
       // Preçário automático em vez do QR code (que duplicava o botão "📍 Maps")
-      const qrHtml = precoHtml(e.tipo, isFL);
+      const qrHtml = precoHtml(e.tipo, isFL, e.preco);
 
-      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-destaques="${e.destaques||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
+      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-destaques="${e.destaques||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}</div>
 <div class="cbody">
@@ -7536,7 +7608,7 @@ function openCardOverlay(cardId){
   const hoursTxt = hoursRaw;
 
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
-  const qrHtml  = precoHtml(card.dataset.tipo, flagship);
+  const qrHtml  = precoHtml(card.dataset.tipo, flagship, card.dataset.preco);
 
   const mapsUrl = mapsEl?.href||'#';
 
