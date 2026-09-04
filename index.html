@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
@@ -8217,6 +8217,293 @@ function setStatus(msg, type){
   } else {
     setTimeout(mostrarNotifWelcome, 900);
   }
+})();
+</script>
+
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   ROAD BOOK — SINCRONIZAÇÃO CLOUD DAS IMAGENS DOS MAPAS E CAPA
+   As imagens são guardadas no Google Drive pelo Apps Script e a Sheet
+   guarda apenas os links/metadados. Assim a alteração aparece noutros
+   equipamentos sem depender do localStorage.
+   ══════════════════════════════════════════════════════════════════ */
+(function(){
+  const VISUAL_CACHE_KEY = 'roadbook_visual_config_v1';
+  let _visualMetaTimers = {};
+
+  function visualKey(tipo, codigo){
+    return codigo ? ('map_region_' + codigo) : tipo;
+  }
+
+  function guardarVisualCache(dados){
+    try { localStorage.setItem(VISUAL_CACHE_KEY, JSON.stringify(dados || {})); } catch(e) {}
+  }
+
+  function lerVisualCache(){
+    try { return JSON.parse(localStorage.getItem(VISUAL_CACHE_KEY) || '{}'); }
+    catch(e){ return {}; }
+  }
+
+  function aplicarVisualItem(chave, item){
+    if (!item) return;
+
+    if (chave === 'cover') {
+      const bgImg = document.getElementById('coverBgImg');
+      const bgLayer = document.getElementById('coverBgLayer');
+      if (bgImg && bgLayer) {
+        if (item.url) {
+          bgImg.src = item.url;
+          bgLayer.style.display = 'block';
+          if (item.opacity !== '' && item.opacity != null) {
+            bgImg.dataset.textOpacity = item.opacity;
+            bgImg.style.opacity = Number(item.opacity) / 100;
+            const op = document.getElementById('edCoverBgOpacidade');
+            if (op) op.value = item.opacity;
+          }
+        } else if (item.hasOwnProperty('url')) {
+          bgImg.src = '';
+          bgLayer.style.display = 'none';
+        }
+      }
+      return;
+    }
+
+    if (chave === 'map_national') {
+      const img = document.getElementById('ptMapImgEl');
+      if (img) {
+        if (item.url) img.src = item.url;
+        if (item.escala !== '' && item.escala != null) {
+          img.dataset.escala = item.escala;
+          img.style.transform = 'scale(' + (Number(item.escala) / 100) + ')';
+          img.style.transformOrigin = 'center center';
+          const inp = document.getElementById('edMapaNacionalTam');
+          if (inp) inp.value = item.escala;
+        }
+      }
+      return;
+    }
+
+    const m = chave.match(/^map_region_(.+)$/);
+    if (m) {
+      const codigo = m[1];
+      const secao = document.querySelector('section.map-sec[data-region-code="' + CSS.escape(codigo) + '"]');
+      const img = secao ? secao.querySelector('.map-img') : null;
+      if (img && item.url) img.src = item.url;
+    }
+  }
+
+  function aplicarVisuais(dados){
+    if (!dados || typeof dados !== 'object') return;
+    Object.keys(dados).forEach(chave => aplicarVisualItem(chave, dados[chave]));
+    guardarVisualCache(dados);
+  }
+
+  async function carregarVisuaisCloud(){
+    if (!SYNC_URL) return;
+    try {
+      const dados = await syncGet('list_visuals');
+      if (dados && typeof dados === 'object') {
+        aplicarVisuais(dados);
+      }
+    } catch(err) {
+      console.warn('Erro a carregar imagens/configuração visual da cloud:', err);
+    }
+  }
+
+  async function prepararImagemVisual(file){
+    if (!file) return null;
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const original = reader.result;
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const MAX = 2600;
+            const maior = Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height);
+            const escala = maior > MAX ? MAX / maior : 1;
+            const w = Math.max(1, Math.round((img.naturalWidth || img.width) * escala));
+            const h = Math.max(1, Math.round((img.naturalHeight || img.height) * escala));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // WebP mantém transparência e reduz bastante o tamanho do envio.
+            const dataUrl = canvas.toDataURL('image/webp', 0.9);
+            resolve({
+              dataUrl: dataUrl,
+              mimeType: 'image/webp',
+              nome: file.name || 'roadbook-visual.webp'
+            });
+          } catch(e) {
+            // Fallback: envia o ficheiro original.
+            resolve({
+              dataUrl: original,
+              mimeType: (file.type || 'image/png').split(';')[0],
+              nome: file.name || 'roadbook-visual'
+            });
+          }
+        };
+        img.onerror = () => resolve({
+          dataUrl: original,
+          mimeType: (file.type || 'image/png').split(';')[0],
+          nome: file.name || 'roadbook-visual'
+        });
+        img.src = original;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function guardarImagemVisualCloud(chave, file){
+    if (!SYNC_URL || !file) return false;
+    try {
+      const preparado = await prepararImagemVisual(file);
+      const ok = await syncPost('save_visual_image', {
+        chave: chave,
+        dataUrl: preparado.dataUrl,
+        mimeType: preparado.mimeType,
+        nome: preparado.nome
+      });
+      if (ok) {
+        const cache = lerVisualCache();
+        cache[chave] = Object.assign({}, cache[chave] || {}, { url: null, mimeType: preparado.mimeType });
+        // A resposta do backend é obtida pelo endpoint GET; não guardamos
+        // a DataURL localmente para não encher o armazenamento do browser.
+        setTimeout(carregarVisuaisCloud, 150);
+      }
+      return ok;
+    } catch(err) {
+      console.warn('Erro a guardar imagem visual na cloud:', err);
+      return false;
+    }
+  }
+
+  async function removerImagemVisualCloud(chave){
+    if (!SYNC_URL) return false;
+    try {
+      const ok = await syncPost('delete_visual_image', { chave: chave });
+      if (ok) {
+        const cache = lerVisualCache();
+        cache[chave] = { url: '' };
+        guardarVisualCache(cache);
+      }
+      return ok;
+    } catch(err) {
+      console.warn('Erro a remover imagem visual da cloud:', err);
+      return false;
+    }
+  }
+
+  function guardarMetaVisualCloud(chave, meta){
+    if (!SYNC_URL) return;
+    clearTimeout(_visualMetaTimers[chave]);
+    _visualMetaTimers[chave] = setTimeout(() => {
+      syncPost('save_visual_meta', Object.assign({ chave: chave }, meta || {}));
+    }, 350);
+  }
+
+  // ── CAPA ────────────────────────────────────────────────────────
+  window.substituirImagemCapa = async function(file){
+    marcarAlteracoesPorExportar();
+    if (!file) return;
+
+    const bgImg = document.getElementById('coverBgImg');
+    const bgLayer = document.getElementById('coverBgLayer');
+    if (!bgImg || !bgLayer) return;
+
+    const preparado = await prepararImagemVisual(file);
+    bgImg.src = preparado.dataUrl;
+    bgLayer.style.display = 'block';
+    ajustarOpacidadeCapa(document.getElementById('edCoverBgOpacidade').value || 35);
+
+    const ok = await guardarImagemVisualCloud('cover', file);
+    if (!ok && SYNC_URL) console.warn('A imagem da capa foi aplicada localmente, mas não foi possível sincronizá-la.');
+  };
+
+  window.removerImagemCapa = async function(){
+    marcarAlteracoesPorExportar();
+    const bgImg = document.getElementById('coverBgImg');
+    const bgLayer = document.getElementById('coverBgLayer');
+    if (bgImg) bgImg.src = '';
+    if (bgLayer) bgLayer.style.display = 'none';
+    const inp = document.getElementById('edCoverBgInput');
+    if (inp) inp.value = '';
+    await removerImagemVisualCloud('cover');
+  };
+
+  window.ajustarOpacidadeCapa = function(valor){
+    marcarAlteracoesPorExportar();
+    const bgImg = document.getElementById('coverBgImg');
+    if (!bgImg) return;
+    bgImg.dataset.textOpacity = valor;
+    bgImg.style.opacity = (Number(valor) / 100).toString();
+    const op = document.getElementById('edCoverBgOpacidade');
+    if (op && op.value !== String(valor)) op.value = valor;
+    guardarMetaVisualCloud('cover', { opacity: Number(valor) });
+  };
+
+  // ── MAPA NACIONAL ───────────────────────────────────────────────
+  window.substituirMapaNacional = async function(file){
+    marcarAlteracoesPorExportar();
+    if (!file) return;
+    const img = document.getElementById('ptMapImgEl');
+    if (!img) return;
+
+    const preparado = await prepararImagemVisual(file);
+    img.src = preparado.dataUrl;
+
+    const ok = await guardarImagemVisualCloud('map_national', file);
+    if (!ok && SYNC_URL) console.warn('O mapa de Portugal foi aplicado localmente, mas não foi possível sincronizá-lo.');
+  };
+
+  window.ajustarTamanhoMapaNacional = function(valor){
+    marcarAlteracoesPorExportar();
+    const img = document.getElementById('ptMapImgEl');
+    if (!img) return;
+    img.dataset.escala = valor;
+    img.style.transform = 'scale(' + (Number(valor) / 100) + ')';
+    img.style.transformOrigin = 'center center';
+    guardarMetaVisualCloud('map_national', { escala: Number(valor) });
+  };
+
+  // ── MAPAS REGIONAIS ─────────────────────────────────────────────
+  window.substituirMapaRegiao = async function(file){
+    marcarAlteracoesPorExportar();
+    const sel = document.getElementById('edRegiaoSelect');
+    const codigo = sel ? sel.value : '';
+    if (!codigo || !file) return;
+
+    const secao = document.querySelector('section.map-sec[data-region-code="' + CSS.escape(codigo) + '"]');
+    const img = secao ? secao.querySelector('.map-img') : null;
+    if (!img) return;
+
+    const preparado = await prepararImagemVisual(file);
+    img.src = preparado.dataUrl;
+
+    const ok = await guardarImagemVisualCloud(visualKey('map_region', codigo), file);
+    if (!ok && SYNC_URL) console.warn('O mapa da região ' + codigo + ' foi aplicado localmente, mas não foi possível sincronizá-lo.');
+  };
+
+  // Carrega primeiro o cache local (se existir) para a abertura ser imediata,
+  // e depois substitui pelos valores mais recentes da cloud.
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(() => {
+      const cache = lerVisualCache();
+      if (cache && Object.keys(cache).length) aplicarVisuais(cache);
+      carregarVisuaisCloud();
+    }, 80);
+  });
+
+  // Também tenta carregar quando a página já está aberta e o script é
+  // injetado/recarregado pelo editor.
+  window.carregarVisuaisCloud = carregarVisuaisCloud;
 })();
 </script>
 
