@@ -5067,7 +5067,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 </div>
 
 <!-- ══════ PAINEL: EDITAR CAPA E MAPAS ══════ -->
-<div class="admin-panel open" id="editorCapaPanel">
+<div class="admin-panel" id="editorCapaPanel">
   <div class="admin-header">
     <button class="admin-back" onclick="closeEditorCapa()">✕</button>
     <span class="admin-title">🎨 EDITAR CAPA E MAPAS</span>
@@ -12826,14 +12826,29 @@ function setStatus(msg, type){
         mimeType: preparado.mimeType,
         nome: preparado.nome
       });
-      if (ok) {
-        const cache = lerVisualCache();
-        cache[chave] = Object.assign({}, cache[chave] || {}, { url: null, mimeType: preparado.mimeType });
-        // A resposta do backend é obtida pelo endpoint GET; não guardamos
-        // a DataURL localmente para não encher o armazenamento do browser.
-        setTimeout(carregarVisuaisCloud, 150);
+      if (!ok) return false;
+
+      // Não guardamos a DataURL no localStorage. Depois da confirmação do
+      // POST, voltamos à cloud várias vezes até a nova versão estar visível.
+      // Isto evita que um equipamento fique preso temporariamente à imagem
+      // anterior por atraso de leitura/cache.
+      for (let tentativa = 0; tentativa < 6; tentativa++) {
+        const dados = await syncGet('list_visuals');
+        const item = dados && dados[chave];
+        if (item && item.url) {
+          const cache = lerVisualCache();
+          cache[chave] = Object.assign({}, item);
+          guardarVisualCache(cache);
+          aplicarVisualItem(chave, item);
+          return true;
+        }
+        await new Promise(r => setTimeout(r, 400 * (tentativa + 1)));
       }
-      return ok;
+
+      // O POST foi aceite, mas a leitura de confirmação não apareceu a
+      // tempo. Mantemos o resultado como falha para não dizer ao utilizador
+      // que ficou sincronizado quando ainda não conseguimos confirmar.
+      return false;
     } catch(err) {
       console.warn('Erro a guardar imagem visual na cloud:', err);
       return false;
