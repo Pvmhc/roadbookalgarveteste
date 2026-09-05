@@ -11534,18 +11534,65 @@ function registarAlteracaoHotspot(hotspot){
 // Envia a posição/tamanho do pin para a Google Sheet (com debounce, para
 // não disparar um pedido por cada pixel arrastado) e guarda também em
 // localStorage como cópia de segurança offline.
+//
+// CORREÇÃO: se a aba/app fechar dentro da janela de 600ms do debounce,
+// o envio nunca chegava a disparar e a alteração perdia-se ao recarregar
+// (a versão antiga da Sheet substituía a versão nova só guardada
+// localmente). Agora guardamos os envios pendentes em _pinSavesPendentes
+// e, assim que a página for escondida/fechada, disparamos de imediato
+// todos os que ainda não tinham sido enviados, usando sendBeacon (feito
+// exatamente para conseguir terminar um envio mesmo que a página feche).
 let _pinSaveTimers = {};
+let _pinSavesPendentes = {};
+
 function guardarPinOverrideCloud(hotspotId, left, top, fontSize){
   const overrides = JSON.parse(localStorage.getItem('roadbook_pin_overrides') || '{}');
   overrides[hotspotId] = { hotspot_id: hotspotId, left, top, fontSize };
   localStorage.setItem('roadbook_pin_overrides', JSON.stringify(overrides));
 
   if (!SYNC_URL) return;
+  _pinSavesPendentes[hotspotId] = overrides[hotspotId];
   clearTimeout(_pinSaveTimers[hotspotId]);
   _pinSaveTimers[hotspotId] = setTimeout(() => {
+    delete _pinSavesPendentes[hotspotId];
     syncPost('save_pin', { dados: overrides[hotspotId] });
   }, 600);
 }
+
+function _enviarPinsPendentesImediatamente(){
+  const pendentes = Object.values(_pinSavesPendentes);
+  if (!pendentes.length || !SYNC_URL) return;
+  pendentes.forEach(dados => {
+    const payload = JSON.stringify({ action: 'save_pin', dados });
+    let enviado = false;
+    if (navigator.sendBeacon) {
+      try {
+        enviado = navigator.sendBeacon(
+          SYNC_URL,
+          new Blob([payload], { type: 'text/plain;charset=utf-8' })
+        );
+      } catch (err) { enviado = false; }
+    }
+    if (!enviado) {
+      // Reserva (browsers antigos sem sendBeacon): pedido "keepalive"
+      // continua a tentar terminar mesmo que a página já esteja a fechar.
+      fetch(SYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload,
+        keepalive: true
+      }).catch(() => {});
+    }
+  });
+  _pinSavesPendentes = {};
+  Object.values(_pinSaveTimers).forEach(t => clearTimeout(t));
+  _pinSaveTimers = {};
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') _enviarPinsPendentesImediatamente();
+});
+window.addEventListener('pagehide', _enviarPinsPendentesImediatamente);
 
 // Aplica as posições/tamanhos guardados na cloud a todos os pins, em
 // qualquer equipamento — corre no arranque da app, não só em modo de
