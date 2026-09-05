@@ -208,6 +208,11 @@ body.admin-mode .card-edit-btn{display:flex}
 .dbtn.destaque-color-btn.active,.dbtn.destaque-color-btn:hover,.so-chip.destaque-color-btn.active,.so-chip.destaque-color-btn:hover{background:rgb(var(--dc));border-color:#fff;color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(var(--dc),.35)}
 /* Name */
 .c-name{font-size:clamp(16px,4vw,21px);font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.2px}
+.c-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.c-name-row .c-name{flex:1;min-width:0}
+.preco-inline{flex-shrink:0;font-size:15px;font-weight:800;color:var(--gold);letter-spacing:.5px;white-space:nowrap}
+.card-ov-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card-ov-name-row .card-ov-name{flex:1;min-width:0}
 /* Type badge */
 .c-type-box{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;width:fit-content;background:rgba(228,185,63,.08)}
 .c-type-txt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -9209,6 +9214,14 @@ function precoHtml(tipoStr, flagship, precoManual){
   const vazio = '€'.repeat(4 - nivel);
   return `<div class="qr-side"><span style="font-size:19px;font-weight:800;color:var(--gold);line-height:1">${cheio}<span style="opacity:.28">${vazio}</span></span><span class="qr-lbl">Preçário</span></div>`;
 }
+// Versão compacta do preçário, para mostrar ao lado do nome do
+// estabelecimento (em vez de numa linha separada junto à morada).
+function precoInlineHtml(tipoStr, flagship, precoManual){
+  const nivel = calcularNivelPreco(tipoStr, flagship, precoManual);
+  const cheio = '€'.repeat(nivel);
+  const vazio = '€'.repeat(4 - nivel);
+  return `<span class="preco-inline">${cheio}<span style="opacity:.28">${vazio}</span></span>`;
+}
 
 function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
 function labelParaDestaque(codigo){
@@ -11742,15 +11755,15 @@ function renderEstabelecimentos(){
       const destaquesCard = splitDestaques(e.destaques);
       const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('');
       const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
-      // Preçário automático em vez do QR code (que duplicava o botão "📍 Maps")
-      const qrHtml = precoHtml(e.tipo, isFL, e.preco);
+      // Preçário mostrado ao lado do nome do estabelecimento.
+      const precoInline = precoInlineHtml(e.tipo, isFL, e.preco);
 
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-destaques="${e.destaques||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}</div>
 <div class="cbody">
 ${badgesHtml}
-<h3 class="c-name">${e.nome}</h3>
+<div class="c-name-row"><h3 class="c-name">${e.nome}</h3>${precoInline}</div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
 <div class="c-divider"></div>
@@ -11761,7 +11774,6 @@ ${badgesHtml}
     ${e.estacionamento ? `<div class="det-lbl">ESTACIONAMENTO</div><div class="det-val">${e.estacionamento}</div>` : ''}
     ${e.horario ? `<div class="det-lbl">HORÁRIO</div><div class="det-val-contact">${e.horario}</div>` : ''}
   </div>
-  ${qrHtml}
 </div>
 <div class="btn-row">
 ${e.telefone ? `<a href="tel:${e.telefone}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Ligar</a>` : ''}
@@ -12110,7 +12122,7 @@ function openCardOverlay(cardId){
   const hoursTxt = hoursRaw;
 
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
-  const qrHtml  = precoHtml(card.dataset.tipo, flagship, card.dataset.preco);
+  const precoInlineOv = precoInlineHtml(card.dataset.tipo, flagship, card.dataset.preco);
 
   const mapsUrl = mapsEl?.href||'#';
 
@@ -12119,7 +12131,7 @@ function openCardOverlay(cardId){
     ${photosHtml}
     <div class="card-ov-info">
       ${badgesOv}
-      <div class="card-ov-name">${name}</div>
+      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${precoInlineOv}</div>
       <div class="card-ov-typebox"><span class="card-ov-typetxt">${tipo}</span></div><br>
       <div class="card-ov-city">${city}</div>
       <div class="card-ov-divider"></div>
@@ -12128,7 +12140,6 @@ function openCardOverlay(cardId){
       <div class="card-ov-lbl">ESTACIONAMENTO</div>
       <div class="card-ov-val">${parkTxt}</div>
       ${hoursTxt ? `<div class="card-ov-lbl">HORÁRIO</div><div class="card-ov-val">${hoursTxt}</div>` : ''}
-      ${qrHtml}
     </div>
     <div class="btn-row" style="padding:0 18px 16px">
       ${phoneTxt ? `<a href="tel:${phoneTxt}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Ligar</a>` : ''}
