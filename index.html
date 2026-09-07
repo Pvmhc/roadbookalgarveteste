@@ -40,21 +40,20 @@ body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scroll
     scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
   }
   body:has(#vSec.open) .card{
-    scroll-snap-align:start;
+    scroll-snap-align:center;
     scroll-snap-stop:always;
     scroll-margin-top:0;
-    min-height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom));
-    justify-content:center;
+    scroll-margin-bottom:0;
   }
   body.vsec-open .card{
-    scroll-snap-align:start;
+    scroll-snap-align:center;
     scroll-snap-stop:always;
     scroll-margin-top:0;
-    min-height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom));
-    justify-content:center;
+    scroll-margin-bottom:0;
   }
 }
 :root{
+  --safe-bottom:env(safe-area-inset-bottom,0px);
   --green:#0C7C3E;--green2:#0A6534;--greendark:#052E1B;--greendeep:#031F12;
   --gold:#E4B93F;--gold2:#C89A2A;
   --red:#E2001A;
@@ -12214,22 +12213,35 @@ const obs=new IntersectionObserver(e=>e.forEach(x=>{
 document.querySelectorAll('.card').forEach(c=>obs.observe(c));
 
 // ── REDE DE SEGURANÇA: garante que o scroll no feed (telemóvel) fica
-// SEMPRE alinhado exatamente ao topo do card mais próximo, um de cada
-// vez. scroll-snap-stop:always já obriga a isto na maioria dos
-// browsers modernos; isto corrige o resto (browsers/webviews mais
-// antigos que ignorem scroll-snap-stop). ──
+// SEMPRE com o card CENTRADO no espaço visível (entre a barra de
+// filtros e a barra de navegação de baixo), um de cada vez.
+// scroll-snap-stop:always já obriga a isto na maioria dos browsers
+// modernos; isto corrige o resto (browsers/webviews mais antigos que
+// ignorem scroll-snap-stop). ──
+function feedCentroVisivelY(){
+  const topo=54;
+  const nav=66+(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'))||0);
+  return (topo+(window.innerHeight-nav))/2;
+}
+function feedCentrarCard(card){
+  const centroAlvo=feedCentroVisivelY();
+  const r=card.getBoundingClientRect();
+  const centroCard=r.top+r.height/2;
+  window.scrollBy({top: centroCard-centroAlvo, behavior:'smooth'});
+}
 function corrigirSnapFeedEstabelecimentos(){
   if(window.innerWidth>768) return;
   if(!document.body.classList.contains('vsec-open')) return;
   const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
   if(!cards.length) return;
-  const headerOffset=54;
+  const centroAlvo=feedCentroVisivelY();
   let alvo=null, menorDist=Infinity;
   cards.forEach(c=>{
-    const dist=Math.abs(c.getBoundingClientRect().top-headerOffset);
+    const r=c.getBoundingClientRect();
+    const dist=Math.abs((r.top+r.height/2)-centroAlvo);
     if(dist<menorDist){menorDist=dist; alvo=c;}
   });
-  if(alvo && menorDist>4) alvo.scrollIntoView({behavior:'smooth', block:'start'});
+  if(alvo && menorDist>4) feedCentrarCard(alvo);
 }
 if('onscrollend' in window){
   window.addEventListener('scrollend', corrigirSnapFeedEstabelecimentos);
@@ -12243,15 +12255,17 @@ if('onscrollend' in window){
 
 // ── CONTROLO MANUAL DO SWIPE (não depende do CSS scroll-snap) ──────
 // Cada swipe avança/recua exatamente 1 estabelecimento, mesmo que o
-// browser do telemóvel não respeite scroll-snap-type/scroll-snap-stop.
+// browser do telemóvel não respeite scroll-snap-type/scroll-snap-stop,
+// e deixa-o sempre CENTRADO no espaço visível.
 function feedAtivoAgora(){
   return window.innerWidth<=768 && document.body.classList.contains('vsec-open');
 }
 function feedIndiceMaisProximo(cards){
-  const headerOffset=54;
+  const centroAlvo=feedCentroVisivelY();
   let idx=0, menorDist=Infinity;
   cards.forEach((c,i)=>{
-    const dist=Math.abs(c.getBoundingClientRect().top-headerOffset);
+    const r=c.getBoundingClientRect();
+    const dist=Math.abs((r.top+r.height/2)-centroAlvo);
     if(dist<menorDist){menorDist=dist; idx=i;}
   });
   return idx;
@@ -12275,15 +12289,15 @@ window.addEventListener('touchend', e=>{
   if(deltaY>0) alvoIdx=Math.min(indiceInicio+1, cards.length-1);
   else alvoIdx=Math.max(indiceInicio-1, 0);
   // espera o scroll nativo (e o eventual momentum) assentar e depois
-  // força exatamente esse único passo, ignorando quantos cards o
-  // momentum tenha ultrapassado
+  // força exatamente esse único passo, sempre centrado, ignorando
+  // quantos cards o momentum tenha ultrapassado
   let ultimaPos=window.scrollY, paradasSeguidas=0, tentativas=0;
   const verificarAssentou=()=>{
     tentativas++;
     if(window.scrollY===ultimaPos){
       paradasSeguidas++;
       if(paradasSeguidas>=3 || tentativas>90){
-        cards[alvoIdx].scrollIntoView({behavior:'smooth', block:'start'});
+        feedCentrarCard(cards[alvoIdx]);
         return;
       }
     }else{
