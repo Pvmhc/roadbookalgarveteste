@@ -19,8 +19,8 @@ html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
    mapa, rodapé) continua com scroll livre normal. */
-body:has(#vSec.open){scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
-body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
+body:has(#vSec.open){scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scroll-behavior:auto}
+body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scroll-behavior:auto}
 .card{scroll-snap-align:center;scroll-margin-top:70px}
 /* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
    ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
@@ -12240,6 +12240,59 @@ if('onscrollend' in window){
     feedScrollTimer=setTimeout(corrigirSnapFeedEstabelecimentos,120);
   }, {passive:true});
 }
+
+// ── CONTROLO MANUAL DO SWIPE (não depende do CSS scroll-snap) ──────
+// Cada swipe avança/recua exatamente 1 estabelecimento, mesmo que o
+// browser do telemóvel não respeite scroll-snap-type/scroll-snap-stop.
+function feedAtivoAgora(){
+  return window.innerWidth<=768 && document.body.classList.contains('vsec-open');
+}
+function feedIndiceMaisProximo(cards){
+  const headerOffset=54;
+  let idx=0, menorDist=Infinity;
+  cards.forEach((c,i)=>{
+    const dist=Math.abs(c.getBoundingClientRect().top-headerOffset);
+    if(dist<menorDist){menorDist=dist; idx=i;}
+  });
+  return idx;
+}
+let feedToqueInicioY=null, feedToqueIndiceInicio=0, feedToqueCards=[];
+window.addEventListener('touchstart', e=>{
+  if(!feedAtivoAgora()) return;
+  feedToqueCards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
+  if(!feedToqueCards.length){ feedToqueInicioY=null; return; }
+  feedToqueInicioY=e.touches[0].clientY;
+  feedToqueIndiceInicio=feedIndiceMaisProximo(feedToqueCards);
+}, {passive:true});
+window.addEventListener('touchend', e=>{
+  if(feedToqueInicioY===null || !feedToqueCards.length) return;
+  const inicioY=feedToqueInicioY, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards;
+  feedToqueInicioY=null;
+  const fimY=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:inicioY;
+  const deltaY=inicioY-fimY;
+  if(Math.abs(deltaY)<12) return; // toque simples num botão — não mexer
+  let alvoIdx=indiceInicio;
+  if(deltaY>0) alvoIdx=Math.min(indiceInicio+1, cards.length-1);
+  else alvoIdx=Math.max(indiceInicio-1, 0);
+  // espera o scroll nativo (e o eventual momentum) assentar e depois
+  // força exatamente esse único passo, ignorando quantos cards o
+  // momentum tenha ultrapassado
+  let ultimaPos=window.scrollY, paradasSeguidas=0, tentativas=0;
+  const verificarAssentou=()=>{
+    tentativas++;
+    if(window.scrollY===ultimaPos){
+      paradasSeguidas++;
+      if(paradasSeguidas>=3 || tentativas>90){
+        cards[alvoIdx].scrollIntoView({behavior:'smooth', block:'start'});
+        return;
+      }
+    }else{
+      paradasSeguidas=0; ultimaPos=window.scrollY;
+    }
+    requestAnimationFrame(verificarAssentou);
+  };
+  requestAnimationFrame(verificarAssentou);
+}, {passive:true});
 
 /* ── BOTTOM NAV ─────────────────────────────────────────────────── */
 function goHome(){
