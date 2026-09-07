@@ -19,17 +19,20 @@ html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
    mapa, rodapé) continua com scroll livre normal. */
-body:has(#vSec.open){scroll-snap-type:y mandatory}
+body:has(#vSec.open),body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
 .card{scroll-snap-align:center;scroll-margin-top:70px}
 /* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
    ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
-   TikTok — em vez de ficar "a meio", cortado por cima e por baixo. */
+   TikTok — em vez de ficar "a meio", cortado por cima e por baixo.
+   scroll-snap-stop:always obriga a parar em CADA card, um de cada
+   vez, mesmo com um swipe rápido/forte. body.vsec-open é um
+   fallback via JS para telemóveis cujo browser não suporte :has(). */
 @media(max-width:768px){
-  body:has(#vSec.open){
+  body:has(#vSec.open),body.vsec-open{
     scroll-padding-top:54px;
     scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
   }
-  body:has(#vSec.open) .card{
+  body:has(#vSec.open) .card,body.vsec-open .card{
     scroll-snap-align:start;
     scroll-snap-stop:always;
     scroll-margin-top:0;
@@ -12160,6 +12163,7 @@ function cardMatchesDestaque(card){
 function applyFilters(){
   garantirEstabelecimentosRenderizados();
   document.getElementById('vSec').classList.add('open');
+  document.body.classList.add('vsec-open');
   document.getElementById('vsecPlaceholder').classList.add('hidden');
   const q=document.getElementById('q').value.toLowerCase().trim();
   const vis=new Set();
@@ -12194,6 +12198,34 @@ const obs=new IntersectionObserver(e=>e.forEach(x=>{
   if(x.isIntersecting){x.target.classList.add('vis');obs.unobserve(x.target);}
 }),{threshold:.04});
 document.querySelectorAll('.card').forEach(c=>obs.observe(c));
+
+// ── REDE DE SEGURANÇA: garante que o scroll no feed (telemóvel) fica
+// SEMPRE alinhado exatamente ao topo do card mais próximo, um de cada
+// vez. scroll-snap-stop:always já obriga a isto na maioria dos
+// browsers modernos; isto corrige o resto (browsers/webviews mais
+// antigos que ignorem scroll-snap-stop). ──
+function corrigirSnapFeedEstabelecimentos(){
+  if(window.innerWidth>768) return;
+  if(!document.body.classList.contains('vsec-open')) return;
+  const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
+  if(!cards.length) return;
+  const headerOffset=54;
+  let alvo=null, menorDist=Infinity;
+  cards.forEach(c=>{
+    const dist=Math.abs(c.getBoundingClientRect().top-headerOffset);
+    if(dist<menorDist){menorDist=dist; alvo=c;}
+  });
+  if(alvo && menorDist>4) alvo.scrollIntoView({behavior:'smooth', block:'start'});
+}
+if('onscrollend' in window){
+  window.addEventListener('scrollend', corrigirSnapFeedEstabelecimentos);
+}else{
+  let feedScrollTimer=null;
+  window.addEventListener('scroll', ()=>{
+    clearTimeout(feedScrollTimer);
+    feedScrollTimer=setTimeout(corrigirSnapFeedEstabelecimentos,120);
+  }, {passive:true});
+}
 
 /* ── BOTTOM NAV ─────────────────────────────────────────────────── */
 function goHome(){
