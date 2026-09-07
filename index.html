@@ -25,11 +25,15 @@ body:has(#vSec.open){scroll-snap-type:y mandatory}
    ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
    TikTok — em vez de ficar "a meio", cortado por cima e por baixo. */
 @media(max-width:768px){
+  body:has(#vSec.open){
+    scroll-padding-top:54px;
+    scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
+  }
   body:has(#vSec.open) .card{
     scroll-snap-align:start;
     scroll-snap-stop:always;
-    scroll-margin-top:54px;
-    min-height:calc(100dvh - 54px);
+    scroll-margin-top:0;
+    min-height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom));
     justify-content:center;
   }
 }
