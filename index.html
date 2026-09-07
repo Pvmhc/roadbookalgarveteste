@@ -19,20 +19,34 @@ html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
    mapa, rodapé) continua com scroll livre normal. */
-body:has(#vSec.open),body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
+body:has(#vSec.open){scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
+body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
 .card{scroll-snap-align:center;scroll-margin-top:70px}
 /* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
    ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
    TikTok — em vez de ficar "a meio", cortado por cima e por baixo.
    scroll-snap-stop:always obriga a parar em CADA card, um de cada
    vez, mesmo com um swipe rápido/forte. body.vsec-open é um
-   fallback via JS para telemóveis cujo browser não suporte :has(). */
+   fallback via JS para telemóveis cujo browser não suporte :has()
+   — tem de ser uma regra CSS SEPARADA da de :has(), senão um
+   browser sem suporte para :has() deita fora a regra toda. */
 @media(max-width:768px){
-  body:has(#vSec.open),body.vsec-open{
+  body:has(#vSec.open){
     scroll-padding-top:54px;
     scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
   }
-  body:has(#vSec.open) .card,body.vsec-open .card{
+  body.vsec-open{
+    scroll-padding-top:54px;
+    scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
+  }
+  body:has(#vSec.open) .card{
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    scroll-margin-top:0;
+    min-height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom));
+    justify-content:center;
+  }
+  body.vsec-open .card{
     scroll-snap-align:start;
     scroll-snap-stop:always;
     scroll-margin-top:0;
