@@ -15,11 +15,12 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
-/* Depois de escolheres uma cidade (lista de estabelecimentos aberta),
-   o scroll da página passa a "colar" a cada cartão, centrando-o — em
-   vez de ires deixando os cartões cortados a meio ao percorrer a lista. */
-body:has(#vSec.open){scroll-snap-type:y proximity}
-.card{scroll-snap-align:center;scroll-margin-top:70px}
+/* ── "Reels": a capa, o mapa e o rodapé são cada um um "scroll" cheio
+   do ecrã, tipo o Foco Semanal — avanças de secção em secção em vez de
+   um scroll livre contínuo. Depois de escolheres uma cidade, cada
+   estabelecimento passa a ser também um "scroll" (ecrã inteiro). */
+html{scroll-snap-type:y mandatory}
+.card{scroll-snap-align:start}
 :root{
   --green:#0C7C3E;--green2:#0A6534;--greendark:#052E1B;--greendeep:#031F12;
   --gold:#E4B93F;--gold2:#C89A2A;
@@ -39,7 +40,7 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:8px}
 
 /* ── COVER ─────────────────────────────────────────────────────────── */
-.cover{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:10vw 8vw 0;overflow:hidden;background:radial-gradient(140% 90% at 15% 0%,#12A356 0%,#086B39 38%,#04321D 75%,#021A0F 100%)}
+.cover{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:10vw 8vw 0;overflow:hidden;background:radial-gradient(140% 90% at 15% 0%,#12A356 0%,#086B39 38%,#04321D 75%,#021A0F 100%);scroll-snap-align:start}
 .cover::before{content:'';position:absolute;inset:0;background:
     radial-gradient(circle at 85% 12%,rgba(228,185,63,.28) 0%,transparent 45%),
     radial-gradient(circle at 10% 85%,rgba(255,255,255,.06) 0%,transparent 40%);
@@ -150,11 +151,11 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .ch.hidden{display:none!important}
 .ch-name{font-family:'Poppins',sans-serif;font-size:21px;font-weight:800;color:var(--white);letter-spacing:.2px}
 .ch-cnt{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
-.grid{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:1fr;gap:0;margin-bottom:0}
 @media(min-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ── CARD ────────────────────────────────────────────────────────────── */
-.card{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,box-shadow .3s,border-color .3s;box-shadow:var(--shadow);position:relative}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:1px solid var(--border);overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,box-shadow .3s,border-color .3s;box-shadow:var(--shadow);position:relative;height:100svh}
 .card-edit-btn{display:none;position:absolute;top:10px;right:10px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(4,20,12,.75);border:1px solid var(--gold);color:var(--gold);font-size:14px;align-items:center;justify-content:center;cursor:pointer}
 
 /* ── FEEDBACK POR ESTABELECIMENTO ─────────────────────────────────── */
@@ -348,7 +349,7 @@ select.admin-input option{background:#0B4F30;color:#ffffff}
 .start-msg .sm-icon{font-size:34px;opacity:.8}
 .start-msg .sm-title{font-weight:800;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
 .start-msg .sm-sub{font-size:13px;opacity:.7;max-width:280px;line-height:1.5}
-footer{background:#021A0F;border-top:1px solid var(--border);padding:26px 14px 110px;text-align:center}
+footer{background:#021A0F;border-top:1px solid var(--border);padding:26px 14px 110px;text-align:center;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;scroll-snap-align:start}
 .legal-badges{display:flex;align-items:center;justify-content:center;gap:28px;margin:0 0 18px}
 .legal-badges img{height:56px;width:auto;opacity:.92}
 footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--softwhite);opacity:.45;text-transform:uppercase}
@@ -437,7 +438,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .pt-map-hint{font-family:'Inter',sans-serif;font-weight:600;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--softwhite);opacity:.65;margin-top:10px}
 
 .map-sec{display:none}
-.map-sec.open{display:block}
+.map-sec.open{display:block;min-height:100svh;scroll-snap-align:start}
 #vSec{display:none}
 #vSec.open{display:block}
 .vsec-placeholder{display:block;text-align:center;padding:70px 24px;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;line-height:1.6;max-width:320px;margin:0 auto;opacity:.8}
