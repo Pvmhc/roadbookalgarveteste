@@ -21,6 +21,18 @@ html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont
    mapa, rodapé) continua com scroll livre normal. */
 body:has(#vSec.open){scroll-snap-type:y mandatory}
 .card{scroll-snap-align:center;scroll-margin-top:70px}
+/* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
+   ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
+   TikTok — em vez de ficar "a meio", cortado por cima e por baixo. */
+@media(max-width:768px){
+  body:has(#vSec.open) .card{
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    scroll-margin-top:54px;
+    min-height:calc(100dvh - 54px);
+    justify-content:center;
+  }
+}
 :root{
   --green:#0C7C3E;--green2:#0A6534;--greendark:#052E1B;--greendeep:#031F12;
   --gold:#E4B93F;--gold2:#C89A2A;
