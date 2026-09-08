@@ -17,6 +17,18 @@ window.addEventListener('beforeinstallprompt', function(e){
 window.addEventListener('appinstalled', function(){
   try { localStorage.setItem('roadbook_install_prompt_v1', '1'); } catch(err){}
 });
+/* Regista um service worker leve automaticamente ao abrir a página
+   (sem depender do botão "Ativar notificações"), porque o Chrome/Edge
+   só costumam oferecer o botão automático de instalação em sites que
+   já têm um service worker ativo. Ficheiro sw.js tem de estar publicado
+   na mesma pasta que este HTML. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(err){
+      console.warn('Não foi possível registar o service worker (sw.js):', err);
+    });
+  });
+}
 </script>
 <!-- "Modo App": ao adicionares esta página ao ecrã principal do
      telemóvel, estas tags fazem-na abrir sem barra de endereço nem
@@ -13025,6 +13037,20 @@ function setStatus(msg, type){
   };
 
   window.mostrarInstallPromptRB = mostrarInstallPrompt;
+
+  /* Se o browser só disparar o evento de instalação DEPOIS de o popup já
+     estar visível a mostrar as instruções manuais (porque ainda não tinha
+     tido tempo de decidir que o site é instalável), troca automaticamente
+     para o botão nativo "Instalar agora" sem precisar de reabrir o popup. */
+  window.addEventListener('beforeinstallprompt', function(){
+    const el = document.getElementById('installPromptOverlay');
+    if (!el || !el.classList.contains('show')) return;
+    if (isIOSRB()) return;
+    const btnNativo = document.getElementById('installPromptBtnNativo');
+    const passosGenerico = document.getElementById('installPromptPassosGenerico');
+    if (passosGenerico) passosGenerico.style.display = 'none';
+    if (btnNativo) btnNativo.style.display = 'block';
+  });
 })();
 </script>
 
