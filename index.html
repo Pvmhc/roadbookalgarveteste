@@ -57,9 +57,9 @@ html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
    mapa, rodapé) continua com scroll livre normal. */
-body:has(#vSec.open){scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scroll-behavior:auto}
-body.vsec-open{scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scroll-behavior:auto}
-.card{scroll-snap-align:center;scroll-margin-top:70px}
+body:has(#vSec.open){overscroll-behavior-y:contain;scroll-behavior:auto}
+body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
+.card{scroll-margin-top:70px}
 /* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
    ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
    TikTok — em vez de ficar "a meio", cortado por cima e por baixo.
@@ -623,8 +623,9 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   }
   body:has(#vSec.open),
   body.vsec-open {
-    overscroll-behavior-y:contain !important;
-    scroll-behavior:auto !important;
+    overscroll-behavior-y:auto !important;
+    scroll-behavior:smooth !important;
+    scroll-snap-type:none !important;
   }
   body:has(#vSec.open) .card,
   body.vsec-open .card {
@@ -12393,23 +12394,14 @@ window.addEventListener('touchend', e=>{
   requestAnimationFrame(verificarAssentou);
 }, {passive:true});
 
-/* ── CONTROLO DE RODA / TRACKPAD EM ECRÃS MAIORES ────────────────
-   Num computador ou foldable grande, uma roda rápida pode ultrapassar
-   vários cards. Aqui transformamos cada gesto de roda num único passo,
-   mantendo o mesmo comportamento do swipe do telemóvel. ─────────── */
-let feedRodaBloqueada=false;
-window.addEventListener('wheel', e=>{
-  if(!feedAtivoAgora()) return;
-  if(Math.abs(e.deltaY)<8) return;
-  const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
-  if(!cards.length || feedRodaBloqueada) return;
-  e.preventDefault();
-  feedRodaBloqueada=true;
-  const idx=feedIndiceMaisProximo(cards);
-  const alvoIdx=e.deltaY>0 ? Math.min(idx+1,cards.length-1) : Math.max(idx-1,0);
-  feedCentrarCard(cards[alvoIdx]);
-  setTimeout(()=>{feedRodaBloqueada=false;},520);
-},{passive:false});
+/* ── SCROLL NO PC / TABLET ────────────────────────────────────────
+   No computador deixamos a roda do rato e o trackpad ao browser.
+   Não usamos preventDefault aqui: isso bloqueava o scroll nativo do PC.
+   O scroll-snap fica reservado ao modo mobile, onde o swipe já funciona. */
+if(window.matchMedia('(min-width:769px)').matches){
+  document.documentElement.style.scrollSnapType='none';
+  document.body.style.scrollSnapType='none';
+}
 
 /* ── BOTTOM NAV ─────────────────────────────────────────────────── */
 function goHome(){
