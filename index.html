@@ -610,26 +610,38 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .rb-beer-loader .rb-bolha2{animation:rbSubirBolha 1.5s ease-in infinite;animation-delay:.5s}
 .rb-beer-loader .rb-bolha3{animation:rbSubirBolha 1.1s ease-in infinite;animation-delay:.9s}
 
-/* ── CORREÇÃO DESKTOP: scroll livre ─────────────────────────────── */
+/* ── SCROLL RESPONSIVO: feed tipo TikTok em ecrãs maiores ──────────
+   Mantém o comportamento do telemóvel também em foldables, tablets,
+   portáteis e monitores. A capa/mapa/rodapé continuam com scroll livre.
+   Em ecrãs largos os cards ficam centrados no espaço disponível. ─── */
 @media (min-width:769px){
   html, body {
     overflow-x:hidden !important;
     overflow-y:auto !important;
     height:auto !important;
     min-height:100%;
-    overscroll-behavior-y:auto !important;
   }
   body:has(#vSec.open),
   body.vsec-open {
-    scroll-snap-type:none !important;
-    scroll-behavior:smooth !important;
-    overscroll-behavior-y:auto !important;
+    overscroll-behavior-y:contain !important;
+    scroll-behavior:auto !important;
   }
   body:has(#vSec.open) .card,
   body.vsec-open .card {
-    scroll-snap-align:none !important;
-    scroll-snap-stop:normal !important;
+    scroll-margin-top:0 !important;
+    scroll-margin-bottom:0 !important;
   }
+  body:has(#vSec.open), body.vsec-open {
+    scroll-padding-top:54px;
+    scroll-padding-bottom:20px;
+  }
+}
+
+/* Foldables/tablets em modo aberto: aproveita melhor a largura sem
+   deixar o card excessivamente esticado. */
+@media (min-width:769px) and (max-width:1400px){
+  body:has(#vSec.open) .card,
+  body.vsec-open .card { max-width:760px; margin-left:auto; margin-right:auto; }
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
@@ -661,8 +673,6 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .notif-welcome-email-msg{font-family:'Inter',sans-serif;font-size:11px;margin-top:8px;min-height:14px;color:rgba(255,255,255,.7)}
 
 /* ══════ ÍCONE FIXO DE SUBSCRIÇÃO POR EMAIL (visível sempre) ══════ */
-.email-fab-btn{position:fixed;left:14px;bottom:76px;z-index:130;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;color:#052E1B;font-size:19px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;transition:.2s}
-.email-fab-btn:hover{transform:scale(1.06)}
 .email-fab-overlay{display:none;position:fixed;inset:0;z-index:12500;background:rgba(2,18,11,.75);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:20px}
 .email-fab-overlay.show{display:flex}
 .email-fab-modal{width:100%;max-width:380px;background:linear-gradient(180deg,#0E8A46,#052E1B);border:1px solid rgba(228,185,63,.5);border-radius:20px;padding:24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -5024,8 +5034,6 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
   <div class="admin-dot-inner">📍</div>
 </div>
 
-<!-- ══════ ÍCONE FIXO: subscrição por email para novidades deste PDV ══════ -->
-<button class="email-fab-btn" id="emailFabBtn" onclick="abrirEmailFab()" title="Subscrever novidades por email">✉️</button>
 <div class="email-fab-overlay" id="emailFabOverlay">
   <div class="email-fab-modal">
     <h3>Novidades</h3>
@@ -12307,7 +12315,7 @@ function feedCentrarCard(card){
   window.scrollBy({top: centroCard-centroAlvo, behavior:'smooth'});
 }
 function corrigirSnapFeedEstabelecimentos(){
-  if(window.innerWidth>768) return;
+  if(window.innerWidth>1400) return;
   if(!document.body.classList.contains('vsec-open')) return;
   const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
   if(!cards.length) return;
@@ -12335,7 +12343,7 @@ if('onscrollend' in window){
 // browser do telemóvel não respeite scroll-snap-type/scroll-snap-stop,
 // e deixa-o sempre CENTRADO no espaço visível.
 function feedAtivoAgora(){
-  return window.innerWidth<=768 && document.body.classList.contains('vsec-open');
+  return document.body.classList.contains('vsec-open');
 }
 function feedIndiceMaisProximo(cards){
   const centroAlvo=feedCentroVisivelY();
@@ -12384,6 +12392,24 @@ window.addEventListener('touchend', e=>{
   };
   requestAnimationFrame(verificarAssentou);
 }, {passive:true});
+
+/* ── CONTROLO DE RODA / TRACKPAD EM ECRÃS MAIORES ────────────────
+   Num computador ou foldable grande, uma roda rápida pode ultrapassar
+   vários cards. Aqui transformamos cada gesto de roda num único passo,
+   mantendo o mesmo comportamento do swipe do telemóvel. ─────────── */
+let feedRodaBloqueada=false;
+window.addEventListener('wheel', e=>{
+  if(!feedAtivoAgora()) return;
+  if(Math.abs(e.deltaY)<8) return;
+  const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
+  if(!cards.length || feedRodaBloqueada) return;
+  e.preventDefault();
+  feedRodaBloqueada=true;
+  const idx=feedIndiceMaisProximo(cards);
+  const alvoIdx=e.deltaY>0 ? Math.min(idx+1,cards.length-1) : Math.max(idx-1,0);
+  feedCentrarCard(cards[alvoIdx]);
+  setTimeout(()=>{feedRodaBloqueada=false;},520);
+},{passive:false});
 
 /* ── BOTTOM NAV ─────────────────────────────────────────────────── */
 function goHome(){
@@ -13169,7 +13195,8 @@ function setStatus(msg, type){
 })();
 </script>
 
-<!-- POPUP DE NOTIFICAÇÕES — aparece apenas na primeira visita deste dispositivo -->
+<!-- POPUP DE NOTIFICAÇÕES — aparece apenas na entrada/primeira visita.
+     A subscrição por email é feita aqui; não existe ícone fixo no resto da página. -->
 <div class="notif-welcome-overlay" id="notifWelcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="notifWelcomeTitle">
   <div class="notif-welcome">
     <div class="notif-welcome-icon">🔔</div>
