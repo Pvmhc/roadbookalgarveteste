@@ -6,6 +6,18 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<script>
+/* Captura o evento de instalação assim que possível (tem de ser cedo,
+   antes de o browser decidir que não há ninguém interessado). */
+window.rbDeferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  window.rbDeferredInstallPrompt = e;
+});
+window.addEventListener('appinstalled', function(){
+  try { localStorage.setItem('roadbook_install_prompt_v1', '1'); } catch(err){}
+});
+</script>
 <!-- "Modo App": ao adicionares esta página ao ecrã principal do
      telemóvel, estas tags fazem-na abrir sem barra de endereço nem
      barra de navegação do browser — como uma app instalada. Isto NÃO
@@ -629,6 +641,23 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
 .email-fab-submit{flex:1;border:none;border-radius:100px;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;cursor:pointer}
 .email-fab-cancel{border:1px solid rgba(255,255,255,.3);border-radius:100px;padding:12px 18px;background:transparent;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer}
 .email-fab-msg{font-family:'Inter',sans-serif;font-size:11.5px;margin-top:12px;min-height:14px;color:rgba(255,255,255,.75)}
+</style>
+<style id="installPromptStyles">
+/* ── POPUP PRIMEIRA VISITA — INSTALAR NO ECRÃ PRINCIPAL ─────────── */
+.install-prompt-overlay{position:fixed;inset:0;z-index:12100;background:rgba(2,18,11,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+.install-prompt-overlay.show{display:flex}
+.install-prompt{width:min(100%,430px);background:linear-gradient(160deg,#0A4B2B,#052E1B 70%,#031F12);border:1px solid rgba(228,185,63,.75);border-radius:24px;padding:28px 24px 22px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center;animation:notifWelcomeIn .28s ease-out}
+.install-prompt-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(228,185,63,.12);border:1px solid rgba(228,185,63,.55);font-size:30px;box-shadow:0 0 0 7px rgba(228,185,63,.05)}
+.install-prompt h3{font-family:'Poppins',sans-serif;font-size:21px;font-weight:800;color:#fff;margin-bottom:8px}
+.install-prompt p{font-family:'Inter',sans-serif;font-size:13px;line-height:1.55;color:rgba(255,255,255,.78);margin:0 auto 16px;max-width:350px}
+.install-prompt-actions{display:flex;gap:9px;flex-direction:column}
+.install-prompt-actions button{width:100%;border-radius:100px;padding:11px 16px;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.install-prompt-activate{border:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;box-shadow:0 5px 15px rgba(228,185,63,.25)}
+.install-prompt-later{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:rgba(255,255,255,.78)}
+.install-prompt-actions button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.install-prompt-steps{text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px 16px;margin:0 auto 16px;max-width:350px}
+.install-prompt-steps ol{margin:0;padding-left:18px;font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.7;color:rgba(255,255,255,.85)}
+.install-prompt-steps b{color:#E4B93F}
 </style>
 </head>
 <body>
@@ -12897,6 +12926,108 @@ function setStatus(msg, type){
     filter: drop-shadow(0px 0px 8px rgba(255, 215, 0, 0.6));
   }
 </style>
+<!-- POPUP "INSTALAR NO ECRÃ PRINCIPAL" — aparece apenas na primeira visita deste dispositivo -->
+<div class="install-prompt-overlay" id="installPromptOverlay" role="dialog" aria-modal="true" aria-labelledby="installPromptTitle">
+  <div class="install-prompt">
+    <div class="install-prompt-icon">📲</div>
+    <h3 id="installPromptTitle">Instala o Road Book Algarve</h3>
+    <p>Adiciona esta app ao ecrã principal do teu telemóvel para abrires com um toque, sem barra de endereço, e teres acesso a todas as funcionalidades — mesmo offline.</p>
+
+    <div class="install-prompt-steps" id="installPromptPassosIOS" style="display:none">
+      <ol>
+        <li>Toca no ícone <b>Partilhar</b> (□ com seta ↑) na barra do Safari</li>
+        <li>Escolhe <b>"Adicionar ao Ecrã Principal"</b></li>
+        <li>Toca em <b>"Adicionar"</b> no canto superior direito</li>
+      </ol>
+    </div>
+
+    <div class="install-prompt-steps" id="installPromptPassosGenerico" style="display:none">
+      <ol>
+        <li>Toca no menu do browser (⋮ ou ···)</li>
+        <li>Escolhe <b>"Instalar aplicação"</b> ou <b>"Adicionar ao ecrã principal"</b></li>
+        <li>Confirma tocando em <b>"Instalar"</b> / <b>"Adicionar"</b></li>
+      </ol>
+    </div>
+
+    <div class="install-prompt-actions">
+      <button class="install-prompt-activate" id="installPromptBtnNativo" style="display:none" onclick="instalarAppAgora()">📲 Instalar agora</button>
+    </div>
+    <div class="install-prompt-actions" style="margin-top:10px">
+      <button class="install-prompt-later" onclick="fecharInstallPrompt(true)">Agora não</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CHAVE_INSTALL = 'roadbook_install_prompt_v1';
+
+  function isStandaloneRB(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIOSRB(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  function mostrarInstallPrompt(callback){
+    const el = document.getElementById('installPromptOverlay');
+    const seguinte = function(){ if (callback) callback(); };
+
+    if (!el || isStandaloneRB()) {
+      try { if (isStandaloneRB()) localStorage.setItem(CHAVE_INSTALL, '1'); } catch(err){}
+      seguinte();
+      return;
+    }
+    if (localStorage.getItem(CHAVE_INSTALL) === '1') { seguinte(); return; }
+
+    const btnNativo = document.getElementById('installPromptBtnNativo');
+    const passosIOS = document.getElementById('installPromptPassosIOS');
+    const passosGenerico = document.getElementById('installPromptPassosGenerico');
+    btnNativo.style.display = 'none';
+    passosIOS.style.display = 'none';
+    passosGenerico.style.display = 'none';
+
+    if (isIOSRB()) {
+      passosIOS.style.display = 'block';
+    } else if (window.rbDeferredInstallPrompt) {
+      btnNativo.style.display = 'block';
+    } else {
+      passosGenerico.style.display = 'block';
+    }
+
+    window._rbInstallCallback = seguinte;
+    el.classList.add('show');
+  }
+
+  window.fecharInstallPrompt = function(marcarComoVisto){
+    const el = document.getElementById('installPromptOverlay');
+    if (el) el.classList.remove('show');
+    if (marcarComoVisto) { try { localStorage.setItem(CHAVE_INSTALL, '1'); } catch(err){} }
+    const cb = window._rbInstallCallback;
+    window._rbInstallCallback = null;
+    if (cb) cb();
+  };
+
+  window.instalarAppAgora = async function(){
+    const prompt = window.rbDeferredInstallPrompt;
+    if (!prompt) { window.fecharInstallPrompt(false); return; }
+    prompt.prompt();
+    try {
+      const escolha = await prompt.userChoice;
+      if (escolha && escolha.outcome === 'accepted') {
+        try { localStorage.setItem(CHAVE_INSTALL, '1'); } catch(err){}
+      }
+    } catch(err) {
+      console.warn('Não foi possível concluir a instalação:', err);
+    }
+    window.rbDeferredInstallPrompt = null;
+    window.fecharInstallPrompt(true);
+  };
+
+  window.mostrarInstallPromptRB = mostrarInstallPrompt;
+})();
+</script>
+
 <!-- POPUP DE NOTIFICAÇÕES — aparece apenas na primeira visita deste dispositivo -->
 <div class="notif-welcome-overlay" id="notifWelcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="notifWelcomeTitle">
   <div class="notif-welcome">
@@ -13051,10 +13182,18 @@ function setStatus(msg, type){
     }
   };
 
+  function iniciarPopupsBoasVindas(){
+    if (typeof window.mostrarInstallPromptRB === 'function') {
+      window.mostrarInstallPromptRB(function(){ setTimeout(mostrarNotifWelcome, 500); });
+    } else {
+      mostrarNotifWelcome();
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(mostrarNotifWelcome, 900); });
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(iniciarPopupsBoasVindas, 900); });
   } else {
-    setTimeout(mostrarNotifWelcome, 900);
+    setTimeout(iniciarPopupsBoasVindas, 900);
   }
 })();
 </script>
