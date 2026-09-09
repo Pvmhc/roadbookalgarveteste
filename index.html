@@ -3780,7 +3780,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     <div class="det-lbl">MORADA</div>
     <div class="det-val">Porto Recreio Olhão, 8700-304 Olhão</div>
     <div class="det-lbl">ESTACIONAMENTO</div><div class="det-val">Parque gratuito nos arredores</div>
-    
+  
   </div>
   <div class="qr-side"><span style="font-size:19px;font-weight:800;color:var(--gold);line-height:1">€€<span style="opacity:.28">€€</span></span><span class="qr-lbl">Preçário</span></div>
 </div>
@@ -5944,7 +5944,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     "cozinha": "",
     "destaques": ""
   },
-  {
+{
     "id": "card-22",
     "regiao": "ALGARVE",
     "cidade": "SILVES",
@@ -7664,7 +7664,7 @@ footer p{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-sp
     "cozinha": "",
     "destaques": ""
   },
-  {
+     {
     "id": "card-108",
     "regiao": "ALGARVE",
     "cidade": "VILA REAL DE SANTO ANTÓNIO",
@@ -9039,7 +9039,7 @@ function atualizarContadoresHotspots(){
   const secAberta = document.querySelector('.map-sec.open');
   if (secAberta) resolverColisoesLabels(secAberta);
 }
-
+   
 /* ══════════════════════════════════════════════════════════════════
    ÍCONES DO MAPA DA CAPA — configuração manual
    ──────────────────────────────────────────────────────────────────
@@ -12705,8 +12705,7 @@ async function fetchMapsData(){
       const nameM2 = html.match(/"name":"([^"]{2,80})"/);
       if(nameM2) name = nameM2[1];
     }
-
-    // Parse address
+     // Parse address
     let addr = '';
     const addrM = html.match(/"formatted_address":"([^"]+)"/);
     if(addrM) addr = addrM[1];
