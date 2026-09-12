@@ -287,6 +287,9 @@ body.admin-mode .card-edit-btn{display:flex}
 .c-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .c-name-row .c-name{flex:1;min-width:0}
 .preco-inline{flex-shrink:0;font-size:15px;font-weight:800;color:var(--gold);letter-spacing:.5px;white-space:nowrap}
+.preco-google-col{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.google-rating-inline{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--white);opacity:.85;letter-spacing:.2px;white-space:nowrap;display:flex;align-items:center;gap:2px}
+.google-rating-inline .grv{opacity:.55;font-weight:600}
 .card-ov-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .card-ov-name-row .card-ov-name{flex:1;min-width:0}
 /* Type badge */
@@ -1113,6 +1116,15 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
           <input type="checkbox" id="eePrecoOculto" style="width:18px;height:18px;flex:none">
           Ocultar preçário só deste estabelecimento (não aparece no cartão nem no detalhe)
         </label>
+      </div>
+
+      <div class="ed-section" style="padding:14px 16px">
+        <div class="ed-section-title">⭐ Classificação Google</div>
+        <p class="ed-hint">Mostrada por baixo do preçário. Deixa em branco para não mostrar.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input type="number" class="admin-input" id="eeGoogleRating" placeholder="Nota (ex: 4,6)" min="0" max="5" step="0.1">
+          <input type="number" class="admin-input" id="eeGoogleReviews" placeholder="Nº avaliações" min="0" step="1">
+        </div>
       </div>
 
       <div class="ed-section" style="padding:14px 16px">
@@ -5326,6 +5338,18 @@ function precoInlineHtml(tipoStr, flagship, precoManual, precoOculto){
   return `<span class="preco-inline">${cheio}<span style="opacity:.28">${vazio}</span></span>`;
 }
 
+// Classificação Google, mostrada por baixo do preçário (nome do
+// estabelecimento). Só aparece se houver um valor de classificação
+// definido (manual, via editor, ou importado do Excel/Sheets).
+function googleRatingInlineHtml(googleRating, googleReviews){
+  const n = parseFloat((googleRating || '').toString().replace(',', '.'));
+  if (!(n > 0)) return '';
+  const notaTxt = (Math.round(n * 10) / 10).toFixed(1).replace('.', ',');
+  const reviews = parseInt(googleReviews, 10);
+  const reviewsTxt = (reviews > 0) ? ` <span class="grv">(${reviews})</span>` : '';
+  return `<span class="google-rating-inline">⭐ ${notaTxt}${reviewsTxt}</span>`;
+}
+
 // Alterna o "Preçário Global" (esconder/mostrar em todo o site de uma vez).
 function alternarPrecoGlobal(){
   PRECO_OCULTO_GLOBAL = !PRECO_OCULTO_GLOBAL;
@@ -7042,6 +7066,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeFlagship').checked = !!e.flagship;
     document.getElementById('eePreco').value = e.preco || '';
     document.getElementById('eePrecoOculto').checked = !!e.precoOculto;
+    document.getElementById('eeGoogleRating').value = e.googleRating || '';
+    document.getElementById('eeGoogleReviews').value = e.googleReviews || '';
     popularSelectCozinha();
     const { principal: cozinhaPrincipal, sub: cozinhaSub } = separarCozinha(e.cozinha);
     document.getElementById('eeCozinha').value = cozinhaPrincipal;
@@ -7069,6 +7095,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeFlagship').checked = false;
     document.getElementById('eePreco').value = '';
     document.getElementById('eePrecoOculto').checked = false;
+    document.getElementById('eeGoogleRating').value = '';
+    document.getElementById('eeGoogleReviews').value = '';
     popularSelectCozinha();
     document.getElementById('eeCozinha').value = '';
     atualizarVisibilidadeCozinhaSub();
@@ -7175,6 +7203,8 @@ async function guardarEstabelecimento(){
     flagship: document.getElementById('eeFlagship').checked,
     preco: document.getElementById('eePreco').value,
     precoOculto: document.getElementById('eePrecoOculto').checked,
+    googleRating: document.getElementById('eeGoogleRating').value.trim(),
+    googleReviews: document.getElementById('eeGoogleReviews').value.trim(),
     nome,
     morada,
     estacionamento: document.getElementById('eeEstacionamento').value.trim(),
@@ -7454,6 +7484,20 @@ function linhaParaEstabelecimento(row, index){
     return raizesPreco.some(raiz => norm.includes(raiz));
   });
   const temColunaPreco = !!colunaPrecoEncontrada;
+  // Deteção tolerante das colunas de classificação Google (nota e nº de
+  // avaliações), com a mesma lógica usada para o preçário.
+  const raizesGoogleRating = ['classificacaogoogle', 'avaliacaogoogle', 'googlerating', 'notagoogle', 'ratinggoogle'];
+  const colunaGoogleRatingEncontrada = Object.keys(row).find(rk => {
+    const norm = normalizarChaveExcel(rk);
+    return raizesGoogleRating.some(raiz => norm.includes(raiz));
+  });
+  const temColunaGoogleRating = !!colunaGoogleRatingEncontrada;
+  const raizesGoogleReviews = ['numeroavaliacoes', 'nravaliacoes', 'googlereviews', 'numeroreviews', 'reviewsgoogle'];
+  const colunaGoogleReviewsEncontrada = Object.keys(row).find(rk => {
+    const norm = normalizarChaveExcel(rk);
+    return raizesGoogleReviews.some(raiz => norm.includes(raiz));
+  });
+  const temColunaGoogleReviews = !!colunaGoogleReviewsEncontrada;
   return {
     id: idDoExcel || ('card-' + (index+1)),
     _idExplicito: !!idDoExcel, // true = o Excel trouxe um id de propósito (ex: pasta do Drive)
@@ -7464,6 +7508,8 @@ function linhaParaEstabelecimento(row, index){
     cozinha: get('cozinha','culinaria','culinária','tipo_cozinha').toUpperCase(),
     flagship: valorVerdadeiro(get('flagship')),
     preco: temColunaPreco ? (() => { const p = (row[colunaPrecoEncontrada]||'').toString().trim(); const nEuros = (p.match(/€/g)||[]).length; const n = nEuros>0 ? nEuros : parseInt(p,10); return (n>=1&&n<=4) ? String(n) : ''; })() : undefined,
+    googleRating: temColunaGoogleRating ? (row[colunaGoogleRatingEncontrada]||'').toString().trim().replace(',', '.') : undefined,
+    googleReviews: temColunaGoogleReviews ? (row[colunaGoogleReviewsEncontrada]||'').toString().trim().replace(/[^\d]/g,'') : undefined,
     nome: get('nome'),
     morada: get('morada'),
     estacionamento: get('estacionamento'),
@@ -7571,6 +7617,10 @@ function importarExcel(file){
           // O mesmo para o preçário: se este Excel não tiver coluna de preço,
           // mantém o valor já definido (manual ou automático) em vez de o apagar.
           if(n.preco === undefined) delete n.preco;
+          // O mesmo para a classificação Google: se o Excel não tiver estas
+          // colunas, mantém o valor já definido em vez de o apagar.
+          if(n.googleRating === undefined) delete n.googleRating;
+          if(n.googleReviews === undefined) delete n.googleReviews;
           // Só mantém o ID antigo se o Excel NÃO trouxe um id de propósito
           // (célula vazia na coluna id). Se trouxeres um id explícito (ex:
           // o ID de uma pasta do Drive), esse é o que passa a valer.
@@ -8065,15 +8115,17 @@ function renderEstabelecimentos(){
       const destaquesCard = splitDestaques(e.destaques);
       const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('');
       const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
-      // Preçário mostrado ao lado do nome do estabelecimento.
+      // Preçário e classificação Google, mostrados ao lado do nome do estabelecimento.
       const precoInline = precoInlineHtml(e.tipo, isFL, e.preco, e.precoOculto);
+      const googleInline = googleRatingInlineHtml(e.googleRating, e.googleReviews);
+      const precoGoogleCol = (precoInline || googleInline) ? `<div class="preco-google-col">${precoInline}${googleInline}</div>` : '';
 
-      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
+      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-google-rating="${e.googleRating||''}" data-google-reviews="${e.googleReviews||''}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
 ${badgesHtml}
-<div class="c-name-row"><h3 class="c-name">${e.nome}</h3>${precoInline}</div>
+<div class="c-name-row"><h3 class="c-name">${e.nome}</h3>${precoGoogleCol}</div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
 <div class="c-divider"></div>
@@ -8595,6 +8647,8 @@ function openCardOverlay(cardId){
 
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
   const precoInlineOv = precoInlineHtml(card.dataset.tipo, flagship, card.dataset.preco, card.dataset.precoOculto === 'true');
+  const googleInlineOv = googleRatingInlineHtml(card.dataset.googleRating, card.dataset.googleReviews);
+  const precoGoogleColOv = (precoInlineOv || googleInlineOv) ? `<div class="preco-google-col">${precoInlineOv}${googleInlineOv}</div>` : '';
 
   const mapsUrl = card.dataset.mapsUrl || mapsEl?.href || '#';
 
@@ -8603,7 +8657,7 @@ function openCardOverlay(cardId){
     ${photosHtml}
     <div class="card-ov-info">
       ${badgesOv}
-      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${precoInlineOv}</div>
+      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${precoGoogleColOv}</div>
       <div class="card-ov-typebox"><span class="card-ov-typetxt">${tipo}</span></div><br>
       <div class="card-ov-city">${city}</div>
       <div class="card-ov-divider"></div>
@@ -9316,6 +9370,7 @@ body{
 }
 .c-type-txt{color:#087A3B}
 .preco-inline{color:#A27708}
+.google-rating-inline{color:#4A5550}
 .qr-img{box-shadow:0 3px 10px rgba(20,35,28,.10)}
 
 .maps-btn{
