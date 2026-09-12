@@ -1155,6 +1155,12 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
         <label class="ed-label">Link do Google Maps</label>
         <input type="text" class="admin-input" id="eeMapsUrl" placeholder="https://maps.app.goo.gl/...">
       </div>
+      <div class="ed-section" style="padding:14px 16px;margin-top:8px">
+        <div class="ed-section-title">➕ Informações adicionais</div>
+        <p class="ed-hint">Adiciona outras informações deste estabelecimento. Podes criar, editar ou apagar cada linha. Estas informações ficam sincronizadas com o Google Sheets e aparecem em todos os equipamentos.</p>
+        <div id="eeInfoExtraLista"></div>
+        <button type="button" class="admin-fetch-btn" style="width:100%;margin-top:8px" onclick="adicionarInfoExtraEditor()">＋ Adicionar informação</button>
+      </div>
     </div>
 
     <div class="ed-section">
@@ -7032,6 +7038,7 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeTelefone').value = e.telefone || '';
     document.getElementById('eeInstagram').value = e.instagram || '';
     document.getElementById('eeMapsUrl').value = e.maps_url || '';
+    renderInfoExtraEditor(e.informacoes_extra);
     document.getElementById('eeFlagship').checked = !!e.flagship;
     document.getElementById('eePreco').value = e.preco || '';
     document.getElementById('eePrecoOculto').checked = !!e.precoOculto;
@@ -7058,6 +7065,7 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeTelefone').value = '';
     document.getElementById('eeInstagram').value = '';
     document.getElementById('eeMapsUrl').value = '';
+    renderInfoExtraEditor([]);
     document.getElementById('eeFlagship').checked = false;
     document.getElementById('eePreco').value = '';
     document.getElementById('eePrecoOculto').checked = false;
@@ -7074,6 +7082,71 @@ function abrirEditorEstabelecimento(id){
 
 function fecharEditorEstabelecimento(){
   document.getElementById('editorEstabPanel').classList.remove('open');
+}
+
+function normalizarInfoExtra(valor){
+  if (Array.isArray(valor)) return valor.map(x => ({label:String(x?.label || x?.nome || '').trim(), valor:String(x?.valor || x?.value || '').trim()})).filter(x=>x.label || x.valor);
+  if (!valor) return [];
+  if (typeof valor === 'object') return Object.entries(valor).map(([k,v])=>({label:String(k).trim(),valor:String(v??'').trim()})).filter(x=>x.label || x.valor);
+  const txt=String(valor).trim();
+  if (!txt) return [];
+  try {
+    const parsed=JSON.parse(txt);
+    if(Array.isArray(parsed)) return normalizarInfoExtra(parsed);
+    if(parsed && typeof parsed==='object') return normalizarInfoExtra(parsed);
+  } catch(e) {}
+  return txt.split(/\s*\|\s*|\r?\n/).map(part=>part.trim()).filter(Boolean).map(part=>{
+    const m=part.match(/^([^:=]+?)\s*[:=]\s*(.*)$/);
+    return m ? {label:m[1].trim(),valor:m[2].trim()} : {label:part,valor:''};
+  });
+}
+
+function renderInfoExtraEditor(valor){
+  const box=document.getElementById('eeInfoExtraLista');
+  if(!box) return;
+  const items=normalizarInfoExtra(valor);
+  box.innerHTML='';
+  if(!items.length){
+    box.innerHTML='<div class="ed-hint" style="padding:8px 0;opacity:.8">Ainda não existem informações adicionais.</div>';
+    return;
+  }
+  items.forEach((item,i)=>{
+    const row=document.createElement('div');
+    row.className='ee-extra-row';
+    row.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1.5fr auto;gap:7px;align-items:center;margin-bottom:8px">
+      <input type="text" class="admin-input ee-extra-label" placeholder="Ex: Horário" value="${escapeHtmlAttr(item.label)}">
+      <input type="text" class="admin-input ee-extra-value" placeholder="Ex: 10h–00h" value="${escapeHtmlAttr(item.valor)}">
+      <button type="button" class="ed-icon-remove ee-extra-delete" title="Apagar informação" aria-label="Apagar informação">🗑️</button>
+    </div>`;
+    row.querySelector('.ee-extra-delete').onclick=()=>{row.remove(); if(!document.querySelector('#eeInfoExtraLista .ee-extra-row')) renderInfoExtraEditor([]);};
+    box.appendChild(row);
+  });
+}
+
+function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function escapeHtmlAttr(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function adicionarInfoExtraEditor(){
+  const box=document.getElementById('eeInfoExtraLista');
+  if(!box) return;
+  const hint=box.querySelector('.ed-hint'); if(hint) hint.remove();
+  const row=document.createElement('div'); row.className='ee-extra-row';
+  row.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1.5fr auto;gap:7px;align-items:center;margin-bottom:8px">
+    <input type="text" class="admin-input ee-extra-label" placeholder="Ex: Horário">
+    <input type="text" class="admin-input ee-extra-value" placeholder="Ex: 10h–00h">
+    <button type="button" class="ed-icon-remove ee-extra-delete" title="Apagar informação" aria-label="Apagar informação">🗑️</button>
+  </div>`;
+  row.querySelector('.ee-extra-delete').onclick=()=>{row.remove(); if(!document.querySelector('#eeInfoExtraLista .ee-extra-row')) renderInfoExtraEditor([]);};
+  box.appendChild(row);
+  row.querySelector('.ee-extra-label').focus();
+}
+
+function recolherInfoExtraEditor(){
+  return Array.from(document.querySelectorAll('#eeInfoExtraLista .ee-extra-row')).map(row=>({
+    label:row.querySelector('.ee-extra-label')?.value.trim()||'',
+    valor:row.querySelector('.ee-extra-value')?.value.trim()||''
+  })).filter(x=>x.label || x.valor);
 }
 
 async function guardarEstabelecimento(){
@@ -7109,6 +7182,7 @@ async function guardarEstabelecimento(){
     telefone: document.getElementById('eeTelefone').value.trim(),
     instagram: document.getElementById('eeInstagram').value.trim(),
     horario: document.getElementById('eeHorario').value.trim(),
+    informacoes_extra: recolherInfoExtraEditor(),
     qr: ''
   };
   // Escreve foto1, foto2, foto3... dinamicamente (tantas quantas o
@@ -7994,7 +8068,7 @@ function renderEstabelecimentos(){
       // Preçário mostrado ao lado do nome do estabelecimento.
       const precoInline = precoInlineHtml(e.tipo, isFL, e.preco, e.precoOculto);
 
-      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" onclick="openCardOverlay('${e.id}')">
+      html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
@@ -8515,6 +8589,9 @@ function openCardOverlay(cardId){
   const phoneTxt = card.dataset.telefone||'';
   const hoursRaw = card.dataset.horario||'';
   const hoursTxt = hoursRaw;
+  let infoExtraOv=[];
+  try { infoExtraOv = normalizarInfoExtra(card.dataset.infoExtra ? JSON.parse(card.dataset.infoExtra) : []); } catch(e) { infoExtraOv=[]; }
+  const infoExtraHtml = infoExtraOv.map((x,i)=>`<div class="card-ov-contact-item static"><span class="card-ov-contact-icon" aria-hidden="true">＋</span><span><small>${escapeHtml(x.label)}</small><strong>${escapeHtml(x.valor)}</strong></span></div>`).join('');
 
   const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
   const precoInlineOv = precoInlineHtml(card.dataset.tipo, flagship, card.dataset.preco, card.dataset.precoOculto === 'true');
@@ -8537,6 +8614,7 @@ function openCardOverlay(cardId){
         ${card.dataset.instagram ? `<a href="${card.dataset.instagram}" target="_blank" rel="noopener" class="card-ov-contact-item"><span class="card-ov-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg></span><span><small>Instagram</small><strong>${instagramHandle(card.dataset.instagram)}</strong></span><b>›</b></a>` : ''}
         ${hoursTxt ? `<div class="card-ov-contact-item static"><span class="card-ov-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg></span><span><small>Horário</small><strong>${hoursTxt}</strong></span></div>` : ''}
         ${parkTxt ? `<div class="card-ov-contact-item static"><span class="card-ov-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 17V7h4.2a3 3 0 0 1 0 6H9m0-3h4"/></svg></span><span><small>Estacionamento</small><strong>${parkTxt}</strong></span></div>` : ''}
+        ${infoExtraHtml}
       </div>
     </div>
     ${rbFeedbackHtml(cardId)}
@@ -8862,7 +8940,16 @@ function setStatus(msg, type){
 <script>
 /* ── SLIDESHOW ENGINE ─────────────────────────────────────────── */
 (function(){
-  const INTERVAL = 3500; // ms entre slides
+  // Cada cartão tem o seu próprio ritmo, para evitar que todas as fotos
+  // mudem ao mesmo tempo. O próximo slide é escolhido aleatoriamente.
+  const MIN_INTERVAL = 2800;
+  const MAX_INTERVAL = 5200;
+  const MIN_START_DELAY = 500;
+  const MAX_START_DELAY = 3800;
+
+  function randomBetween(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   function initSlideshow(el){
     const track  = el.querySelector('.slideshow-track');
@@ -8901,7 +8988,9 @@ function setStatus(msg, type){
 
     if(n <= 1) { loadSlide(slides[0]); return; }
 
-    let cur = 0, timer, startX, startY, dragging = false;
+    // Começa cada slideshow numa fotografia diferente quando possível.
+    let cur = n > 2 ? randomBetween(0, n - 1) : 0;
+    let timer, startX, startY, dragging = false;
 
     function goTo(i, animated){
       cur = (i + n) % n;
@@ -8913,10 +9002,29 @@ function setStatus(msg, type){
       if(count) count.textContent = `${cur+1} / ${n}`;
     }
 
-    function next(){ goTo(cur+1, true); }
+    // Escolhe uma fotografia diferente da atual, em vez de seguir sempre
+    // 1 → 2 → 3 → 4. Assim cada cartão fica com uma sequência própria.
+    function next(){
+      let nextIndex;
+      do {
+        nextIndex = randomBetween(0, n - 1);
+      } while(n > 1 && nextIndex === cur);
+      goTo(nextIndex, true);
+    }
+
     function prev(){ goTo(cur-1, true); }
 
-    function resetTimer(){ clearInterval(timer); timer = setInterval(next, INTERVAL); }
+    // Usa setTimeout recursivo com intervalo aleatório. Isto impede que
+    // dezenas de cartões sincronizem as mudanças de imagem.
+    function scheduleNext(){
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        next();
+        scheduleNext();
+      }, randomBetween(MIN_INTERVAL, MAX_INTERVAL));
+    }
+
+    function resetTimer(){ scheduleNext(); }
 
     // Dots
     dots.forEach(d => d.addEventListener('click', e => {
@@ -8954,7 +9062,12 @@ function setStatus(msg, type){
     // O slideshow deve continuar automaticamente mesmo quando o rato
     // fica por cima da fotografia. Antes, o hover parava o temporizador
     // e dava a sensação de que as fotos estavam fixas.
-    resetTimer();
+    // Pequeno atraso aleatório no arranque para que os cartões nunca
+    // comecem todos o ciclo ao mesmo tempo.
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      scheduleNext();
+    }, randomBetween(MIN_START_DELAY, MAX_START_DELAY));
   }
 
   // Init all slideshows on page
@@ -9419,6 +9532,10 @@ body.light-theme #cover{
   box-shadow:0 2px 7px rgba(0,0,0,.18);
 }
 
+
+
+.ee-extra-row .admin-input{min-width:0}
+@media(max-width:600px){.ee-extra-row>div{grid-template-columns:1fr 1fr auto !important}}
 
 /* Contactos na segunda vista — formato compacto inspirado na referência */
 .card-ov-contact-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 12px;margin:0 0 7px;border:1px solid #E1E7E3;border-radius:11px;background:#fff;color:#17211D;text-decoration:none;box-shadow:0 2px 8px rgba(20,35,28,.04)}
