@@ -8011,6 +8011,39 @@ function converterLinkDrive(src){
   return src;
 }
 
+/* O Google Drive por vezes bloqueia ou falha momentaneamente um dos
+   formatos de link de imagem (thumbnail, lh3, uc?export=view) sem aviso —
+   sobretudo quando há muitos pedidos de fotos em pouco tempo, como ao
+   percorrer vários estabelecimentos seguidos. Em vez de deixar a foto
+   partida para sempre, esta função tenta formatos alternativos do mesmo
+   ficheiro e, por fim, repete o link original — a maioria destas falhas
+   é temporária. É chamada automaticamente pelo atributo onerror das
+   imagens (ver buildSlide e openCardOverlay). */
+function rbCandidatosFotoDrive(src){
+  if (!src) return [];
+  const m = src.match(/[?&]id=([\w-]{10,})|\/d\/([\w-]{10,})/);
+  const id = m ? (m[1] || m[2]) : null;
+  if (!id) return [src];
+  return [
+    `https://drive.google.com/thumbnail?id=${id}&sz=w1000`,
+    `https://lh3.googleusercontent.com/d/${id}=w1000`,
+    `https://drive.google.com/uc?export=view&id=${id}`
+  ];
+}
+function rbTentarProximaFotoDrive(img){
+  const candidatos = rbCandidatosFotoDrive(img.src);
+  const tentativa = parseInt(img.dataset.rbTentativa || '0', 10) + 1;
+  img.dataset.rbTentativa = String(tentativa);
+  if (tentativa < candidatos.length){
+    img.src = candidatos[tentativa];
+  } else if (tentativa === candidatos.length){
+    // Já tentámos todos os formatos — repete o primeiro uma vez após uma
+    // pequena pausa, porque muitas falhas do Drive são só temporárias.
+    setTimeout(() => { img.src = candidatos[0]; }, 600);
+  }
+  // Se ainda assim falhar, paramos de tentar para não bombardear o Drive.
+}
+
 function renderEstabelecimentos(){
   // Remove cards/city-headers de uma renderização anterior (import Excel)
   const vSecAntigo = document.getElementById('vSec');
@@ -8069,7 +8102,7 @@ function renderEstabelecimentos(){
         // Road Book: fotos de PDV são sempre carregadas do Google Drive.
         // Qualquer data:image/Base64 antiga é deliberadamente ignorada.
         if (/^data:image\/[^;]+;base64,/i.test(src)) return '';
-        return `<div class="slide"><img data-src="${converterLinkDrive(src)}" alt="${alt}"></div>`;
+        return `<div class="slide"><img data-src="${converterLinkDrive(src)}" alt="${alt}" onerror="rbTentarProximaFotoDrive(this)"></div>`;
       }
       // Collect all fotos dynamically (foto1, foto2, foto3, ...)
       const allFotos = [];
@@ -8655,7 +8688,7 @@ function openCardOverlay(cardId){
   let photosHtml='';
   if(photos.length){
     const overlaySlides = photos.map((p,i) =>
-      `<div class="slide"><img src="${p.src}" alt="${p.alt}">${i===0 ? `<div class="photo-type-overlay">${tipo}</div>` : ''}</div>`
+      `<div class="slide"><img src="${p.src}" alt="${p.alt}" onerror="rbTentarProximaFotoDrive(this)">${i===0 ? `<div class="photo-type-overlay">${tipo}</div>` : ''}</div>`
     ).join('');
     const overlayDots = photos.length > 1
       ? `<div class="slide-dots">${photos.map((_,i)=>`<button class="slide-dot${i===0?' active':''}" data-i="${i}"></button>`).join('')}</div>`
@@ -9076,15 +9109,9 @@ function setStatus(msg, type){
 
       img.dataset.loaded = '1';
       img.onload = () => { img.classList.add('img-loaded'); };
-      img.onerror = () => {
-        img.dataset.loaded = '0';
-        setTimeout(() => {
-          const retrySrc = inlineKey && window.__RB_INLINE_IMAGES
-            ? window.__RB_INLINE_IMAGES[inlineKey]
-            : img.dataset.src;
-          if(retrySrc) img.src = retrySrc;
-        }, 150);
-      };
+      // Nota: não definimos img.onerror aqui — isso anularia o atributo
+      // onerror já presente no HTML (rbTentarProximaFotoDrive), que trata
+      // das falhas de carregamento tentando formatos alternativos do Drive.
       img.src = src;
       if(img.dataset.src) img.removeAttribute('data-src');
     }
