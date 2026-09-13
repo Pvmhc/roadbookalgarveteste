@@ -8688,7 +8688,7 @@ function openCardOverlay(cardId){
   let photosHtml='';
   if(photos.length){
     const overlaySlides = photos.map((p,i) =>
-      `<div class="slide"><img src="${p.src}" alt="${p.alt}" onerror="rbTentarProximaFotoDrive(this)">${i===0 ? `<div class="photo-type-overlay">${tipo}</div>` : ''}</div>`
+      `<div class="slide"><img src="${p.src}" alt="${p.alt}" onload="this.classList.add('img-loaded')" onerror="rbTentarProximaFotoDrive(this)">${i===0 ? `<div class="photo-type-overlay">${tipo}</div>` : ''}</div>`
     ).join('');
     const overlayDots = photos.length > 1
       ? `<div class="slide-dots">${photos.map((_,i)=>`<button class="slide-dot${i===0?' active':''}" data-i="${i}"></button>`).join('')}</div>`
