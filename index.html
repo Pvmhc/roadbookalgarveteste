@@ -244,8 +244,9 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .card-fav-btn:active{transform:scale(.88)}
 
 /* ── FEEDBACK POR ESTABELECIMENTO ─────────────────────────────────── */
-.comment-btn{margin-top:10px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:100px;padding:9px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;color:var(--softwhite);cursor:pointer;transition:.2s}
-.comment-btn:hover{background:rgba(255,255,255,.09);border-color:var(--gold)}
+/* Estilo do botão de Feedback no cartão da grelha: ver regra junto de
+   .c-feedback-row, mais abaixo — passou a ser um link discreto com ícone,
+   não uma pílula a toda a largura. */
 .comment-overlay{position:fixed;inset:0;z-index:700;background:rgba(3,20,12,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
 .comment-overlay.on{display:flex}
 .comment-sheet{width:100%;max-width:520px;max-height:86vh;background:linear-gradient(180deg,#0A3C22,#052E1B);border:1px solid var(--gold);border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:comentSobe .25s ease}
@@ -313,19 +314,34 @@ body.admin-mode .card-edit-btn{display:flex}
 .dbtn.destaque-color-btn.active,.dbtn.destaque-color-btn:hover,.so-chip.destaque-color-btn.active,.so-chip.destaque-color-btn:hover{background:rgb(var(--dc));border-color:#fff;color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(var(--dc),.35)}
 /* Name */
 .c-name{font-size:clamp(16px,4vw,21px);font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.2px}
-.c-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.c-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .c-name-row .c-name{flex:1;min-width:0}
-.preco-inline{flex-shrink:0;font-size:15px;font-weight:800;color:var(--gold);letter-spacing:.5px;white-space:nowrap}
-.card-ov-name-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.c-meta-group{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.preco-inline{display:inline-flex;align-items:center;gap:1px;padding:2.5px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(228,185,63,.20),rgba(228,185,63,.07));border:1px solid rgba(228,185,63,.4);font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.5px;white-space:nowrap;line-height:1.3}
+.card-ov-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .card-ov-name-row .card-ov-name{flex:1;min-width:0}
 .card-ov-actions-row{display:flex;gap:8px;margin:8px 0 4px}
 .card-ov-action-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--white);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.15s ease}
 .card-ov-action-btn.on{color:var(--gold);border-color:var(--gold)}
 .card-ov-action-btn:active{transform:scale(.96)}
-.c-rating-row,.card-ov-rating-row{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:-4px}
+.c-rating-row,.card-ov-rating-row{display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .c-rating-row .rating-star,.card-ov-rating-row .rating-star{color:var(--gold);font-size:12px;line-height:1}
 .c-rating-row .rating-val,.card-ov-rating-row .rating-val{font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:var(--softwhite)}
 .c-rating-row .rating-count,.card-ov-rating-row .rating-count{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--softwhite);opacity:.6}
+/* Traço de destaque (vermelho → dourado, a mesma dupla de cor usada na
+   capa) sob o nome — liga visualmente o cartão ao resto da app, em vez de
+   um divisor cinzento neutro. */
+.c-accent{width:34px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));margin:7px 0 10px}
+/* Classificação e Feedback partilham uma única linha discreta em vez de
+   duas peças de peso visual muito diferente (nome grande vs. botão a toda
+   a largura). O Feedback é uma ação secundária, por isso fica como texto
+   pequeno com um ícone, não uma pílula. */
+/* Feedback fica sozinho numa linha discreta, à direita — já não compete
+   com a classificação, que volta a ficar colada ao preço (como pediram). */
+.c-feedback-row{display:flex;justify-content:flex-end;margin-top:8px}
+.comment-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;background:none;border:none;padding:4px 2px;margin:0;width:auto;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.2px;cursor:pointer;opacity:.85;transition:.15s}
+.comment-btn svg{width:15px;height:15px;flex-shrink:0}
+.comment-btn:hover{opacity:1;color:var(--gold)}
 /* Type badge */
 .c-type-box{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;width:fit-content;background:rgba(228,185,63,.08)}
 .c-type-txt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -473,7 +489,8 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 .bnav-btn.bnav-active{color:var(--gold)}
 .bnav-btn:hover,.bnav-btn.active{color:var(--gold)}
 .bnav-btn.active .bico{transform:translateY(-2px)}
-.bnav-btn .bico{font-size:22px;line-height:1;transition:transform .2s}
+.bnav-btn .bico{font-size:22px;line-height:1;transition:transform .2s;display:flex;align-items:center;justify-content:center}
+.bnav-btn .bico svg{width:22px;height:22px;display:block}
 .bnav-btn .blbl{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:800}
 .bnav-sep{width:1px;background:var(--border);margin:12px 0}
 
@@ -950,29 +967,32 @@ function abrirInfoLegal(){
 </script>
 
 <!-- BOTTOM NAV -->
+<!-- Ícones em SVG de traço único (em vez de emojis do sistema, que mudam de
+     estilo/cor consoante o telemóvel) — mesma espessura de traço em todos,
+     para lerem como um conjunto desenhado, não uma mistura ad-hoc. -->
 <nav class="bnav">
   <button class="bnav-btn" onclick="goHome()">
-    <span class="bico">🏠</span>
+    <span class="bico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3.5a1 1 0 0 0 1-1v-9"/></svg></span>
     <span class="blbl">Início</span>
   </button>
   <div class="bnav-sep"></div>
   <button class="bnav-btn" onclick="openCities()">
-    <span class="bico">▦</span>
+    <span class="bico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.4"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.4"/></svg></span>
     <span class="blbl">Cidades</span>
   </button>
   <div class="bnav-sep"></div>
   <button class="bnav-btn" onclick="openSearch()">
-    <span class="bico">🔍</span>
+    <span class="bico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg></span>
     <span class="blbl">Pesquisar</span>
   </button>
   <div class="bnav-sep"></div>
   <button class="bnav-btn" onclick="abrirFavoritos()">
-    <span class="bico">★</span>
+    <span class="bico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg></span>
     <span class="blbl">Favoritos</span>
   </button>
   <div class="bnav-sep"></div>
   <button class="bnav-btn rb-theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Alterar tema">
-    <span class="bico" id="themeToggleIcon">◐</span>
+    <span class="bico" id="themeToggleIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/></svg></span>
     <span class="blbl" id="themeToggleLabel">Tema</span>
   </button>
 </nav>
@@ -5335,9 +5355,16 @@ function precoInlineHtml(tipoStr, flagship, precoManual, precoOculto){
 // Mostra a classificação do Google (estrela + nota + nº de avaliações),
 // por baixo da linha do nome/preçário. Devolve '' se não houver
 // classificação guardada para este estabelecimento.
+// Nota: por vezes a folha de cálculo (Google Sheets) transforma sozinha
+// uma nota como "4,5" numa data (ex: 4 de maio), e como não tem ano
+// indicado assume o ano corrente — isso chegava aqui como algo do
+// género "2026-05-04T00:00:00.000Z", e o parseFloat lia só o "2026"
+// inicial, mostrando "2026" como se fosse a classificação. Como o
+// Google nunca dá classificações acima de 5 estrelas, qualquer valor
+// fora do intervalo 0–5 é claramente inválido e é ignorado aqui.
 function ratingInlineHtml(rating, ratingCount){
   const r = parseFloat((rating||'').toString().replace(',', '.'));
-  if (isNaN(r) || r <= 0) return '';
+  if (isNaN(r) || r <= 0 || r > 5) return '';
   const countNum = parseInt((ratingCount||'').toString(), 10);
   const countTxt = (!isNaN(countNum) && countNum > 0) ? `<span class="rating-count">(${countNum})</span>` : '';
   return `<span class="rating-star">★</span><span class="rating-val">${r.toFixed(1)}</span>${countTxt}`;
@@ -7484,8 +7511,20 @@ function linhaParaEstabelecimento(row, index){
     cozinha: get('cozinha','culinaria','culinária','tipo_cozinha').toUpperCase(),
     flagship: valorVerdadeiro(get('flagship')),
     preco: temColunaPreco ? (() => { const p = (row[colunaPrecoEncontrada]||'').toString().trim(); const nEuros = (p.match(/€/g)||[]).length; const n = nEuros>0 ? nEuros : parseInt(p,10); return (n>=1&&n<=4) ? String(n) : ''; })() : undefined,
-    rating: temColunaRating ? get(...chavesRating) : undefined,
-    ratingCount: temColunaRatingCount ? get(...chavesRatingCount) : undefined,
+    // Enviamos a nota já como número (não como texto tipo "4,5"): se
+    // formos enviar o texto em bruto, o Google Sheets interpreta-o
+    // sozinho como uma data (ex: "4,5" -> 4 de maio) e, como não tem
+    // ano, assume sempre o ano corrente — foi isso que fez aparecer
+    // "2026" na classificação de todos os estabelecimentos depois de
+    // sincronizar. Só é válido entre 0 e 5 (o Google nunca dá mais).
+    rating: temColunaRating ? (() => {
+      const n = parseFloat(get(...chavesRating).toString().trim().replace(',', '.'));
+      return (!isNaN(n) && n > 0 && n <= 5) ? n : '';
+    })() : undefined,
+    ratingCount: temColunaRatingCount ? (() => {
+      const n = parseInt(get(...chavesRatingCount).toString().trim(), 10);
+      return (!isNaN(n) && n > 0) ? n : '';
+    })() : undefined,
     nome: get('nome'),
     morada: get('morada'),
     estacionamento: get('estacionamento'),
@@ -8127,7 +8166,14 @@ function renderEstabelecimentos(){
       // Preçário mostrado ao lado do nome do estabelecimento.
       const precoInline = precoInlineHtml(e.tipo, isFL, e.preco, e.precoOculto);
       const ratingInline = ratingInlineHtml(e.rating, e.ratingCount);
-      const ratingRowHtml = ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : '';
+      // Feedback deixa de ser um botão a toda a largura (repetido, igual, em
+      // todos os cartões) e passa a ser um link discreto, sozinho, na sua
+      // própria linha — é uma ação secundária, não deve competir em peso
+      // visual com o nome/preço/classificação.
+      const feedbackBtnHtml = `<button class="comment-btn" onclick="event.stopPropagation(); abrirComentarios('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}', '${(e.cidade||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5v-3.6L15.9 5a1.6 1.6 0 0 1 2.3 0l1.4 1.4a1.6 1.6 0 0 1 0 2.3L7.6 20.5Z"/><path d="M14 7 17 10"/></svg>
+  <span class="comment-btn-txt">Feedback</span>
+</button>`;
 
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-rating="${e.rating||''}" data-rating-count="${e.ratingCount||''}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
@@ -8135,14 +8181,11 @@ function renderEstabelecimentos(){
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
 ${badgesHtml}
-<div class="c-name-row"><h3 class="c-name">${e.nome}</h3>${precoInline}</div>
-${ratingRowHtml}
+<div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
+<div class="c-accent"></div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city">${e.cidade}</div>
-<div class="c-divider"></div>
-<button class="comment-btn" onclick="event.stopPropagation(); abrirComentarios('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}', '${(e.cidade||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
-  📝 <span class="comment-btn-txt">Feedback</span>
-</button>
+<div class="c-feedback-row">${feedbackBtnHtml}</div>
 </div>
 </div>`;
     });
@@ -8722,6 +8765,7 @@ function openCardOverlay(cardId){
   const precoInlineOv = precoInlineHtml(card.dataset.tipo, flagship, card.dataset.preco, card.dataset.precoOculto === 'true');
   const ratingInlineOv = ratingInlineHtml(card.dataset.rating, card.dataset.ratingCount);
   const ratingRowOvHtml = ratingInlineOv ? `<div class="card-ov-rating-row">${ratingInlineOv}</div>` : '';
+  const metaGroupOvHtml = `<div class="c-meta-group">${precoInlineOv}${ratingRowOvHtml}</div>`;
 
   const mapsUrl = card.dataset.mapsUrl || mapsEl?.href || '#';
 
@@ -8730,8 +8774,7 @@ function openCardOverlay(cardId){
     ${photosHtml}
     <div class="card-ov-info">
       ${badgesOv}
-      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${precoInlineOv}</div>
-      ${ratingRowOvHtml}
+      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${metaGroupOvHtml}</div>
       <div class="card-ov-actions-row">
         <button class="card-ov-action-btn${ehFavorito(cardId)?' on':''}" id="cardOvFavBtn" onclick="toggleFavoritoOverlay('${cardId}')">
           <span id="cardOvFavIcon">${ehFavorito(cardId)?'★':'☆'}</span> Guardar
@@ -9418,15 +9461,21 @@ body{
 .ch-cnt{color:#087A3B}
 
 /* ── CARTÕES DE ESTABELECIMENTOS ─────────────────────────────────── */
+/* Sem caixa branca + sombra à volta de cada cartão (o padrão genérico de
+   "cartão de app SaaS") — em vez disso, um traço fino a separar cada
+   estabelecimento, como numa página de guia impresso. A foto continua a
+   sangrar até à margem, que é o que já funcionava bem. */
 .card{
-  background:#fff;
-  border:1px solid #E2E7E4;
-  box-shadow:0 5px 18px rgba(20,35,28,.08);
+  background:transparent;
+  border:none;
+  border-bottom:1px solid #E2E7E4;
+  border-radius:0;
+  box-shadow:none;
   backdrop-filter:none;
 }
 .card:hover{
-  border-color:#C9D9D0;
-  box-shadow:0 10px 28px rgba(20,35,28,.12);
+  border-color:#E2E7E4;
+  box-shadow:none;
 }
 .card-edit-btn{
   background:rgba(255,255,255,.94);
@@ -9446,7 +9495,7 @@ body{
   background:#EFF7F2;
 }
 .c-type-txt{color:#087A3B}
-.preco-inline{color:#A27708}
+.preco-inline{color:#A27708;background:linear-gradient(135deg,rgba(162,119,8,.14),rgba(162,119,8,.04));border-color:rgba(162,119,8,.35)}
 .c-rating-row .rating-val,.card-ov-rating-row .rating-val{color:#3A3A3A}
 .c-rating-row .rating-count,.card-ov-rating-row .rating-count{color:#68736E}
 .qr-img{box-shadow:0 3px 10px rgba(20,35,28,.10)}
@@ -9461,13 +9510,9 @@ body{
   color:#fff;
 }
 .comment-btn{
-  background:#F5F7F6;
-  border-color:#E0E5E2;
-  color:#53605A;
+  color:#68736E;
 }
 .comment-btn:hover{
-  background:#EEF5F1;
-  border-color:#BFD5C8;
   color:#087A3B;
 }
 .highlight-row{border-top-color:#E4E8E6}
@@ -10219,6 +10264,10 @@ window.listarTipologiasRoadbook = function(){
 <script>
 (function(){
  const KEY="rbThemeChoice";
+ // Mesmo estilo de traço dos restantes ícones da barra (SVG, não emoji),
+ // para o sol/lua não destoar do resto do conjunto.
+ const ICON_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.8v2.6M12 18.6v2.6M4.5 12H2M22 12h-2.5M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>';
+ const ICON_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/></svg>';
  function applyTheme(theme){
    const light=document.getElementById("lightThemeStyles");
    const dark=theme==="dark";
@@ -10227,7 +10276,7 @@ window.listarTipologiasRoadbook = function(){
    if(light) light.disabled=dark;
    localStorage.setItem(KEY,theme);
    const icon=document.getElementById("themeToggleIcon"), label=document.getElementById("themeToggleLabel");
-   if(icon) icon.textContent=dark?"☀️":"🌙";
+   if(icon) icon.innerHTML=dark?ICON_SUN:ICON_MOON;
    if(label) label.textContent=dark?"Claro":"Escuro";
  }
  window.setTheme=function(theme,close){ applyTheme(theme); if(close){const o=document.getElementById("rbThemeOverlay");if(o)o.classList.remove("show");} };
