@@ -113,6 +113,7 @@ body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
   --shadow:0 10px 30px rgba(0,0,0,0.35);
   --radius:18px;
   --radiusSm:12px;
+  --radiusLg:22px;
 }
 body{background:radial-gradient(120% 70% at 50% -10%,#0E8A46 0%,#054027 45%,#031F12 100%);color:var(--white);min-height:100vh}
 ::selection{background:var(--red);color:#fff}
@@ -250,7 +251,7 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
    não uma pílula a toda a largura. */
 .comment-overlay{position:fixed;inset:0;z-index:700;background:rgba(3,20,12,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
 .comment-overlay.on{display:flex}
-.comment-sheet{width:100%;max-width:520px;max-height:86vh;background:linear-gradient(180deg,#0A3C22,#052E1B);border:1px solid var(--gold);border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:comentSobe .25s ease}
+.comment-sheet{width:100%;max-width:520px;max-height:86vh;background:linear-gradient(180deg,#0A3C22,#052E1B);border:1px solid var(--gold);border-radius:var(--radiusLg) var(--radiusLg) 0 0;display:flex;flex-direction:column;animation:comentSobe .25s ease}
 @keyframes comentSobe{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 .comment-head{padding:18px 20px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .comment-head h3{font-family:'Poppins',sans-serif;font-size:17px;font-weight:800;color:var(--white);margin:0}
@@ -269,7 +270,7 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 /* Modais próprios (substituem alert()/confirm() nativos do browser) */
 .rb-modal-overlay{position:fixed;inset:0;z-index:20000;background:rgba(2,18,11,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
 .rb-modal-overlay.show{display:flex}
-.rb-modal{width:min(100%,380px);background:linear-gradient(160deg,#0A4B2B,#052E1B 70%,#031F12);border:1px solid rgba(228,185,63,.75);border-radius:22px;padding:26px 22px 20px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center;animation:notifWelcomeIn .22s ease-out}
+.rb-modal{width:min(100%,380px);background:linear-gradient(160deg,#0A4B2B,#052E1B 70%,#031F12);border:1px solid rgba(228,185,63,.75);border-radius:var(--radiusLg);padding:26px 22px 20px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center;animation:notifWelcomeIn .22s ease-out}
 .rb-modal-msg{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.9);margin:0 0 20px;white-space:pre-line}
 .rb-modal-actions{display:flex;gap:9px}
 .rb-modal-actions button{flex:1;border-radius:100px;padding:11px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:.5px;cursor:pointer;border:none}
@@ -279,7 +280,7 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 body.light-theme .rb-modal{background:#fff;border-color:rgba(184,134,11,.55)}
 body.light-theme .rb-modal-msg{color:#2A322D}
 body.light-theme .rb-modal-cancel{background:#F2F4F3;color:#2A322D;border-color:rgba(0,0,0,.12)!important}
-.fb-criterios{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:8px 12px}
+.fb-criterios{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radiusSm);padding:8px 12px}
 .comment-stars-input{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px}
 .csi-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--softwhite);opacity:.75}
 .csi-stars{display:flex;gap:2px}
@@ -378,13 +379,8 @@ body.admin-mode .card-edit-btn{display:flex}
 /* A tipologia continua no DOM para a lógica existente, mas deixa de ocupar espaço. */
 .c-type-box{display:none !important}
 /* City */
-.c-city{display:flex;align-items:center;gap:5px;min-width:0;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:1.2px;color:var(--softwhite);text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-city-name{overflow:hidden;text-overflow:ellipsis}
-.c-distance{display:inline-flex;align-items:center;gap:3px;flex:none;color:var(--green2);font-weight:800;letter-spacing:.7px;text-transform:none;white-space:nowrap}
-.c-distance .distance-pin{width:11px;height:11px;display:inline-block}
-.c-distance.loading{opacity:.55}
-.c-distance-btn{border:0;background:none;padding:0;color:var(--green2);font:inherit;letter-spacing:.6px;cursor:pointer}
-.c-distance-btn:hover{text-decoration:underline}
+.c-city{font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;color:var(--softwhite);text-transform:uppercase;opacity:.8}
+.c-dist{letter-spacing:.5px;text-transform:none;font-weight:600;opacity:.85}
 .c-divider{height:1px;background:var(--border);margin:3px 0}
 /* Details */
 .det-lbl{font-family:'Inter',sans-serif;font-weight:800;font-size:9px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase}
@@ -434,7 +430,7 @@ select.admin-input option{background:#0B4F30;color:#ffffff}
 .admin-status.err{color:#FF5C6C;opacity:1}
 .admin-status.ok{color:#6BFFA0;opacity:1}
 .ed-section{background:var(--glass);border:1px solid var(--border);border-radius:var(--radiusSm);padding:16px;margin-bottom:4px}
-.ee-flagship-card{display:flex;align-items:center;gap:10px;background:rgba(228,0,26,.08);border:1px solid rgba(228,0,26,.45);border-radius:12px;padding:12px 14px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:.2s}
+.ee-flagship-card{display:flex;align-items:center;gap:10px;background:rgba(228,0,26,.08);border:1px solid rgba(228,0,26,.45);border-radius:var(--radiusSm);padding:12px 14px;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:.2s}
 .ee-flagship-card:hover{background:rgba(228,0,26,.14);border-color:var(--red)}
 .ee-flagship-card input{width:18px;height:18px;accent-color:var(--red);flex-shrink:0}
 
@@ -745,7 +741,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 }
 
 /* PUSH CAMPAIGN */
-.push-camp-overlay{display:none;position:fixed;inset:0;z-index:1500;background:rgba(3,20,12,.82);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:16px}.push-camp-overlay.open{display:flex}.push-camp-box{width:min(560px,100%);max-height:92vh;overflow:auto;background:#06351f;border:1px solid rgba(228,185,63,.35);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.45);color:#fff}.push-camp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;background:#06351f;z-index:2}.push-camp-head h2{margin:0;font:800 16px Poppins,sans-serif;color:#e4b93f}.push-camp-close{border:0;background:none;color:#fff;font-size:22px;cursor:pointer}.push-camp-body{padding:18px;display:flex;flex-direction:column;gap:12px}.push-camp-label{font:800 9px Inter,sans-serif;letter-spacing:1.8px;text-transform:uppercase;color:#e4b93f;margin-bottom:4px;display:block}.push-camp-input,.push-camp-textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#fff;padding:11px 12px;font:13px Inter,sans-serif;outline:none}.push-camp-textarea{min-height:100px;resize:vertical}.push-camp-input:focus,.push-camp-textarea:focus{border-color:#e4b93f}.push-camp-check{display:flex;align-items:center;gap:9px;font:12px Inter,sans-serif;color:rgba(255,255,255,.85);cursor:pointer}.push-camp-check input{accent-color:#e4b93f;width:17px;height:17px}.push-camp-file{border:1px dashed rgba(228,185,63,.45);border-radius:10px;padding:12px;background:rgba(228,185,63,.05)}.push-camp-preview{display:none;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:rgba(0,0,0,.16)}.push-camp-preview.on{display:block}.push-camp-preview img{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:8px}.push-camp-note{font:11px/1.5 Inter,sans-serif;color:rgba(255,255,255,.62)}.push-camp-actions{display:flex;gap:8px;margin-top:4px}.push-camp-send{flex:1;border:0;border-radius:100px;padding:12px;background:linear-gradient(135deg,#e4b93f,#c99a24);color:#052e1b;font:800 12px Inter,sans-serif;cursor:pointer}.push-camp-send:disabled{opacity:.5;cursor:not-allowed}.push-camp-cancel{border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:12px 18px;background:transparent;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}.push-camp-status{min-height:18px;text-align:center;font:700 11px Inter,sans-serif;color:#6bffa0}.push-target-highlight{outline:3px solid #e4b93f;outline-offset:4px;box-shadow:0 0 0 8px rgba(228,185,63,.14),0 12px 35px rgba(228,185,63,.25)!important}@media(max-width:520px){.push-camp-body{padding:14px}}
+.push-camp-overlay{display:none;position:fixed;inset:0;z-index:1500;background:rgba(3,20,12,.82);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:16px}.push-camp-overlay.open{display:flex}.push-camp-box{width:min(560px,100%);max-height:92vh;overflow:auto;background:#06351f;border:1px solid rgba(228,185,63,.35);border-radius:var(--radiusLg);box-shadow:0 24px 80px rgba(0,0,0,.45);color:#fff}.push-camp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;background:#06351f;z-index:2}.push-camp-head h2{margin:0;font:800 16px Poppins,sans-serif;color:#e4b93f}.push-camp-close{border:0;background:none;color:#fff;font-size:22px;cursor:pointer}.push-camp-body{padding:18px;display:flex;flex-direction:column;gap:12px}.push-camp-label{font:800 9px Inter,sans-serif;letter-spacing:1.8px;text-transform:uppercase;color:#e4b93f;margin-bottom:4px;display:block}.push-camp-input,.push-camp-textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#fff;padding:11px 12px;font:13px Inter,sans-serif;outline:none}.push-camp-textarea{min-height:100px;resize:vertical}.push-camp-input:focus,.push-camp-textarea:focus{border-color:#e4b93f}.push-camp-check{display:flex;align-items:center;gap:9px;font:12px Inter,sans-serif;color:rgba(255,255,255,.85);cursor:pointer}.push-camp-check input{accent-color:#e4b93f;width:17px;height:17px}.push-camp-file{border:1px dashed rgba(228,185,63,.45);border-radius:10px;padding:12px;background:rgba(228,185,63,.05)}.push-camp-preview{display:none;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:rgba(0,0,0,.16)}.push-camp-preview.on{display:block}.push-camp-preview img{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:8px}.push-camp-note{font:11px/1.5 Inter,sans-serif;color:rgba(255,255,255,.62)}.push-camp-actions{display:flex;gap:8px;margin-top:4px}.push-camp-send{flex:1;border:0;border-radius:100px;padding:12px;background:linear-gradient(135deg,#e4b93f,#c99a24);color:#052e1b;font:800 12px Inter,sans-serif;cursor:pointer}.push-camp-send:disabled{opacity:.5;cursor:not-allowed}.push-camp-cancel{border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:12px 18px;background:transparent;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}.push-camp-status{min-height:18px;text-align:center;font:700 11px Inter,sans-serif;color:#6bffa0}.push-target-highlight{outline:3px solid #e4b93f;outline-offset:4px;box-shadow:0 0 0 8px rgba(228,185,63,.14),0 12px 35px rgba(228,185,63,.25)!important}@media(max-width:520px){.push-camp-body{padding:14px}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
@@ -754,7 +750,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 /* ── POPUP PRIMEIRA VISITA — INSTALAR NO ECRÃ PRINCIPAL ─────────── */
 .install-prompt-overlay{position:fixed;inset:0;z-index:12100;background:rgba(2,18,11,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
 .install-prompt-overlay.show{display:flex}
-.install-prompt{width:min(100%,430px);background:linear-gradient(160deg,#0A4B2B,#052E1B 70%,#031F12);border:1px solid rgba(228,185,63,.75);border-radius:24px;padding:28px 24px 22px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center;animation:notifWelcomeIn .28s ease-out}
+.install-prompt{width:min(100%,430px);background:linear-gradient(160deg,#0A4B2B,#052E1B 70%,#031F12);border:1px solid rgba(228,185,63,.75);border-radius:var(--radiusLg);padding:28px 24px 22px;box-shadow:0 18px 60px rgba(0,0,0,.55);text-align:center;animation:notifWelcomeIn .28s ease-out}
 .install-prompt-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(228,185,63,.12);border:1px solid rgba(228,185,63,.55);font-size:30px;box-shadow:0 0 0 7px rgba(228,185,63,.05)}
 .install-prompt h3{font-family:'Poppins',sans-serif;font-size:21px;font-weight:800;color:#fff;margin-bottom:8px}
 .install-prompt p{font-family:'Inter',sans-serif;font-size:13px;line-height:1.55;color:rgba(255,255,255,.78);margin:0 auto 16px;max-width:350px}
@@ -769,7 +765,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 </style>
 
 <style id="rb-theme-picker-styles">
-.rb-theme-overlay{position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.58);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}.rb-theme-overlay.show{display:flex}.rb-theme-box{width:min(420px,100%);background:#fff;border-radius:22px;padding:26px 22px;box-shadow:0 20px 70px rgba(0,0,0,.35);text-align:center;color:#17211D}.rb-theme-box h2{margin:0 0 7px;font:800 21px Poppins,sans-serif}.rb-theme-box p{margin:0 0 20px;font:13px Inter,sans-serif;color:#68736E}.rb-theme-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rb-theme-option{border:1px solid #DDE4E0;border-radius:15px;background:#fff;padding:14px 10px;cursor:pointer;font:800 12px Inter,sans-serif;color:#26332D}.rb-theme-option:hover{border-color:#087A3B}.rb-theme-swatch{height:70px;border-radius:11px;margin-bottom:9px}.rb-theme-light{background:#F5F7F6;border:1px solid #E1E7E3}.rb-theme-dark{background:linear-gradient(145deg,#0A4B2B,#031F12);border:1px solid rgba(228,185,63,.55)}.rb-theme-current{outline:2px solid #087A3B;outline-offset:2px}.rb-theme-toggle{position:relative}.rb-theme-toggle .bico{font-size:17px}
+.rb-theme-overlay{position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.58);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}.rb-theme-overlay.show{display:flex}.rb-theme-box{width:min(420px,100%);background:#fff;border-radius:var(--radiusLg);padding:26px 22px;box-shadow:0 20px 70px rgba(0,0,0,.35);text-align:center;color:#17211D}.rb-theme-box h2{margin:0 0 7px;font:800 21px Poppins,sans-serif}.rb-theme-box p{margin:0 0 20px;font:13px Inter,sans-serif;color:#68736E}.rb-theme-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rb-theme-option{border:1px solid #DDE4E0;border-radius:15px;background:#fff;padding:14px 10px;cursor:pointer;font:800 12px Inter,sans-serif;color:#26332D}.rb-theme-option:hover{border-color:#087A3B}.rb-theme-swatch{height:70px;border-radius:11px;margin-bottom:9px}.rb-theme-light{background:#F5F7F6;border:1px solid #E1E7E3}.rb-theme-dark{background:linear-gradient(145deg,#0A4B2B,#031F12);border:1px solid rgba(228,185,63,.55)}.rb-theme-current{outline:2px solid #087A3B;outline-offset:2px}.rb-theme-toggle{position:relative}.rb-theme-toggle .bico{font-size:17px}
 </style>
 
 
@@ -799,7 +795,7 @@ body.light-theme .map-legend-dot { background:rgba(255,255,255,.9) !important; }
 </style>
 
 <style id="rb-contact-icons-improved">
-.card-ov-contact-icon{width:38px;height:38px;min-width:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#EFF5F1;color:#087A3B;box-shadow:inset 0 0 0 1px rgba(8,122,59,.08)}
+.card-ov-contact-icon{width:38px;height:38px;min-width:38px;border-radius:var(--radiusSm);display:flex;align-items:center;justify-content:center;background:#EFF5F1;color:#087A3B;box-shadow:inset 0 0 0 1px rgba(8,122,59,.08)}
 .card-ov-contact-icon svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .card-ov-contact-icon svg rect{fill:none}
 .card-ov-contact-item:not(.static):hover .card-ov-contact-icon{background:#E5F0E9;transform:scale(1.04)}
@@ -1093,6 +1089,7 @@ function abrirInfoLegal(){
   <button onclick="fecharAdminMenu(); openEditorEmail()">📧 Campanha de email</button>
   <button onclick="fecharAdminMenu(); abrirEditorEstabelecimento(null)">➕ Adicionar estabelecimento</button>
   <button id="adminPrecoGlobalBtn" onclick="alternarPrecoGlobal()">💶 Preçário Global: VISÍVEL (toca para ocultar em tudo)</button>
+  <button onclick="fecharAdminMenu(); preencherCoordenadasEmFalta()">🎯 Preencher coordenadas em falta (a partir do Maps)</button>
   <button id="adminResetBtn" style="display: block;" onclick="fecharAdminMenu(); reporDadosOriginais()">↺ Repor dados do ficheiro</button>
   <button class="admin-menu-close" onclick="fecharAdminMenu()">Fechar</button>
 </div>
@@ -1203,6 +1200,15 @@ function abrirInfoLegal(){
       <div class="ed-field">
         <label class="ed-label">Morada</label>
         <input type="text" class="admin-input" id="eeMorada" placeholder="Morada completa">
+      </div>
+      <div class="ed-field">
+        <label class="ed-label">Coordenadas (para calcular distância)</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="admin-input" id="eeLat" placeholder="Latitude, ex: 37.1379" style="flex:1">
+          <input type="text" class="admin-input" id="eeLng" placeholder="Longitude, ex: -8.0157" style="flex:1">
+        </div>
+        <button type="button" class="ee-flagship-card" style="margin-top:8px;width:100%;justify-content:center" onclick="preencherCoordenadasDoMapsUrl()">🎯 Obter coordenadas a partir do link do Maps</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px" id="eeCoordStatus">Ou copia do Google Maps: clica com o botão direito no PDV no mapa → o primeiro valor da lista é a latitude, o segundo a longitude.</div>
       </div>
       <div class="ed-field">
         <label class="ed-label">Estacionamento</label>
@@ -6237,6 +6243,25 @@ async function syncGetFotos(id){
   }
 }
 
+/* Pede ao backend (Google Apps Script) para seguir o link curto do
+   Google Maps (maps.app.goo.gl/...) até à página final e extrair as
+   coordenadas de lá — um link curto não tem as coordenadas no próprio
+   texto do URL, só a página para onde ele redireciona é que as tem.
+   Devolve {lat,lng} ou null se não conseguir. Requer que o Code.gs
+   tenha a ação 'coordenadas' (ver instruções fornecidas à parte). */
+async function obterCoordenadasDoMapsUrl(mapsUrl){
+  if (!SYNC_URL || !mapsUrl) return null;
+  try {
+    const url = SYNC_URL + '?action=coordenadas&maps_url=' + encodeURIComponent(mapsUrl) + '&_=' + Date.now();
+    const dados = await syncFetchComRetentativas(url, { method: 'GET', cache: 'no-store' });
+    if (dados && typeof dados.lat === 'number' && typeof dados.lng === 'number') return { lat: dados.lat, lng: dados.lng };
+    return null;
+  } catch (err) {
+    console.warn('Erro a obter coordenadas do link do Maps:', err);
+    return null;
+  }
+}
+
 /* Vai buscar as fotos da pasta do Drive só para os estabelecimentos
    cujo card está prestes a entrar no ecrã (em vez de pedir logo as
    fotos de TODOS os estabelecimentos renderizados de uma vez, que era
@@ -7108,6 +7133,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeRegiao').value = e.regiao || '';
     popularCidadesPorRegiao(e.regiao || '', e.cidade || '');
     document.getElementById('eeMorada').value = e.morada || '';
+    document.getElementById('eeLat').value = e.lat || '';
+    document.getElementById('eeLng').value = e.lng || '';
     document.getElementById('eeEstacionamento').value = e.estacionamento || '';
     document.getElementById('eeHorario').value = e.horario || '';
     document.getElementById('eeTelefone').value = e.telefone || '';
@@ -7135,6 +7162,8 @@ function abrirEditorEstabelecimento(id){
     document.getElementById('eeRegiao').value = '';
     popularCidadesPorRegiao('');
     document.getElementById('eeMorada').value = '';
+    document.getElementById('eeLat').value = '';
+    document.getElementById('eeLng').value = '';
     document.getElementById('eeEstacionamento').value = '';
     document.getElementById('eeHorario').value = '';
     document.getElementById('eeTelefone').value = '';
@@ -7224,6 +7253,63 @@ function recolherInfoExtraEditor(){
   })).filter(x=>x.label || x.valor);
 }
 
+async function preencherCoordenadasDoMapsUrl(){
+  const mapsUrl = document.getElementById('eeMapsUrl').value.trim();
+  const statusEl = document.getElementById('eeCoordStatus');
+  if(!mapsUrl){ rbAlert('Preenche primeiro o campo "Link do Google Maps".'); return; }
+  if(!SYNC_URL){ rbAlert('Isto precisa de estar ligado à Google Sheet (backend) — vê as instruções que te dei para o Code.gs.'); return; }
+  const original = statusEl.textContent;
+  statusEl.textContent = '🔄 A obter coordenadas...';
+  const coords = await obterCoordenadasDoMapsUrl(mapsUrl);
+  if(coords){
+    document.getElementById('eeLat').value = coords.lat;
+    document.getElementById('eeLng').value = coords.lng;
+    statusEl.textContent = '✅ Coordenadas encontradas: ' + coords.lat.toFixed(5) + ', ' + coords.lng.toFixed(5);
+  } else {
+    statusEl.textContent = '⚠️ Não consegui obter coordenadas a partir deste link. Podes colar manualmente.';
+    setTimeout(() => { statusEl.textContent = original; }, 4000);
+  }
+}
+
+/* Percorre todos os estabelecimentos que têm link do Maps mas ainda não
+   têm coordenadas, e tenta preenchê-las automaticamente, um a um (com
+   uma pequena pausa entre pedidos para não sobrecarregar o backend).
+   No fim, grava tudo e sincroniza com a Google Sheet de uma vez só. */
+async function preencherCoordenadasEmFalta(){
+  if(!SYNC_URL){ rbAlert('Isto precisa de estar ligado à Google Sheet (backend) — vê as instruções que te dei para o Code.gs.'); return; }
+  const pendentes = ESTABELECIMENTOS.filter(e => e.maps_url && (!e.lat || !e.lng));
+  if(!pendentes.length){ rbAlert('Todos os estabelecimentos com link do Maps já têm coordenadas.'); return; }
+  if(!confirm(`Vou tentar obter coordenadas para ${pendentes.length} estabelecimento(s). Isto pode demorar alguns minutos. Continuar?`)) return;
+
+  let ok = 0, falhas = 0;
+  for(let i = 0; i < pendentes.length; i++){
+    const e = pendentes[i];
+    atualizarEstadoSync('a-sincronizar');
+    const coords = await obterCoordenadasDoMapsUrl(e.maps_url);
+    if(coords){ e.lat = coords.lat; e.lng = coords.lng; ok++; } else { falhas++; }
+    await new Promise(r => setTimeout(r, 600)); // pausa entre pedidos
+  }
+
+  localStorage.setItem('roadbook_estabelecimentos', JSON.stringify(ESTABELECIMENTOS));
+  if(SYNC_URL){
+    try{
+      await syncFetchComRetentativas(SYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'import', dados: ESTABELECIMENTOS }),
+        cache: 'no-store'
+      });
+      atualizarEstadoSync('ok');
+    }catch(err){
+      atualizarEstadoSync('erro');
+      marcarAlteracoesPorExportar();
+    }
+  }
+  renderTypeChips();
+  if(estabelecimentosRenderizados) renderEstabelecimentos();
+  rbAlert(`Concluído: ${ok} estabelecimento(s) com coordenadas novas, ${falhas} sem sucesso (podes preencher esses manualmente no editor).`);
+}
+
 async function guardarEstabelecimento(){
   const nome = document.getElementById('eeNome').value.trim();
   const cidade = document.getElementById('eeCidade').value.trim();
@@ -7240,6 +7326,8 @@ async function guardarEstabelecimento(){
   }
 
   const id = document.getElementById('eeId').value;
+  const latVal = parseFloat(document.getElementById('eeLat').value.trim().replace(',','.'));
+  const lngVal = parseFloat(document.getElementById('eeLng').value.trim().replace(',','.'));
   const dados = {
     id: id || proximoIdEstabelecimento(),
     regiao: document.getElementById('eeRegiao').value,
@@ -7252,6 +7340,8 @@ async function guardarEstabelecimento(){
     precoOculto: document.getElementById('eePrecoOculto').checked,
     nome,
     morada,
+    lat: !isNaN(latVal) ? latVal : '',
+    lng: !isNaN(lngVal) ? lngVal : '',
     estacionamento: document.getElementById('eeEstacionamento').value.trim(),
     maps_url: document.getElementById('eeMapsUrl').value.trim(),
     telefone: document.getElementById('eeTelefone').value.trim(),
@@ -7367,6 +7457,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRegionMap();
   atualizarContadoresHotspots();
   atualizarCoverCount();
+  obterLocalizacaoUtilizador();
   renderCoverMapIcons();
   animateCoverRoad();
   if(localStorage.getItem('roadbook_estabelecimentos')){
@@ -7539,6 +7630,10 @@ function linhaParaEstabelecimento(row, index){
   const chavesRatingCount = ['num_avaliacoes_google','num_avaliacoes','rating_count'];
   const temColunaRating = Object.keys(row).some(rk => chavesRating.includes(rk.trim().toLowerCase()));
   const temColunaRatingCount = Object.keys(row).some(rk => chavesRatingCount.includes(rk.trim().toLowerCase()));
+  const chavesLat = ['lat','latitude'];
+  const chavesLng = ['lng','lon','long','longitude'];
+  const temColunaLat = Object.keys(row).some(rk => chavesLat.includes(rk.trim().toLowerCase()));
+  const temColunaLng = Object.keys(row).some(rk => chavesLng.includes(rk.trim().toLowerCase()));
   return {
     id: idDoExcel || ('card-' + (index+1)),
     _idExplicito: !!idDoExcel, // true = o Excel trouxe um id de propósito (ex: pasta do Drive)
@@ -7562,6 +7657,14 @@ function linhaParaEstabelecimento(row, index){
     ratingCount: temColunaRatingCount ? (() => {
       const n = parseInt(get(...chavesRatingCount).toString().trim(), 10);
       return (!isNaN(n) && n > 0) ? n : '';
+    })() : undefined,
+    lat: temColunaLat ? (() => {
+      const n = parseFloat(get(...chavesLat).toString().trim().replace(',', '.'));
+      return !isNaN(n) ? n : '';
+    })() : undefined,
+    lng: temColunaLng ? (() => {
+      const n = parseFloat(get(...chavesLng).toString().trim().replace(',', '.'));
+      return !isNaN(n) ? n : '';
     })() : undefined,
     nome: get('nome'),
     morada: get('morada'),
@@ -7674,6 +7777,11 @@ function importarExcel(file){
           // Excel importado tiver essas colunas.
           if(n.rating === undefined) delete n.rating;
           if(n.ratingCount === undefined) delete n.ratingCount;
+          // O mesmo para as coordenadas: só atualiza lat/lng se o Excel
+          // importado tiver essas colunas, para não apagar coordenadas
+          // já preenchidas manualmente no editor.
+          if(n.lat === undefined) delete n.lat;
+          if(n.lng === undefined) delete n.lng;
           // Só mantém o ID antigo se o Excel NÃO trouxe um id de propósito
           // (célula vazia na coluna id). Se trouxeres um id explícito (ex:
           // o ID de uma pasta do Drive), esse é o que passa a valer.
@@ -8121,198 +8229,38 @@ function rbTentarProximaFotoDrive(img){
   // Se ainda assim falhar, paramos de tentar para não bombardear o Drive.
 }
 
-
-/* ══════ DISTÂNCIA DO UTILIZADOR AO ESTABELECIMENTO ═══════════════
-   Mostra no cartão a distância em km entre a localização atual do
-   utilizador e o estabelecimento. A localização é pedida apenas quando
-   a lista de estabelecimentos é construída; as coordenadas dos
-   estabelecimentos são obtidas pelo endereço e ficam em cache neste
-   equipamento para não repetir o geocoding.
-   Nota: a distância apresentada é em linha reta (Haversine), não distância
-   de condução.
-═══════════════════════════════════════════════════════════════════ */
-const RB_DIST_CACHE_KEY = 'roadbook_estab_coords_v1';
-let rbUserPosition = null;
-let rbDistanceObserver = null;
-let rbDistanceQueue = [];
-let rbDistanceProcessing = false;
-let rbGeoRequestStarted = false;
-
-function rbLerCacheCoordenadas(){
-  try { return JSON.parse(localStorage.getItem(RB_DIST_CACHE_KEY) || '{}'); }
-  catch(e){ return {}; }
-}
-function rbGuardarCacheCoordenadas(cache){
-  try { localStorage.setItem(RB_DIST_CACHE_KEY, JSON.stringify(cache)); } catch(e){}
-}
-
-function rbDistanciaKm(lat1, lon1, lat2, lon2){
-  const R = 6371;
-  const dLat = (lat2-lat1) * Math.PI / 180;
-  const dLon = (lon2-lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 +
-            Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-            Math.sin(dLon/2)**2;
+/* Distância do utilizador a cada PDV, calculada a partir das coordenadas
+   guardadas no estabelecimento (lat/lng) e da localização do browser
+   (pedida uma vez, com o consentimento do utilizador). Se as coordenadas
+   não estiverem preenchidas ou a localização não for autorizada, o
+   estabelecimento fica simplesmente sem distância — nunca bloqueia nada. */
+let userLoc = null;
+function distanciaKm(lat1, lng1, lat2, lng2){
+  const R = 6371; // raio da Terra em km
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-
-function rbFormatarKm(km){
-  if (!isFinite(km)) return '';
-  if (km < 1) return Math.max(0.1, km).toFixed(1) + ' km';
-  if (km < 10) return km.toFixed(1) + ' km';
-  return Math.round(km) + ' km';
+function atualizarDistanciasNosCartoes(){
+  if(!userLoc) return;
+  document.querySelectorAll('.c-dist').forEach(el => {
+    const lat = parseFloat(el.dataset.lat);
+    const lng = parseFloat(el.dataset.lng);
+    if(isNaN(lat) || isNaN(lng)){ el.textContent = ''; return; }
+    const km = distanciaKm(userLoc.lat, userLoc.lng, lat, lng);
+    el.textContent = ' · ' + km.toFixed(km < 10 ? 1 : 0) + ' km';
+  });
 }
-
-function rbExtrairCoordenadasMaps(url){
-  const str = (url || '').toString();
-  if (!str) return null;
-  // Links Google Maps completos podem conter @lat,lng ou !3dLAT!4dLNG.
-  let m = str.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/);
-  if (m) return {lat:Number(m[1]), lon:Number(m[2])};
-  m = str.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
-  if (m) return {lat:Number(m[1]), lon:Number(m[2])};
-  return null;
-}
-
-function rbChaveEndereco(e){
-  return ((e && (e.morada || e.maps_url || e.nome || '')) + '|PT')
-    .trim().toLowerCase();
-}
-
-async function rbGeocodificarEstabelecimento(e){
-  const cache = rbLerCacheCoordenadas();
-  const chave = rbChaveEndereco(e);
-  if (cache[chave] && isFinite(Number(cache[chave].lat)) && isFinite(Number(cache[chave].lon))) {
-    return cache[chave];
-  }
-
-  const mapsCoords = rbExtrairCoordenadasMaps(e.maps_url);
-  if (mapsCoords) {
-    cache[chave] = mapsCoords;
-    rbGuardarCacheCoordenadas(cache);
-    return mapsCoords;
-  }
-
-  const morada = (e.morada || '').trim();
-  const cidade = (e.cidade || '').trim();
-  if (!morada && !cidade) return null;
-
-  const q = encodeURIComponent([morada, cidade, 'Portugal'].filter(Boolean).join(', '));
-  const urls = [
-    'https://photon.komoot.io/api/?q=' + q + '&limit=1&lang=pt',
-    'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=pt&q=' + q
-  ];
-
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, {headers:{'Accept-Language':'pt-PT,pt;q=0.9'}});
-      if (!res.ok) continue;
-      const data = await res.json();
-      let lat = null, lon = null;
-      if (data && Array.isArray(data.features) && data.features[0] && data.features[0].geometry) {
-        lon = Number(data.features[0].geometry.coordinates[0]);
-        lat = Number(data.features[0].geometry.coordinates[1]);
-      } else if (Array.isArray(data) && data[0]) {
-        lat = Number(data[0].lat);
-        lon = Number(data[0].lon);
-      }
-      if (isFinite(lat) && isFinite(lon)) {
-        const coords = {lat, lon};
-        cache[chave] = coords;
-        rbGuardarCacheCoordenadas(cache);
-        return coords;
-      }
-    } catch(err) {
-      // Tenta o serviço seguinte; se ambos falharem, simplesmente não mostra km.
-    }
-  }
-  return null;
-}
-
-function rbAtualizarDistanciaCard(card, texto, loading){
-  const el = card && card.querySelector('.c-distance');
-  if (!el) return;
-  el.classList.toggle('loading', !!loading);
-  if (texto) {
-    el.innerHTML = '<svg class="distance-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10.5c0 5.2-8 11-8 11s-8-5.8-8-11a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10.5" r="2.5"/></svg>' + texto;
-    el.title = 'Distância em linha reta desde a tua localização';
-  }
-}
-
-function rbEnfileirarDistanciaCard(card){
-  if (!rbUserPosition || !card || card.dataset.distanceQueued === '1') return;
-  card.dataset.distanceQueued = '1';
-  rbDistanceQueue.push(card);
-  rbProcessarFilaDistancias();
-}
-
-async function rbProcessarFilaDistancias(){
-  if (rbDistanceProcessing) return;
-  rbDistanceProcessing = true;
-  try {
-    while (rbDistanceQueue.length) {
-      const card = rbDistanceQueue.shift();
-      if (!card || !document.body.contains(card)) continue;
-      const e = ESTABELECIMENTOS.find(x => String(x.id) === String(card.id));
-      if (!e) continue;
-      rbAtualizarDistanciaCard(card, 'a calcular…', true);
-      const coords = await rbGeocodificarEstabelecimento(e);
-      if (coords && rbUserPosition) {
-        const km = rbDistanciaKm(rbUserPosition.lat, rbUserPosition.lon, coords.lat, coords.lon);
-        rbAtualizarDistanciaCard(card, rbFormatarKm(km), false);
-      } else {
-        // Se não foi possível localizar o endereço, não inventa uma distância.
-        rbAtualizarDistanciaCard(card, '', false);
-      }
-    }
-  } finally {
-    rbDistanceProcessing = false;
-  }
-}
-
-function rbAtivarObserverDistancias(){
-  if (rbDistanceObserver) rbDistanceObserver.disconnect();
-  if (!('IntersectionObserver' in window)) {
-    document.querySelectorAll('.card').forEach(rbEnfileirarDistanciaCard);
-    return;
-  }
-  rbDistanceObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        rbEnfileirarDistanciaCard(entry.target);
-        rbDistanceObserver.unobserve(entry.target);
-      }
-    });
-  }, {threshold:.01, rootMargin:'700px 0px'});
-  document.querySelectorAll('.card').forEach(card => rbDistanceObserver.observe(card));
-}
-
-function rbAplicarPosicaoUtilizador(pos){
-  rbUserPosition = {lat:pos.coords.latitude, lon:pos.coords.longitude};
-  document.documentElement.classList.add('rb-location-ok');
-  rbAtivarObserverDistancias();
-}
-
-function rbIniciarLocalizacao(){
-  if (rbGeoRequestStarted || !navigator.geolocation) return;
-  rbGeoRequestStarted = true;
+function obterLocalizacaoUtilizador(){
+  if(userLoc || !navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(
-    rbAplicarPosicaoUtilizador,
-    function(){ document.documentElement.classList.add('rb-location-denied'); },
-    {enableHighAccuracy:false, maximumAge:300000, timeout:12000}
+    pos => { userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude }; atualizarDistanciasNosCartoes(); },
+    () => { /* utilizador não autorizou ou falhou — sem distância, sem incomodar */ },
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
   );
 }
-
-// Permite tocar no texto de distância/localização para voltar a pedir a localização.
-window.iniciarLocalizacaoRoadBook = function(){
-  rbGeoRequestStarted = false;
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    rbAplicarPosicaoUtilizador,
-    function(){ document.documentElement.classList.add('rb-location-denied'); },
-    {enableHighAccuracy:false, maximumAge:0, timeout:12000}
-  );
-};
 
 function renderEstabelecimentos(){
   // Remove cards/city-headers de uma renderização anterior (import Excel)
@@ -8415,7 +8363,7 @@ ${badgesHtml}
 <div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
 <div class="c-accent"></div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
-<div class="c-city"><span class="c-city-name">${e.cidade}</span><span class="c-distance" data-distance-id="${e.id}" title="Distância desde a tua localização"><button type="button" class="c-distance-btn" onclick="event.stopPropagation(); iniciarLocalizacaoRoadBook()">📍 distância</button></span></div>
+<div class="c-city">${e.cidade}<span class="c-dist" data-lat="${e.lat||''}" data-lng="${e.lng||''}">${(userLoc && e.lat && e.lng) ? ' · ' + distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng).toFixed(distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng) < 10 ? 1 : 0) + ' km' : ''}</span></div>
 <div class="c-feedback-row">${feedbackBtnHtml}</div>
 </div>
 </div>`;
@@ -8462,11 +8410,6 @@ ${badgesHtml}
   // — o motor só arrancava por acaso quando a pasta do Drive substituía
   // o HTML do slideshow mais tarde.
   if (window.initSlideshows) window.initSlideshows();
-
-  // Distâncias: pede a localização sem bloquear o carregamento dos cartões.
-  // Só os cartões visíveis/próximos entram na fila de geocoding.
-  rbAtivarObserverDistancias();
-  rbIniciarLocalizacao();
 
   // Vai buscar, em segundo plano, as fotos das pastas do Drive (não
   // bloqueia o render — os cards já aparecem com foto1..4 se existirem,
@@ -9548,6 +9491,7 @@ function setStatus(msg, type){
   --shadow:0 5px 18px rgba(20,35,28,.08);
   --radius:14px;
   --radiusSm:10px;
+  --radiusLg:18px;
   --muted:#7A8580;
 }
 
@@ -9789,7 +9733,7 @@ body{
 .card-ov-typebox{border:0;border-radius:6px;padding:5px 9px;background:#E9ECEA;margin-bottom:9px}.card-ov-typetxt{color:#5E6863;font-size:9px;letter-spacing:1.3px}
 .card-ov-divider{background:#E2E7E4;margin-bottom:15px}.card-ov-lbl{color:#087A3B;font-size:9px;letter-spacing:1.8px;margin-bottom:4px}.card-ov-val{color:#46534C;background:#fff;border:1px solid #E4E9E6;border-radius:10px;padding:10px 11px;margin-bottom:10px;font-size:13px}
 .card-ov-contact-link{display:flex;align-items:center;gap:8px;color:#087A3B;text-decoration:none;font-weight:700}.card-ov-action{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #DDE4E0;border-radius:10px;background:#fff;color:#087A3B;text-decoration:none;font:800 11px Inter,sans-serif;padding:10px 12px;min-width:74px}.card-ov-action.primary{background:#087A3B;color:#fff;border-color:#087A3B}
-.card-ov-section{background:#fff;border:1px solid #E3E8E5;border-radius:13px;padding:13px;margin:0 16px 12px;box-shadow:0 3px 12px rgba(20,35,28,.05)}
+.card-ov-section{background:#fff;border:1px solid #E3E8E5;border-radius:var(--radius);padding:13px;margin:0 16px 12px;box-shadow:0 3px 12px rgba(20,35,28,.05)}
 .card-ov-section-title{font:800 9px Inter,sans-serif;letter-spacing:1.8px;text-transform:uppercase;color:#087A3B;margin-bottom:10px}.card-ov-feedback-summary{display:flex;align-items:center;gap:12px}.card-ov-feedback-score{font:800 27px Poppins,sans-serif;color:#17211D;line-height:1}.card-ov-feedback-stars{color:#C18B0B;letter-spacing:1px;font-size:15px}.card-ov-feedback-label{font:700 11px Inter,sans-serif;color:#526059;margin-top:3px}.card-ov-feedback-empty{font:600 12px Inter,sans-serif;color:#7A8580}.card-ov-feedback-criteria{margin-top:11px;display:grid;grid-template-columns:1fr 1fr;gap:7px}.card-ov-feedback-criterion{background:#F5F7F6;border-radius:8px;padding:8px 9px}.card-ov-feedback-criterion span{display:block;font:700 9px Inter,sans-serif;color:#69756F;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-ov-feedback-criterion strong{font:800 12px Inter,sans-serif;color:#17211D}
 .card{cursor:pointer}.card .cbody{padding-bottom:13px}.card .c-divider{margin-top:9px;margin-bottom:9px}.card .c-city{margin-bottom:2px}.card .comment-btn{margin-top:9px}
 @media(max-width:520px){.card-ov-photo{height:303px}.card-ov-info{padding-left:14px;padding-right:14px}.card-ov-section{margin-left:14px;margin-right:14px}}
@@ -9895,7 +9839,6 @@ footer p{color:#69756F;opacity:.75}
 @media(max-width:768px){
   .venues{padding-left:10px;padding-right:10px}
   .grid{gap:12px}
-  .card{border-radius:13px}
   .cbody{padding:14px}
   .filter-bar{padding:7px 12px}
 }
@@ -9933,10 +9876,10 @@ body.light-theme #cover{
 @media(max-width:600px){.ee-extra-row>div{grid-template-columns:1fr 1fr auto !important}}
 
 /* Contactos na segunda vista — formato compacto inspirado na referência */
-.card-ov-contact-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 12px;margin:0 0 7px;border:1px solid #E1E7E3;border-radius:11px;background:#fff;color:#17211D;text-decoration:none;box-shadow:0 2px 8px rgba(20,35,28,.04)}
+.card-ov-contact-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 12px;margin:0 0 7px;border:1px solid #E1E7E3;border-radius:var(--radiusSm);background:#fff;color:#17211D;text-decoration:none;box-shadow:0 2px 8px rgba(20,35,28,.04)}
 .card-ov-contact-item:hover:not(.static){border-color:#BFD5C8;background:#F8FBF9}
 .card-ov-contact-item.static{cursor:default}
-.card-ov-contact-icon{width:31px;height:31px;min-width:31px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#EFF5F1;color:#087A3B;font-size:17px;font-weight:800}
+.card-ov-contact-icon{width:31px;height:31px;min-width:31px;border-radius:var(--radiusSm);display:flex;align-items:center;justify-content:center;background:#EFF5F1;color:#087A3B;font-size:17px;font-weight:800}
 .card-ov-contact-item span:nth-child(2){display:flex;flex-direction:column;min-width:0;flex:1}
 .card-ov-contact-item small{font:700 8px Inter,sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:#7A8580;margin-bottom:2px}
 .card-ov-contact-item strong{font:600 12px Inter,sans-serif;color:#26332D;line-height:1.35;overflow-wrap:anywhere}
