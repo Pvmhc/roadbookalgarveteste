@@ -240,10 +240,6 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 /* ── CARD ────────────────────────────────────────────────────────────── */
 .card{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,box-shadow .3s,border-color .3s;box-shadow:var(--shadow);position:relative}
 .card-edit-btn{display:none;position:absolute;top:10px;right:10px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(4,20,12,.75);border:1px solid var(--gold);color:var(--gold);font-size:14px;align-items:center;justify-content:center;cursor:pointer}
-.card-fav-btn{position:absolute;top:10px;left:10px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(4,20,12,.55);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease}
-.card-fav-btn.on{color:var(--gold);border-color:var(--gold);background:rgba(4,20,12,.75)}
-.card-fav-btn.fav-pop{transform:scale(1.3)}
-.card-fav-btn:active{transform:scale(.88)}
 
 /* ── FEEDBACK POR ESTABELECIMENTO ─────────────────────────────────── */
 /* Estilo do botão de Feedback no cartão da grelha: ver regra junto de
@@ -304,6 +300,7 @@ body.admin-mode .card-edit-btn{display:flex}
 /* Destaques independentes da tipologia */
 .card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
 .fl-badge,.destaque-badge{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;width:fit-content;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.badge-icon{width:11px;height:11px;flex:none;display:block}
 .fl-badge{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
 .destaque-badge{background:rgb(var(--dc,14,138,70));border:1px solid rgba(var(--dc,14,138,70),.9);color:#fff;box-shadow:0 3px 10px rgba(var(--dc,14,138,70),.35)}
 .highlight-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
@@ -329,7 +326,8 @@ body.admin-mode .card-edit-btn{display:flex}
 .card-ov-action-btn.on{color:var(--gold);border-color:var(--gold)}
 .card-ov-action-btn:active{transform:scale(.96)}
 .c-rating-row,.card-ov-rating-row{display:flex;align-items:center;justify-content:flex-end;gap:4px}
-.c-rating-row .rating-star,.card-ov-rating-row .rating-star{color:var(--gold);font-size:12px;line-height:1}
+.c-rating-row .rating-star,.card-ov-rating-row .rating-star{color:var(--gold);font-size:12px;line-height:1;display:inline-flex}
+.c-rating-row .rating-star svg,.card-ov-rating-row .rating-star svg{width:12px;height:12px;display:block}
 .c-rating-row .rating-val,.card-ov-rating-row .rating-val{font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:var(--softwhite)}
 .c-rating-row .rating-count,.card-ov-rating-row .rating-count{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--softwhite);opacity:.6}
 /* Traço de destaque (vermelho → dourado, a mesma dupla de cor usada na
@@ -342,7 +340,13 @@ body.admin-mode .card-edit-btn{display:flex}
    pequeno com um ícone, não uma pílula. */
 /* Feedback fica sozinho numa linha discreta, à direita — já não compete
    com a classificação, que volta a ficar colada ao preço (como pediram). */
-.c-feedback-row{display:flex;justify-content:flex-end;margin-top:8px}
+.c-feedback-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.c-icon-row{display:flex;align-items:center;gap:8px}
+.c-icon-btn{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radiusSm);border:1px solid var(--border);background:var(--glass);color:var(--softwhite);cursor:pointer;transition:.15s ease}
+.c-icon-btn svg{width:16px;height:16px;fill:none}
+.c-icon-btn:active{transform:scale(.92)}
+.c-icon-btn.on{color:var(--gold);border-color:rgba(228,185,63,.55)}
+.c-icon-btn.on svg{fill:currentColor}
 .comment-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;background:none;border:none;padding:4px 2px;margin:0;width:auto;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.2px;cursor:pointer;opacity:.85;transition:.15s}
 .comment-btn svg{width:15px;height:15px;flex-shrink:0}
 .comment-btn:hover{opacity:1;color:var(--gold)}
@@ -379,7 +383,8 @@ body.admin-mode .card-edit-btn{display:flex}
 /* A tipologia continua no DOM para a lógica existente, mas deixa de ocupar espaço. */
 .c-type-box{display:none !important}
 /* City */
-.c-city{font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:2px;color:var(--softwhite);text-transform:uppercase;opacity:.8}
+.c-city{font-family:'Inter',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:0;color:var(--softwhite);text-transform:none;opacity:.8;display:flex;align-items:center;gap:4px}
+.c-city .c-pin{flex:none;width:12px;height:12px;color:var(--gold)}
 .c-dist{letter-spacing:.5px;text-transform:none;font-weight:600;opacity:.85}
 .c-divider{height:1px;background:var(--border);margin:3px 0}
 /* Details */
@@ -564,6 +569,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 .card-ov-info{padding:22px 20px 0}
 .card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.card-ov-fl .badge-icon,.card-ov-destaque .badge-icon{width:11px;height:11px}
 .card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
 .card-ov-destaque{background:rgb(var(--dc,14,138,70));border:1px solid rgba(var(--dc,14,138,70),.9);color:#fff}
 .card-ov-name{font-family:'Poppins',sans-serif;font-size:clamp(21px,5vw,30px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:12px;letter-spacing:-.3px}
@@ -5326,10 +5332,18 @@ function nomeTipoTexto(codigo){
 }
 
 // ── DESTAQUES ───────────────────────────────────────────────────────
+// Ícones SVG de traço único (mesma linguagem visual dos ícones de
+// navegação/partilha/favorito), a substituir os emojis antigos que
+// desentoavam nos cartões (renderizados de forma inconsistente
+// consoante o telemóvel/SO).
+const ICON_SVG_STAR = '<svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg>';
+const ICON_SVG_VAN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8.5a1 1 0 0 1 1-1h8.5l4 4.5H20a1 1 0 0 1 1 1V16"/><path d="M3 16h1.8M14.7 16H9.3M20 16h1"/><circle cx="7.5" cy="16.3" r="1.8"/><circle cx="16.8" cy="16.3" r="1.8"/></svg>';
+const ICON_SVG_SUN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M4.3 4.3l1.7 1.7M18 18l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.3 19.7l1.7-1.7M18 6l1.7-1.7"/></svg>';
+const ICON_SVG_MEDAL = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.3 3.5 10.5 9.8M15.7 3.5 13.5 9.8"/><circle cx="12" cy="14.7" r="5.3"/><path d="M12 12.2v5M9.6 14.7h4.8"/></svg>';
 const DESTAQUES_EDITOR_ICONE = {
-  BEERDRIVE: '🚐',
-  SOL_MAR: '☀️',
-  EMBAIXADOR: '🏅'
+  BEERDRIVE: ICON_SVG_VAN,
+  SOL_MAR: ICON_SVG_SUN,
+  EMBAIXADOR: ICON_SVG_MEDAL
 };
 const DESTAQUES_EDITOR_NOME = {
   BEERDRIVE: 'Beerdrive',
@@ -5415,7 +5429,7 @@ function ratingInlineHtml(rating, ratingCount){
   if (isNaN(r) || r <= 0 || r > 5) return '';
   const countNum = parseInt((ratingCount||'').toString(), 10);
   const countTxt = (!isNaN(countNum) && countNum > 0) ? `<span class="rating-count">(${countNum})</span>` : '';
-  return `<span class="rating-star">★</span><span class="rating-val">${r.toFixed(1)}</span>${countTxt}`;
+  return `<span class="rating-star">${ICON_SVG_STAR}</span><span class="rating-val">${r.toFixed(1)}</span>${countTxt}`;
 }
 
 // Alterna o "Preçário Global" (esconder/mostrar em todo o site de uma vez).
@@ -8235,6 +8249,16 @@ function rbTentarProximaFotoDrive(img){
    não estiverem preenchidas ou a localização não for autorizada, o
    estabelecimento fica simplesmente sem distância — nunca bloqueia nada. */
 let userLoc = null;
+/* "LOULÉ" (como é guardado, sempre em maiúsculas) → "Loulé", com as
+   preposições em minúsculas (de/do/da/dos/das/e), para o nome da
+   cidade ficar leve no cartão em vez de em maiúsculas espaçadas.
+   Não mexe no valor guardado (e.cidade) — é só para apresentação. */
+function formatarNomeCidade(cidade){
+  const minusculas = ['de','do','da','dos','das','e'];
+  return String(cidade || '').toLowerCase().split(' ').map((p, i) =>
+    (i > 0 && minusculas.includes(p)) ? p : (p.charAt(0).toUpperCase() + p.slice(1))
+  ).join(' ');
+}
 function distanciaKm(lat1, lng1, lat2, lng2){
   const R = 6371; // raio da Terra em km
   const toRad = d => d * Math.PI / 180;
@@ -8341,7 +8365,7 @@ function renderEstabelecimentos(){
       const foto2html = '';  // fotos geridas pelo slideshow
       const destaquesCard = splitDestaques(e.destaques);
       const destaqueBadges = destaquesCard.map(c => `<span class="destaque-badge" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('');
-      const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? '<div class="fl-badge">⭐ FLAGSHIP</div>' : ''}${destaqueBadges}</div>` : '';
+      const badgesHtml = (isFL || destaqueBadges) ? `<div class="card-badges">${isFL ? `<div class="fl-badge">${ICON_SVG_STAR} FLAGSHIP</div>` : ''}${destaqueBadges}</div>` : '';
       // Preçário mostrado ao lado do nome do estabelecimento.
       const precoInline = precoInlineHtml(e.tipo, isFL, e.preco, e.precoOculto);
       const ratingInline = ratingInlineHtml(e.rating, e.ratingCount);
@@ -8356,15 +8380,17 @@ function renderEstabelecimentos(){
 
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-rating="${e.rating||''}" data-rating-count="${e.ratingCount||''}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
-<button class="card-fav-btn${ehFavorito(e.id)?' on':''}" data-fav-id="${e.id}" title="Guardar nos favoritos" onclick="event.stopPropagation(); toggleFavorito('${e.id}', this)">${ehFavorito(e.id)?'★':'☆'}</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
 ${badgesHtml}
 <div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
 <div class="c-accent"></div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
-<div class="c-city">${e.cidade}<span class="c-dist" data-lat="${e.lat||''}" data-lng="${e.lng||''}">${(userLoc && e.lat && e.lng) ? ' · ' + distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng).toFixed(distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng) < 10 ? 1 : 0) + ' km' : ''}</span></div>
-<div class="c-feedback-row">${feedbackBtnHtml}</div>
+<div class="c-city"><svg class="c-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${formatarNomeCidade(e.cidade)}<span class="c-dist" data-lat="${e.lat||''}" data-lng="${e.lng||''}">${(userLoc && e.lat && e.lng) ? ' · ' + distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng).toFixed(distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng) < 10 ? 1 : 0) + ' km' : ''}</span></div>
+<div class="c-feedback-row">${feedbackBtnHtml}<div class="c-icon-row">
+  <button class="c-icon-btn c-fav-icon-btn${ehFavorito(e.id)?' on':''}" data-fav-id="${e.id}" title="Guardar nos favoritos" onclick="event.stopPropagation(); toggleFavorito('${e.id}', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg></button>
+  <button class="c-icon-btn" title="Partilhar" onclick="event.stopPropagation(); partilharEstabelecimento('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="19" r="2.3"/><path d="M8.1 10.6 15.9 6.4M8.1 13.4l7.8 4.2"/></svg></button>
+</div></div>
 </div>
 </div>`;
     });
@@ -8598,9 +8624,8 @@ function toggleFavorito(id, btn){
   const on = favs.includes(id);
   favs = on ? favs.filter(x=>x!==id) : favs.concat([id]);
   localStorage.setItem('roadbook_favoritos', JSON.stringify(favs));
-  document.querySelectorAll('.card-fav-btn[data-fav-id="'+id+'"]').forEach(b=>{
+  document.querySelectorAll('.c-fav-icon-btn[data-fav-id="'+id+'"]').forEach(b=>{
     b.classList.toggle('on', !on);
-    b.textContent = !on ? '★' : '☆';
   });
   if(btn){ btn.classList.add('fav-pop'); setTimeout(()=>btn.classList.remove('fav-pop'), 260); }
   if(aApenasFavoritos) applyFilters();
@@ -8944,7 +8969,7 @@ function openCardOverlay(cardId){
   try { infoExtraOv = normalizarInfoExtra(card.dataset.infoExtra ? JSON.parse(card.dataset.infoExtra) : []); } catch(e) { infoExtraOv=[]; }
   const infoExtraHtml = infoExtraOv.map((x,i)=>`<div class="card-ov-contact-item static"><span class="card-ov-contact-icon" aria-hidden="true">＋</span><span><small>${escapeHtml(x.label)}</small><strong>${escapeHtml(x.valor)}</strong></span></div>`).join('');
 
-  const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?'<div class="card-ov-fl">⭐ FLAGSHIP</div>':''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
+  const badgesOv = (flagship || destaques.length) ? `<div class="card-ov-badges">${flagship?`<div class="card-ov-fl">${ICON_SVG_STAR} FLAGSHIP</div>`:''}${destaques.map(c=>`<span class="card-ov-destaque" style="--dc:${corDestaqueRGB(c)}">${labelParaDestaque(c)}</span>`).join('')}</div>` : '';
   const precoInlineOv = precoInlineHtml(card.dataset.tipo, flagship, card.dataset.preco, card.dataset.precoOculto === 'true');
   const ratingInlineOv = ratingInlineHtml(card.dataset.rating, card.dataset.ratingCount);
   const ratingRowOvHtml = ratingInlineOv ? `<div class="card-ov-rating-row">${ratingInlineOv}</div>` : '';
@@ -9670,6 +9695,7 @@ body{
 .cbody{background:#fff}
 .c-name,.card-ov-name{color:#17211D}
 .c-city{color:#68736E}
+.c-city .c-pin{color:#087A3B}
 .c-divider{background:#E4E8E6}
 .det-lbl,.det-lbl-contact{color:#087A3B}
 .det-val,.det-val-contact,.det-val-contact a{color:#53605A}
