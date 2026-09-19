@@ -64,7 +64,6 @@ if ('serviceWorker' in navigator) {
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
-#appWrap{overflow-x:hidden}
 /* Só na lista de estabelecimentos (depois de escolheres uma cidade):
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
@@ -722,9 +721,6 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
     height:auto !important;
     min-height:100%;
   }
-  #appWrap {
-    overflow-x:hidden !important;
-  }
   body:has(#vSec.open),
   body.vsec-open {
     overscroll-behavior-y:auto !important;
@@ -879,7 +875,6 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
 </style>
 </head>
 <body>
-<div id="appWrap">
 <div class="rb-loading-overlay" id="rbLoadingOverlay">
   <span class="rb-beer-loader">
     <svg viewBox="0 0 30 38">
@@ -10514,5 +10509,4 @@ window.rbConfirm = function(mensagem){
   });
 };
 </script>
-</div>
 </body></html>
