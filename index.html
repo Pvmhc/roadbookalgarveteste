@@ -8895,7 +8895,7 @@ function feedIndiceMaisProximo(cards){
   });
   return idx;
 }
-let feedToqueInicioY=null, feedToqueIndiceInicio=0, feedToqueCards=[], feedToqueId=0;
+let feedToqueInicioY=null, feedToqueInicioX=null, feedToqueIndiceInicio=0, feedToqueCards=[], feedToqueId=0;
 window.addEventListener('touchstart', e=>{
   if(!feedAtivoAgora()) return;
   feedToqueCards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
@@ -8903,14 +8903,22 @@ window.addEventListener('touchstart', e=>{
   feedToqueId++; // invalida qualquer correção pendente de um toque anterior
   feedGestoAtivo=true;
   feedToqueInicioY=e.touches[0].clientY;
+  feedToqueInicioX=e.touches[0].clientX;
   feedToqueIndiceInicio=feedIndiceMaisProximo(feedToqueCards);
 }, {passive:true});
 window.addEventListener('touchend', e=>{
   if(feedToqueInicioY===null || !feedToqueCards.length) return;
-  const inicioY=feedToqueInicioY, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards, meuId=feedToqueId;
+  const inicioY=feedToqueInicioY, inicioX=feedToqueInicioX, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards, meuId=feedToqueId;
   feedToqueInicioY=null;
   const fimY=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:inicioY;
+  const fimX=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientX:inicioX;
   const deltaY=inicioY-fimY;
+  const deltaX=inicioX-fimX;
+  // Se o gesto foi mais para os lados do que para cima/baixo, é para
+  // trocar de FOTO dentro do cartão (slideshow), não para mudar de
+  // cartão — ignora, para não ficar sensível de mais ao deslizar as
+  // fotos com um bocadinho de deriva vertical no dedo.
+  if(Math.abs(deltaX)>Math.abs(deltaY)){ feedGestoAtivo=false; return; }
   if(Math.abs(deltaY)<12){ feedGestoAtivo=false; return; } // toque simples num botão — não mexer
   const direcaoGesto = deltaY>0 ? 1 : -1;
   // espera o scroll nativo (e o eventual momentum) assentar e só ENTÃO
