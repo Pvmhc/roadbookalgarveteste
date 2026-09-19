@@ -227,6 +227,13 @@ h1,h2,h3,.c-name,.card-ov-name{font-family:'Poppins',sans-serif}
 .cuisine-select:focus{border-color:var(--gold)}
 .cuisine-select option{background:#052E1B;color:var(--white)}
 .filter-clear{margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:6px 12px;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:.2s}.filter-clear:hover{border-color:var(--gold);color:var(--gold)}
+/* ── BOTÃO FLUTUANTE DE FILTRO (aparece ao fazer scroll) ───────────── */
+.filter-fab{position:fixed;right:16px;bottom:calc(82px + env(safe-area-inset-bottom,0px));z-index:250;width:52px;height:52px;border-radius:50%;border:1px solid var(--border);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#052E1B;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer;opacity:0;transform:translateY(14px) scale(.85);pointer-events:none;transition:opacity .25s ease,transform .25s ease;font-family:'Inter',sans-serif}
+.filter-fab.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.filter-fab svg{width:22px;height:22px}
+.filter-fab .fab-count{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:100px;min-width:18px;height:18px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--greendeep)}
+.filter-fab.has-filters .fab-count{display:flex}
+@media(min-width:1401px){.filter-fab{display:none}}
 
 /* ── VENUES ──────────────────────────────────────────────────────────── */
 .venues{max-width:860px;margin:0 auto;padding:26px 14px 60px}
@@ -984,6 +991,11 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
   </div>
   </div>
 </div>
+<button class="filter-fab" id="filterFab" type="button" aria-label="Abrir filtros" onclick="abrirFiltrosFlutuante()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+  <span class="fab-count" id="fabCount">0</span>
+</button>
+
 <section id="vSec">
 <div class="no-res" id="noRes">Nenhum estabelecimento encontrado</div>
 </section>
@@ -8547,6 +8559,37 @@ function atualizarEstadoBotaoFiltros(){
   const total=aTiposSelecionados.size+aDestaquesSelecionados.size+(aCoz!=='ALL'?1:0)+(q?1:0)+(aC!=='ALL'?1:0);
   toggle.classList.toggle('has-filters',total>0);
   if(countEl)countEl.textContent=String(total);
+  const fab=document.getElementById('filterFab');
+  const fabCount=document.getElementById('fabCount');
+  if(fab)fab.classList.toggle('has-filters',total>0);
+  if(fabCount)fabCount.textContent=String(total);
+}
+
+// ── BOTÃO FLUTUANTE DE FILTRO ─────────────────────────────────────
+// Mostra o botão assim que a barra de filtros deixa de estar visível
+// no topo (por ter feito scroll), para se poder abrir os filtros a
+// qualquer momento sem ter de voltar ao topo da página.
+(function(){
+  const fab=document.getElementById('filterFab');
+  const barra=document.querySelector('.filter-bar');
+  if(!fab||!barra) return;
+  const sentinela=document.createElement('div');
+  sentinela.style.cssText='position:absolute;height:1px;width:1px;pointer-events:none;';
+  barra.parentNode.insertBefore(sentinela, barra);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(entries=>{
+      entries.forEach(e=>fab.classList.toggle('show', !e.isIntersecting));
+    }, {threshold:0}).observe(sentinela);
+  }else{
+    window.addEventListener('scroll', ()=>{
+      fab.classList.toggle('show', window.scrollY>40);
+    }, {passive:true});
+  }
+})();
+function abrirFiltrosFlutuante(){
+  const barra=document.querySelector('.filter-bar');
+  if(barra) barra.scrollIntoView({behavior:'smooth', block:'start'});
+  toggleFilterPanel(true);
 }
 
 // Vários filtros podem ficar ativos ao mesmo tempo.
