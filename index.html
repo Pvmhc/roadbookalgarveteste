@@ -987,7 +987,7 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
 <div class="filter-bar">
   <button class="filter-toggle" id="filterToggle" type="button" onclick="toggleFilterPanel()" aria-expanded="false">
     <span class="ft-left"><span class="ft-icon">⌄</span><span>Filtrar</span><span class="ft-count" id="filterCount">0</span></span>
-    <span style="font-size:10px;letter-spacing:1px;color:var(--muted)">Abrir</span>
+    <span style="font-size:10px;letter-spacing:1px;color:rgba(255,255,255,.85)">Abrir</span>
   </button>
   <div class="filter-panel" id="filterPanel">
   <div class="fi">
@@ -1015,11 +1015,6 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
   </div>
   </div>
 </div>
-<button class="filter-fab" id="filterFab" type="button" aria-label="Abrir filtros" onclick="abrirFiltrosFlutuante()">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
-  <span class="fab-count" id="fabCount">0</span>
-</button>
-
 <section id="vSec">
 <div class="no-res" id="noRes">
   <div class="no-res-icon">🔎</div>
@@ -8866,18 +8861,23 @@ window.addEventListener('touchend', e=>{
   const fimY=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:inicioY;
   const deltaY=inicioY-fimY;
   if(Math.abs(deltaY)<12) return; // toque simples num botão — não mexer
-  let alvoIdx=indiceInicio;
-  if(deltaY>0) alvoIdx=Math.min(indiceInicio+1, cards.length-1);
-  else alvoIdx=Math.max(indiceInicio-1, 0);
-  // espera o scroll nativo (e o eventual momentum) assentar e depois
-  // força exatamente esse único passo, sempre centrado, ignorando
-  // quantos cards o momentum tenha ultrapassado
+  const direcaoGesto = deltaY>0 ? 1 : -1;
+  // espera o scroll nativo (e o eventual momentum) assentar e só ENTÃO
+  // decide onde parar: usa o card mais próximo do centro NESSE momento
+  // (e não um passo fixo a partir de onde o dedo tocou). Assim, um
+  // swipe rápido que avance vários cards para no mais perto do scroll,
+  // em vez de ser forçado de volta para perto do início.
   let ultimaPos=window.scrollY, paradasSeguidas=0, tentativas=0;
   const verificarAssentou=()=>{
     tentativas++;
     if(window.scrollY===ultimaPos){
       paradasSeguidas++;
       if(paradasSeguidas>=3 || tentativas>90){
+        let alvoIdx=feedIndiceMaisProximo(cards);
+        // se o momentum não moveu o suficiente para mudar de card
+        // (ex.: swipe curto e lento), garante pelo menos 1 passo na
+        // direção do gesto — mantém o comportamento "1 swipe = 1 card"
+        if(alvoIdx===indiceInicio) alvoIdx=Math.max(0,Math.min(cards.length-1, indiceInicio+direcaoGesto));
         feedCentrarCard(cards[alvoIdx]);
         return;
       }
@@ -9697,16 +9697,16 @@ body{
 
 /* ── BARRA DE FILTROS ─────────────────────────────────────────────── */
 .filter-bar{
-  background:rgba(255,255,255,.96);
-  border-bottom:1px solid #E3E8E5;
-  box-shadow:0 2px 10px rgba(20,35,28,.05);
+  background:linear-gradient(90deg,#0A5A32,#087A3B);
+  border-bottom:2px solid #E4B93F;
+  box-shadow:0 3px 14px rgba(20,35,28,.18);
 }
-.filter-toggle{color:#087A3B}
+.filter-toggle{color:#fff}
 .filter-toggle .ft-count{
-  background:#087A3B;
-  color:#fff;
+  background:#E4B93F;
+  color:#052E1B;
 }
-.fi-lbl{color:#087A3B}
+.fi-lbl{color:#E4B93F}
 .search{
   background:#F3F5F4;
   border:1px solid #E0E5E2;
