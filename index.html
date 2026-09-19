@@ -344,7 +344,7 @@ body.admin-mode .card-edit-btn{display:flex}
 /* Right panel / card body */
 .cbody{padding:16px;flex:1;display:flex;flex-direction:column;gap:8px}
 /* Destaques independentes da tipologia */
-.card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
+.card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:2px}
 .fl-badge,.destaque-badge{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;width:fit-content;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .badge-icon{width:11px;height:11px;flex:none;display:block}
 .fl-badge{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
@@ -667,7 +667,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 .card-ov-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .card-ov-sep{height:2px;background:rgba(255,255,255,.18);flex-shrink:0}
 .card-ov-info{padding:22px 20px 0}
-.card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;margin-bottom:12px}
 .card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .card-ov-fl .badge-icon,.card-ov-destaque .badge-icon{width:11px;height:11px}
 .card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
@@ -8543,8 +8543,8 @@ function renderEstabelecimentos(){
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
-${badgesHtml}
 <div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
+${badgesHtml}
 <div class="c-accent"></div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city"><svg class="c-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${formatarNomeCidade(e.cidade)}<span class="c-dist" data-lat="${e.lat||''}" data-lng="${e.lng||''}">${(userLoc && e.lat && e.lng) ? ' · ' + distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng).toFixed(distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng) < 10 ? 1 : 0) + ' km' : ''}</span></div>
@@ -9232,8 +9232,8 @@ function openCardOverlay(cardId){
   document.getElementById('cardOvBody').innerHTML=`
     ${photosHtml}
     <div class="card-ov-info">
-      ${badgesOv}
       <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${metaGroupOvHtml}</div>
+      ${badgesOv}
       <div class="card-ov-actions-row">
         <button class="card-ov-action-btn${ehFavorito(cardId)?' on':''}" id="cardOvFavBtn" onclick="toggleFavoritoOverlay('${cardId}')">
           <span id="cardOvFavIcon">${ehFavorito(cardId)?'★':'☆'}</span> Guardar
