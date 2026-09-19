@@ -398,11 +398,16 @@ body.admin-mode .card-edit-btn{display:flex}
 .c-type-txt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
 /* Tipologia diretamente sobre a fotografia, como no novo design.
    Fica no CSS base (não no bloco do tema claro) para não mudar de
-   sítio nem perder o estilo ao trocar entre tema claro e escuro. */
+   sítio nem perder o estilo ao trocar entre tema claro e escuro.
+   Canto SUPERIOR esquerdo (não inferior): o contador de fotos já
+   ocupa o canto superior direito e as bolinhas de navegação ficam
+   ao centro-baixo, mas agora a tira de miniaturas também vive no
+   fundo do bloco da foto — em baixo a etiqueta ficava por cima
+   delas. Em cima fica livre e é o padrão habitual (Airbnb, Booking). */
 .photo-type-overlay{
   position:absolute;
   left:10px;
-  bottom:10px;
+  top:10px;
   z-index:8;
   display:inline-flex;
   align-items:center;
