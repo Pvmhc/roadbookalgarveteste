@@ -104,24 +104,28 @@ body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
     scroll-margin-bottom:0;
     height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom,0px));
   }
-  /* A galeria de fotos ocupa o espaço que sobrar e o texto por baixo
-     tem scroll interno se não couber — assim o card fica sempre com
-     a altura EXATA do espaço visível, sem sobrar bocado de card a
-     mais/a menos que deixe ver o card anterior ou seguinte.
-     Nota: .photos (não .slideshow) é que é filho direto do .card
-     no layout flex — é ele que tem de crescer. */
+  /* A foto grande fica com uma proporção equilibrada (não esticada
+     verticalmente) e o texto por baixo cresce para ocupar o resto do
+     espaço, sem deixar bocado em branco. */
   body:has(#vSec.open) .card .photos,
   body.vsec-open .card .photos{
     flex:1 1 auto;
-    min-height:120px;
+    max-height:44vh;
+    min-height:170px;
   }
   body:has(#vSec.open) .card .photos .slideshow,
   body.vsec-open .card .photos .slideshow{
-    height:100%;
+    flex:1 1 auto;
+    height:auto;
+    min-height:0;
+  }
+  body:has(#vSec.open) .card .photos .slide-thumbs,
+  body.vsec-open .card .photos .slide-thumbs{
+    flex:0 0 auto;
   }
   body:has(#vSec.open) .card .cbody,
   body.vsec-open .card .cbody{
-    flex:0 1 auto;
+    flex:1 1 auto;
     overflow-y:auto;
   }
 }
@@ -559,6 +563,12 @@ body.light-theme .slide{background:linear-gradient(100deg,#E7ECE9 30%,#F1F4F2 50
 .slide-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);border:none;padding:0;cursor:pointer;transition:var(--dur-base) var(--ease)}
 .slide-dot.active{background:var(--gold);width:20px;border-radius:4px}
 .slide-count{position:absolute;top:10px;right:12px;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 9px;border-radius:100px;z-index:3}
+.slide-thumbs{display:flex;gap:6px;padding:7px 0 0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0}
+.slide-thumbs::-webkit-scrollbar{display:none}
+.slide-thumb{flex:0 0 auto;width:52px;height:52px;padding:0;border-radius:8px;border:2px solid transparent;background:rgba(255,255,255,.06);overflow:hidden;cursor:pointer;opacity:.55;transition:var(--dur-base) var(--ease)}
+.slide-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.slide-thumb.active{opacity:1;border-color:var(--gold)}
+body.light-theme .slide-thumb{background:#EEF1EF}
 .no-res{display:none;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:70px 20px}
 .no-res-icon{font-size:34px;opacity:.7}
 .no-res-title{color:var(--white);font-family:'Poppins',sans-serif;font-weight:800;font-size:16px}
@@ -8430,11 +8440,17 @@ function renderEstabelecimentos(){
         ? `<div class="slide-dots">${allFotos.map((_,i)=>`<button class="slide-dot${i===0?' active':''}" data-i="${i}"></button>`).join('')}</div>`
         : '';
       const countHtml = nSlides > 1 ? `<div class="slide-count">1 / ${nSlides}</div>` : '';
+      // Tira de miniaturas por baixo da foto grande, para se ver todas
+      // as fotos de relance em vez de só bolinhas de navegação.
+      const thumbsHtml = nSlides > 1
+        ? `<div class="slide-thumbs">${allFotos.map((f,i)=>`<button class="slide-thumb${i===0?' active':''}" data-i="${i}"><img src="${converterLinkDrive(f)}" alt="${e.nome} foto ${i+1}" loading="lazy" onerror="rbTentarProximaFotoDrive(this)"></button>`).join('')}</div>`
+        : '';
       const foto1html = nSlides > 0
         ? `<div class="slideshow" data-id="${e.id}">
             <div class="slideshow-track">${slidesHtml}</div>
             ${dotsHtml}${countHtml}
-           </div>`
+           </div>
+           ${thumbsHtml}`
         : '';
       const foto2html = '';  // fotos geridas pelo slideshow
       const destaquesCard = splitDestaques(e.destaques);
@@ -9464,6 +9480,9 @@ function setStatus(msg, type){
   function initSlideshow(el){
     const track  = el.querySelector('.slideshow-track');
     const dots   = [...el.querySelectorAll('.slide-dot')];
+    // As miniaturas ficam fora de .slideshow (são irmãs, dentro de
+    // .photos), por isso vão-se buscar ao contentor pai.
+    const thumbs = el.parentElement ? [...el.parentElement.querySelectorAll('.slide-thumb')] : [];
     const count  = el.querySelector('.slide-count');
     const slides = [...el.querySelectorAll('.slide')];
     const n      = slides.length;
@@ -9503,6 +9522,7 @@ function setStatus(msg, type){
       track.style.transform = `translateX(-${cur * 100}%)`;
       if(!animated) requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ track.classList.remove('no-anim'); }); });
       dots.forEach((d,j) => d.classList.toggle('active', j===cur));
+      thumbs.forEach((t,j) => t.classList.toggle('active', j===cur));
       if(count) count.textContent = `${cur+1} / ${n}`;
     }
 
@@ -9534,6 +9554,13 @@ function setStatus(msg, type){
     dots.forEach(d => d.addEventListener('click', e => {
       e.stopPropagation();
       goTo(+d.dataset.i, true);
+      resetTimer();
+    }));
+
+    // Miniaturas por baixo da foto grande
+    thumbs.forEach(t => t.addEventListener('click', e => {
+      e.stopPropagation();
+      goTo(+t.dataset.i, true);
       resetTimer();
     }));
 
