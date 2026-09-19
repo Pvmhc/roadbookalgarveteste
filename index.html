@@ -63,7 +63,8 @@ if ('serviceWorker' in navigator) {
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{overflow-x:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
+html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
+#appWrap{overflow-x:hidden}
 /* Só na lista de estabelecimentos (depois de escolheres uma cidade):
    scroll tipo TikTok — cada scroll avança para o estabelecimento
    seguinte e para sempre centrado no ecrã. O resto da página (capa,
@@ -717,10 +718,12 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
    Em ecrãs largos os cards ficam centrados no espaço disponível. ─── */
 @media (min-width:769px){
   html, body {
-    overflow-x:hidden !important;
     overflow-y:auto !important;
     height:auto !important;
     min-height:100%;
+  }
+  #appWrap {
+    overflow-x:hidden !important;
   }
   body:has(#vSec.open),
   body.vsec-open {
@@ -876,6 +879,7 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
 </style>
 </head>
 <body>
+<div id="appWrap">
 <div class="rb-loading-overlay" id="rbLoadingOverlay">
   <span class="rb-beer-loader">
     <svg viewBox="0 0 30 38">
@@ -968,11 +972,11 @@ body.light-theme .cover-cta .arr{color:#087A3B !important;opacity:1 !important;}
     <div class="type-row" id="typeRow">
       <span class="highlight-label">Tipologias</span>
       <button class="tbtn" data-t="ALL" onclick="filterType('ALL')">Todos</button>
-    <button class="tbtn" data-t="ESPLANADA">☀️ Esplanada</button><button class="tbtn" data-t="BAR">🍺 Bar</button><button class="tbtn" data-t="RESTAURANTE">🍽 Restaurante</button><button class="tbtn" data-t="NIGHTLIFE">🎵 Noite</button><button class="tbtn" data-t="ROOFTOP">🌇 Rooftop</button><button class="tbtn" data-t="BAR_NIGHTLIFE">🏷️ Bar Nightlife</button></div>
+    <button class="tbtn" data-t="ESPLANADA"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M4.3 4.3l1.7 1.7M18 18l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.3 19.7l1.7-1.7M18 6l1.7-1.7"/></svg> Esplanada</button><button class="tbtn" data-t="BAR"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5h9v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-10Z"/><path d="M15 10.3h1.8a2 2 0 0 1 2 2v1.8a2 2 0 0 1-2 2H15"/><path d="M8 8.5V6a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12 6v.5"/></svg> Bar</button><button class="tbtn" data-t="RESTAURANTE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 2.5v6.3a2 2 0 0 0 4 0V2.5M8.5 8.8v12.7"/><path d="M16.5 2.5c-1.5 1-2.3 2.9-2.3 4.9s.8 3.5 2.3 4.4v9.2"/></svg> Restaurante</button><button class="tbtn" data-t="NIGHTLIFE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5.3l10-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg> Noite</button><button class="tbtn" data-t="ROOFTOP"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5V10l4-3 4 3v10.5M12 20.5V6l4-3 4 3v14.5"/><path d="M4 20.5h16"/></svg> Rooftop</button><button class="tbtn" data-t="BAR_NIGHTLIFE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.5 20 10.9c.7.7.7 1.8 0 2.5l-6.6 6.6c-.7.7-1.8.7-2.5 0L3.5 12.6V5A1.5 1.5 0 0 1 5 3.5h7.6Z"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/></svg> Bar Nightlife</button></div>
     <div class="highlight-row" id="highlightRow">
       <span class="highlight-label">Destaques</span>
       <button class="dbtn" data-d="ALL" onclick="filterDestaque('ALL')">Todos</button>
-      <button class="dbtn flagship-filter" data-d="FLAGSHIP" onclick="filterDestaque('FLAGSHIP')">⭐ Flagship</button>
+      <button class="dbtn flagship-filter" data-d="FLAGSHIP" onclick="filterDestaque('FLAGSHIP')"><svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg> Flagship</button>
     <button class="dbtn destaque-color-btn" data-d="BEERDRIVE" style="--dc: 43,140,238;">Beerdrive</button><button class="dbtn destaque-color-btn" data-d="EMBAIXADOR" style="--dc: 155,89,232;">Embaixador</button><button class="dbtn destaque-color-btn" data-d="SOL_MAR" style="--dc: 245,158,11;">Sol &amp; Mar</button></div>
     <button class="filter-clear" type="button" onclick="limparFiltros()">✕ Limpar filtros</button>
     <div class="cuisine-row" id="cuisineRow" style="display:none">
@@ -1050,11 +1054,11 @@ function abrirInfoLegal(){
   <div class="so-chips" id="soTypeChips">
     <span class="highlight-label">Tipologias</span>
     <button class="so-chip active" data-t="ALL" onclick="soFilterType('ALL')">Todos</button>
-  <button class="so-chip" data-t="ESPLANADA">☀️ Esplanada</button><button class="so-chip" data-t="BAR">🍺 Bar</button><button class="so-chip" data-t="RESTAURANTE">🍽 Restaurante</button><button class="so-chip" data-t="NIGHTLIFE">🎵 Noite</button><button class="so-chip" data-t="ROOFTOP">🌇 Rooftop</button><button class="so-chip" data-t="BAR_NIGHTLIFE">🏷️ Bar Nightlife</button></div>
+  <button class="so-chip" data-t="ESPLANADA"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M4.3 4.3l1.7 1.7M18 18l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.3 19.7l1.7-1.7M18 6l1.7-1.7"/></svg> Esplanada</button><button class="so-chip" data-t="BAR"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5h9v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-10Z"/><path d="M15 10.3h1.8a2 2 0 0 1 2 2v1.8a2 2 0 0 1-2 2H15"/><path d="M8 8.5V6a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12 6v.5"/></svg> Bar</button><button class="so-chip" data-t="RESTAURANTE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 2.5v6.3a2 2 0 0 0 4 0V2.5M8.5 8.8v12.7"/><path d="M16.5 2.5c-1.5 1-2.3 2.9-2.3 4.9s.8 3.5 2.3 4.4v9.2"/></svg> Restaurante</button><button class="so-chip" data-t="NIGHTLIFE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5.3l10-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg> Noite</button><button class="so-chip" data-t="ROOFTOP"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5V10l4-3 4 3v10.5M12 20.5V6l4-3 4 3v14.5"/><path d="M4 20.5h16"/></svg> Rooftop</button><button class="so-chip" data-t="BAR_NIGHTLIFE"><svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.5 20 10.9c.7.7.7 1.8 0 2.5l-6.6 6.6c-.7.7-1.8.7-2.5 0L3.5 12.6V5A1.5 1.5 0 0 1 5 3.5h7.6Z"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/></svg> Bar Nightlife</button></div>
   <div class="so-chips" id="soDestaqueChips">
     <span class="highlight-label">Destaques</span>
     <button class="so-chip" data-d="ALL" onclick="soFilterDestaque('ALL')">Todos</button>
-    <button class="so-chip flagship-filter" data-d="FLAGSHIP" onclick="soFilterDestaque('FLAGSHIP')">⭐ Flagship</button>
+    <button class="so-chip flagship-filter" data-d="FLAGSHIP" onclick="soFilterDestaque('FLAGSHIP')"><svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg> Flagship</button>
   <button class="so-chip destaque-color-btn" data-d="BEERDRIVE" style="--dc: 43,140,238;">Beerdrive</button><button class="so-chip destaque-color-btn" data-d="EMBAIXADOR" style="--dc: 155,89,232;">Embaixador</button><button class="so-chip destaque-color-btn" data-d="SOL_MAR" style="--dc: 245,158,11;">Sol &amp; Mar</button></div>
   <div class="so-results" id="soResults"></div>
 </div>
@@ -5251,13 +5255,29 @@ function animateCoverRoad(duracaoMs){
 
 /* ══════ EDITOR DE CAPA E MAPAS (fácil de usar, sem código) ══════ */
 
+// Ícones SVG de traço único (mesma linguagem visual dos ícones de
+// navegação/partilha/favorito) usados nos badges e nos filtros por
+// tipologia/destaque, a substituir os emojis antigos que desentoavam
+// nos cartões e eram renderizados de forma inconsistente consoante o
+// telemóvel/SO.
+const ICON_SVG_STAR = '<svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg>';
+const ICON_SVG_VAN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8.5a1 1 0 0 1 1-1h8.5l4 4.5H20a1 1 0 0 1 1 1V16"/><path d="M3 16h1.8M14.7 16H9.3M20 16h1"/><circle cx="7.5" cy="16.3" r="1.8"/><circle cx="16.8" cy="16.3" r="1.8"/></svg>';
+const ICON_SVG_SUN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M4.3 4.3l1.7 1.7M18 18l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.3 19.7l1.7-1.7M18 6l1.7-1.7"/></svg>';
+const ICON_SVG_MEDAL = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.3 3.5 10.5 9.8M15.7 3.5 13.5 9.8"/><circle cx="12" cy="14.7" r="5.3"/><path d="M12 12.2v5M9.6 14.7h4.8"/></svg>';
+const ICON_SVG_BEER = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5h9v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-10Z"/><path d="M15 10.3h1.8a2 2 0 0 1 2 2v1.8a2 2 0 0 1-2 2H15"/><path d="M8 8.5V6a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12 6v.5"/></svg>';
+const ICON_SVG_FORK = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 2.5v6.3a2 2 0 0 0 4 0V2.5M8.5 8.8v12.7"/><path d="M16.5 2.5c-1.5 1-2.3 2.9-2.3 4.9s.8 3.5 2.3 4.4v9.2"/></svg>';
+const ICON_SVG_MUSIC = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5.3l10-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>';
+const ICON_SVG_BUILDING = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5V10l4-3 4 3v10.5M12 20.5V6l4-3 4 3v14.5"/><path d="M4 20.5h16"/></svg>';
+const ICON_SVG_BEACH = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4 2 6.5 6 6.5 9.5h-13C5.5 9 8 5 12 3Z"/><path d="M12 3v17.5"/><path d="M3 20.5c1.5 0 1.5-1.4 3-1.4s1.5 1.4 3 1.4 1.5-1.4 3-1.4 1.5 1.4 3 1.4 1.5-1.4 3-1.4 1.5 1.4 3 1.4"/></svg>';
+const ICON_SVG_TAG = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 3.5 20 10.9c.7.7.7 1.8 0 2.5l-6.6 6.6c-.7.7-1.8.7-2.5 0L3.5 12.6V5A1.5 1.5 0 0 1 5 3.5h7.6Z"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/></svg>';
+const ICON_SVG_SPARKLE = '<svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c.5 3.6 1.4 6.1 2.8 7.5s3.9 2.3 7.5 2.8c-3.6.5-6.1 1.4-7.5 2.8S12.5 19.5 12 23.1c-.5-3.6-1.4-6.1-2.8-7.5S5.3 13.3 1.7 12.8c3.6-.5 6.1-1.4 7.5-2.8S11.5 6.1 12 2.5Z"/></svg>';
 const TIPOLOGIAS_EDITOR_ICONE = {
-  ESPLANADA: '☀️',
-  BAR: '🍺',
-  RESTAURANTE: '🍽',
-  NIGHTLIFE: '🎵',
-  ROOFTOP: '🌇',
-  PRAIA_PISCINA: '🏖️'
+  ESPLANADA: ICON_SVG_SUN,
+  BAR: ICON_SVG_BEER,
+  RESTAURANTE: ICON_SVG_FORK,
+  NIGHTLIFE: ICON_SVG_MUSIC,
+  ROOFTOP: ICON_SVG_BUILDING,
+  PRAIA_PISCINA: ICON_SVG_BEACH
 };
 const TIPOLOGIAS_EDITOR_NOME = {
   ESPLANADA: 'Esplanada',
@@ -5323,7 +5343,7 @@ function iconeTipoHtml(codigo){
   if (custom && custom.iconeImg) return `<img src="${custom.iconeImg}" class="tipo-icone-img" alt="">`;
   if (custom && custom.icone) return custom.icone;
   if (TIPOLOGIAS_EDITOR_ICONE[codigo]) return TIPOLOGIAS_EDITOR_ICONE[codigo];
-  return '🏷️';
+  return ICON_SVG_TAG;
 }
 // Nome legível da tipologia, sem ícone (usado para ordenar e comparar).
 function nomeTipoTexto(codigo){
@@ -5332,14 +5352,6 @@ function nomeTipoTexto(codigo){
 }
 
 // ── DESTAQUES ───────────────────────────────────────────────────────
-// Ícones SVG de traço único (mesma linguagem visual dos ícones de
-// navegação/partilha/favorito), a substituir os emojis antigos que
-// desentoavam nos cartões (renderizados de forma inconsistente
-// consoante o telemóvel/SO).
-const ICON_SVG_STAR = '<svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg>';
-const ICON_SVG_VAN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8.5a1 1 0 0 1 1-1h8.5l4 4.5H20a1 1 0 0 1 1 1V16"/><path d="M3 16h1.8M14.7 16H9.3M20 16h1"/><circle cx="7.5" cy="16.3" r="1.8"/><circle cx="16.8" cy="16.3" r="1.8"/></svg>';
-const ICON_SVG_SUN = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M4.3 4.3l1.7 1.7M18 18l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.3 19.7l1.7-1.7M18 6l1.7-1.7"/></svg>';
-const ICON_SVG_MEDAL = '<svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.3 3.5 10.5 9.8M15.7 3.5 13.5 9.8"/><circle cx="12" cy="14.7" r="5.3"/><path d="M12 12.2v5M9.6 14.7h4.8"/></svg>';
 const DESTAQUES_EDITOR_ICONE = {
   BEERDRIVE: ICON_SVG_VAN,
   SOL_MAR: ICON_SVG_SUN,
@@ -5459,7 +5471,7 @@ function iconeDestaqueHtml(codigo){
   if(custom && custom.iconeImg) return `<img src="${custom.iconeImg}" class="tipo-icone-img" alt="">`;
   if(custom && custom.icone) return custom.icone;
   if(DESTAQUES_EDITOR_ICONE[codigo]) return DESTAQUES_EDITOR_ICONE[codigo];
-  return '✨';
+  return ICON_SVG_SPARKLE;
 }
 // Nome legível do destaque, sem ícone (usado para ordenar e comparar).
 function nomeDestaqueTexto(codigo){
@@ -10502,4 +10514,5 @@ window.rbConfirm = function(mensagem){
   });
 };
 </script>
+</div>
 </body></html>
