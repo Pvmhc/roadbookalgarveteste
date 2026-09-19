@@ -8822,9 +8822,15 @@ function feedCentrarCard(card){
   const centroCard=r.top+r.height/2;
   window.scrollBy({top: centroCard-centroAlvo, behavior:'smooth'});
 }
+// Enquanto isto for true, a "rede de segurança" abaixo não mexe no
+// scroll — evita que ela dispare A MEIO de um swipe (enquanto o
+// telemóvel ainda está a fazer scroll por inércia) e "lute" com a
+// correção do próprio swipe, o que dava o efeito de roleta/aos saltos.
+let feedGestoAtivo=false;
 function corrigirSnapFeedEstabelecimentos(){
   if(window.innerWidth>1400) return;
   if(!document.body.classList.contains('vsec-open')) return;
+  if(feedGestoAtivo) return;
   const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
   if(!cards.length) return;
   const centroAlvo=feedCentroVisivelY();
@@ -8863,21 +8869,23 @@ function feedIndiceMaisProximo(cards){
   });
   return idx;
 }
-let feedToqueInicioY=null, feedToqueIndiceInicio=0, feedToqueCards=[];
+let feedToqueInicioY=null, feedToqueIndiceInicio=0, feedToqueCards=[], feedToqueId=0;
 window.addEventListener('touchstart', e=>{
   if(!feedAtivoAgora()) return;
   feedToqueCards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
   if(!feedToqueCards.length){ feedToqueInicioY=null; return; }
+  feedToqueId++; // invalida qualquer correção pendente de um toque anterior
+  feedGestoAtivo=true;
   feedToqueInicioY=e.touches[0].clientY;
   feedToqueIndiceInicio=feedIndiceMaisProximo(feedToqueCards);
 }, {passive:true});
 window.addEventListener('touchend', e=>{
   if(feedToqueInicioY===null || !feedToqueCards.length) return;
-  const inicioY=feedToqueInicioY, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards;
+  const inicioY=feedToqueInicioY, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards, meuId=feedToqueId;
   feedToqueInicioY=null;
   const fimY=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:inicioY;
   const deltaY=inicioY-fimY;
-  if(Math.abs(deltaY)<12) return; // toque simples num botão — não mexer
+  if(Math.abs(deltaY)<12){ feedGestoAtivo=false; return; } // toque simples num botão — não mexer
   const direcaoGesto = deltaY>0 ? 1 : -1;
   // espera o scroll nativo (e o eventual momentum) assentar e só ENTÃO
   // decide onde parar: usa o card mais próximo do centro NESSE momento
@@ -8886,6 +8894,7 @@ window.addEventListener('touchend', e=>{
   // em vez de ser forçado de volta para perto do início.
   let ultimaPos=window.scrollY, paradasSeguidas=0, tentativas=0;
   const verificarAssentou=()=>{
+    if(meuId!==feedToqueId) return; // um novo toque começou entretanto — cancela
     tentativas++;
     if(window.scrollY===ultimaPos){
       paradasSeguidas++;
@@ -8896,6 +8905,9 @@ window.addEventListener('touchend', e=>{
         // direção do gesto — mantém o comportamento "1 swipe = 1 card"
         if(alvoIdx===indiceInicio) alvoIdx=Math.max(0,Math.min(cards.length-1, indiceInicio+direcaoGesto));
         feedCentrarCard(cards[alvoIdx]);
+        // só liberta a "rede de segurança" depois da correção suave
+        // acabar de facto (dá tempo à animação smooth-scroll)
+        setTimeout(()=>{ if(meuId===feedToqueId) feedGestoAtivo=false; },500);
         return;
       }
     }else{
