@@ -95,12 +95,29 @@ body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
     scroll-snap-stop:always;
     scroll-margin-top:0;
     scroll-margin-bottom:0;
+    height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom,0px));
   }
   body.vsec-open .card{
     scroll-snap-align:center;
     scroll-snap-stop:always;
     scroll-margin-top:0;
     scroll-margin-bottom:0;
+    height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom,0px));
+  }
+  /* A galeria de fotos ocupa o espaço que sobrar e o texto por baixo
+     tem scroll interno se não couber — assim o card fica sempre com
+     a altura EXATA do espaço visível, sem sobrar bocado de card a
+     mais/a menos que deixe ver o card anterior ou seguinte. */
+  body:has(#vSec.open) .card .slideshow,
+  body.vsec-open .card .slideshow{
+    height:auto;
+    flex:1 1 auto;
+    min-height:120px;
+  }
+  body:has(#vSec.open) .card .cbody,
+  body.vsec-open .card .cbody{
+    flex:0 1 auto;
+    overflow-y:auto;
   }
 }
 :root{
