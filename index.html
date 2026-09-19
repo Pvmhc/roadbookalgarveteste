@@ -63,6 +63,9 @@ if ('serviceWorker' in navigator) {
 <meta name="theme-color" content="#042E1B">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- Mini-mapa nos cartões: Leaflet + OpenStreetMap (gratuito, sem API key) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
@@ -384,6 +387,25 @@ body.admin-mode .card-edit-btn{display:flex}
 /* Feedback fica sozinho numa linha discreta, à direita — já não compete
    com a classificação, que volta a ficar colada ao preço (como pediram). */
 .c-feedback-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+
+/* ── MINI-MAPA DO CARTÃO ───────────────────────────────────────────
+   Preview do local com Leaflet + OpenStreetMap (gratuito). Só é
+   inicializado quando o cartão entra em vista (ver initCardMinimap
+   no JS), para não criar 130+ instâncias de mapa de uma vez.
+   O mapa não é interativo (sem drag/zoom) — é só um preview que,
+   ao ser tocado, abre o Google Maps. */
+.c-minimap-wrap{margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid #E4E9E6;box-shadow:0 2px 10px rgba(20,35,28,.05)}
+.c-minimap{position:relative;height:130px;background:#EAF3EC}
+.c-minimap .leaflet-container{background:#EAF3EC;cursor:pointer}
+.c-minimap .leaflet-control-container{display:none}
+.c-minimap-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:700 11px Inter,sans-serif;color:#7A8580}
+.c-minimap-pin{width:30px;height:30px;border-radius:50% 50% 50% 0;background:#C4342B;transform:rotate(-45deg);
+  box-shadow:0 3px 8px rgba(196,52,43,.4);display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.c-minimap-pin svg{transform:rotate(45deg);width:13px;height:13px;fill:#fff}
+.c-minimap-cta{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff}
+.c-minimap-cta .c-mm-addr{font:600 11.5px Inter,sans-serif;color:#526059;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px}
+.c-minimap-cta .c-mm-go{font:800 11.5px Inter,sans-serif;color:#087A3B;white-space:nowrap;flex-shrink:0}
 .c-icon-row{display:flex;align-items:center;gap:8px}
 .c-icon-btn{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radiusSm);border:1px solid var(--border);background:var(--glass);color:var(--softwhite);cursor:pointer;transition:var(--dur-fast) var(--ease)}
 .c-icon-btn svg{width:16px;height:16px;fill:none}
@@ -8473,6 +8495,18 @@ function renderEstabelecimentos(){
   <span class="comment-btn-txt">Feedback</span>
 </button>`;
 
+      // Mini-mapa: só é construído se o estabelecimento tiver coordenadas
+      // (lat/lng), preenchidas no editor a partir do link do Google Maps.
+      const minimapHtml = (e.lat && e.lng) ? `<div class="c-minimap-wrap">
+  <div class="c-minimap" id="mm-${e.id}" data-lat="${e.lat}" data-lng="${e.lng}" data-maps-url="${e.maps_url||''}" onclick="event.stopPropagation(); if('${e.maps_url||''}') window.open('${e.maps_url||''}','_blank')">
+    <div class="c-minimap-skel">A carregar mapa…</div>
+  </div>
+  <div class="c-minimap-cta" onclick="event.stopPropagation(); if('${e.maps_url||''}') window.open('${e.maps_url||''}','_blank')">
+    <span class="c-mm-addr">${e.morada || formatarNomeCidade(e.cidade)}</span>
+    <span class="c-mm-go">Como chegar ›</span>
+  </div>
+</div>` : '';
+
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-rating="${e.rating||''}" data-rating-count="${e.ratingCount||''}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
@@ -8486,6 +8520,7 @@ ${badgesHtml}
   <button class="c-icon-btn c-fav-icon-btn${ehFavorito(e.id)?' on':''}" data-fav-id="${e.id}" title="Guardar nos favoritos" onclick="event.stopPropagation(); toggleFavorito('${e.id}', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg></button>
   <button class="c-icon-btn" title="Partilhar" onclick="event.stopPropagation(); partilharEstabelecimento('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="19" r="2.3"/><path d="M8.1 10.6 15.9 6.4M8.1 13.4l7.8 4.2"/></svg></button>
 </div></div>
+${minimapHtml}
 </div>
 </div>`;
     });
@@ -8517,6 +8552,10 @@ ${badgesHtml}
         if (firstSrc) { firstImg.src = firstSrc; firstImg.onload = () => firstImg.classList.add('img-loaded'); }
         if (firstImg.dataset.src) firstImg.removeAttribute('data-src');
       }
+      // Mini-mapa: mesmo princípio dos fotos — só cria a instância do
+      // Leaflet quando o cartão realmente entra em vista.
+      const minimapEl = x.target.querySelector('.c-minimap');
+      if (minimapEl) initCardMinimap(minimapEl);
       obs.unobserve(x.target);
     }
   }), {threshold:.04, rootMargin:'400px 0px'});
@@ -8536,6 +8575,33 @@ ${badgesHtml}
   // bloqueia o render — os cards já aparecem com foto1..4 se existirem,
   // e são atualizados assim que as fotos da pasta chegarem).
   carregarFotosDrivePastas();
+}
+
+/* ── MINI-MAPA DO CARTÃO (Leaflet + OpenStreetMap) ──────────────────
+   Preview estático (sem drag/zoom) do local do estabelecimento.
+   Gratuito, sem API key — usa os tiles públicos do OpenStreetMap.
+   Se o site vier a ter muito tráfego, convém trocar para um provider
+   de tiles com uso comercial garantido (ex: MapTiler, Mapbox), já
+   que o OSM pede que o uso dos tiles públicos seja moderado. */
+function initCardMinimap(el){
+  if (!el || el.dataset.mmInit) return;
+  el.dataset.mmInit = '1';
+  const lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
+  if (!lat || !lng || typeof L === 'undefined') return;
+  const map = L.map(el, {
+    center: [lat, lng], zoom: 15,
+    zoomControl:false, dragging:false, scrollWheelZoom:false,
+    doubleClickZoom:false, touchZoom:false, boxZoom:false, keyboard:false, attributionControl:false
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+  const icon = L.divIcon({
+    className:'', html:'<div class="c-minimap-pin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></div>',
+    iconSize:[30,30], iconAnchor:[15,30]
+  });
+  L.marker([lat, lng], {icon, interactive:false}).addTo(map);
+  // Garante que o Leaflet mede corretamente o tamanho do contentor
+  // depois de ficar visível (senão o mapa fica cortado/mal centrado).
+  setTimeout(() => map.invalidateSize(), 50);
 }
 
 /* ── RENDERIZAÇÃO PREGUIÇOSA ────────────────────────────────────────
@@ -9577,27 +9643,30 @@ function setStatus(msg, type){
       resetTimer();
     }));
 
-    // Touch swipe
-    el.addEventListener('touchstart', e => {
+    // Touch swipe — apanha o gesto também sobre a tira de miniaturas
+    // (que fica logo a seguir à foto), não só sobre a foto grande, já
+    // que um dedo que comece ali ainda dá a sensação de "estar na foto".
+    const swipeAlvo = el.parentElement || el;
+    swipeAlvo.addEventListener('touchstart', e => {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       dragging = true;
     }, {passive:true});
 
-    el.addEventListener('touchend', e => {
+    swipeAlvo.addEventListener('touchend', e => {
       if(!dragging) return;
       dragging = false;
       const dx = e.changedTouches[0].clientX - startX;
       const dy = e.changedTouches[0].clientY - startY;
-      if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 35){
+      if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28){
         dx < 0 ? next() : prev();
         resetTimer();
       }
     }, {passive:true});
 
     // Mouse drag (desktop)
-    el.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; });
-    el.addEventListener('mouseup',   e => {
+    swipeAlvo.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; });
+    swipeAlvo.addEventListener('mouseup',   e => {
       if(!dragging) return; dragging = false;
       const dx = e.clientX - startX;
       if(Math.abs(dx) > 35){ dx < 0 ? next() : prev(); resetTimer(); }
