@@ -406,6 +406,16 @@ body.admin-mode .card-edit-btn{display:flex}
 .c-minimap-cta{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff}
 .c-minimap-cta .c-mm-addr{font:600 11.5px Inter,sans-serif;color:#526059;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px}
 .c-minimap-cta .c-mm-go{font:800 11.5px Inter,sans-serif;color:#087A3B;white-space:nowrap;flex-shrink:0}
+
+/* ── DICA "VER FICHA COMPLETA" ─────────────────────────────────────
+   O cartão inteiro já é clicável (onclick abre a ficha), mas nada
+   o dizia visualmente — só o cursor:pointer, que não existe em
+   ecrã tátil. Esta linha discreta no fundo do cartão é o sinal
+   universal (Booking, Airbnb, TripAdvisor) de que há mais a ver. */
+.c-open-hint{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:10px;
+  font:700 11px Inter,sans-serif;letter-spacing:.3px;color:#7A8580}
+.c-open-chev{color:#087A3B;font-weight:800;transition:transform .15s ease}
+.card:hover .c-open-chev, .card:active .c-open-chev{transform:translateX(3px)}
 .c-icon-row{display:flex;align-items:center;gap:8px}
 .c-icon-btn{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radiusSm);border:1px solid var(--border);background:var(--glass);color:var(--softwhite);cursor:pointer;transition:var(--dur-fast) var(--ease)}
 .c-icon-btn svg{width:16px;height:16px;fill:none}
@@ -1194,6 +1204,7 @@ function abrirInfoLegal(){
   <button onclick="fecharAdminMenu(); openEditorEmail()">📧 Campanha de email</button>
   <button onclick="fecharAdminMenu(); abrirEditorEstabelecimento(null)">➕ Adicionar estabelecimento</button>
   <button id="adminPrecoGlobalBtn" onclick="alternarPrecoGlobal()">💶 Preçário Global: VISÍVEL (toca para ocultar em tudo)</button>
+  <button id="adminMapaGlobalBtn" onclick="alternarMapaGlobal()">🗺️ Mini-mapa: VISÍVEL (toca para ocultar em tudo)</button>
   <button onclick="fecharAdminMenu(); preencherCoordenadasEmFalta()">🎯 Preencher coordenadas em falta (a partir do Maps)</button>
   <button id="adminResetBtn" style="display: block;" onclick="fecharAdminMenu(); reporDadosOriginais()">↺ Repor dados do ficheiro</button>
   <button class="admin-menu-close" onclick="fecharAdminMenu()">Fechar</button>
@@ -5555,6 +5566,26 @@ function atualizarLabelPrecoGlobal(){
 }
 document.addEventListener('DOMContentLoaded', atualizarLabelPrecoGlobal);
 
+// MAPA_OCULTO_GLOBAL: quando ativo (painel de admin), esconde o
+// mini-mapa em TODOS os cartões, sem precisar de mexer em cada
+// estabelecimento — segue o mesmo padrão do Preçário Global.
+let MAPA_OCULTO_GLOBAL = localStorage.getItem('roadbook_mapa_oculto_global') === '1';
+
+function alternarMapaGlobal(){
+  MAPA_OCULTO_GLOBAL = !MAPA_OCULTO_GLOBAL;
+  localStorage.setItem('roadbook_mapa_oculto_global', MAPA_OCULTO_GLOBAL ? '1' : '0');
+  atualizarLabelMapaGlobal();
+  if (estabelecimentosRenderizados) renderEstabelecimentos();
+}
+function atualizarLabelMapaGlobal(){
+  const btn = document.getElementById('adminMapaGlobalBtn');
+  if (!btn) return;
+  btn.textContent = MAPA_OCULTO_GLOBAL
+    ? '🗺️ Mini-mapa: OCULTO (toca para voltar a mostrar)'
+    : '🗺️ Mini-mapa: VISÍVEL (toca para ocultar em tudo)';
+}
+document.addEventListener('DOMContentLoaded', atualizarLabelMapaGlobal);
+
 function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
 function labelParaDestaque(codigo){
   return iconeDestaqueHtml(codigo)+' '+nomeDestaqueTexto(codigo);
@@ -8496,8 +8527,9 @@ function renderEstabelecimentos(){
 </button>`;
 
       // Mini-mapa: só é construído se o estabelecimento tiver coordenadas
-      // (lat/lng), preenchidas no editor a partir do link do Google Maps.
-      const minimapHtml = (e.lat && e.lng) ? `<div class="c-minimap-wrap">
+      // (lat/lng) e o "Mini-mapa Global" (menu de admin) não estiver
+      // ativo a ocultar em todo o site.
+      const minimapHtml = (!MAPA_OCULTO_GLOBAL && e.lat && e.lng) ? `<div class="c-minimap-wrap">
   <div class="c-minimap" id="mm-${e.id}" data-lat="${e.lat}" data-lng="${e.lng}" data-maps-url="${e.maps_url||''}" onclick="event.stopPropagation(); if('${e.maps_url||''}') window.open('${e.maps_url||''}','_blank')">
     <div class="c-minimap-skel">A carregar mapa…</div>
   </div>
@@ -8521,6 +8553,7 @@ ${badgesHtml}
   <button class="c-icon-btn" title="Partilhar" onclick="event.stopPropagation(); partilharEstabelecimento('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="19" r="2.3"/><path d="M8.1 10.6 15.9 6.4M8.1 13.4l7.8 4.2"/></svg></button>
 </div></div>
 ${minimapHtml}
+<div class="c-open-hint">Ver ficha completa <span class="c-open-chev">›</span></div>
 </div>
 </div>`;
     });
