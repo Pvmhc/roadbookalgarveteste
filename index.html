@@ -107,12 +107,17 @@ body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
   /* A galeria de fotos ocupa o espaço que sobrar e o texto por baixo
      tem scroll interno se não couber — assim o card fica sempre com
      a altura EXATA do espaço visível, sem sobrar bocado de card a
-     mais/a menos que deixe ver o card anterior ou seguinte. */
-  body:has(#vSec.open) .card .slideshow,
-  body.vsec-open .card .slideshow{
-    height:auto;
+     mais/a menos que deixe ver o card anterior ou seguinte.
+     Nota: .photos (não .slideshow) é que é filho direto do .card
+     no layout flex — é ele que tem de crescer. */
+  body:has(#vSec.open) .card .photos,
+  body.vsec-open .card .photos{
     flex:1 1 auto;
     min-height:120px;
+  }
+  body:has(#vSec.open) .card .photos .slideshow,
+  body.vsec-open .card .photos .slideshow{
+    height:100%;
   }
   body:has(#vSec.open) .card .cbody,
   body.vsec-open .card .cbody{
