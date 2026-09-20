@@ -359,6 +359,13 @@ body.admin-mode .card-edit-btn{display:flex}
 .dbtn.destaque-color-btn::before,.so-chip.destaque-color-btn::before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:rgb(var(--dc))}
 .dbtn.destaque-color-btn.active,.dbtn.destaque-color-btn:hover,.so-chip.destaque-color-btn.active,.so-chip.destaque-color-btn:hover{background:rgb(var(--dc));border-color:#fff;color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(var(--dc),.35)}
 .dbtn.destaque-color-btn.active::before,.dbtn.destaque-color-btn:hover::before,.so-chip.destaque-color-btn.active::before,.so-chip.destaque-color-btn:hover::before{background:#fff}
+
+/* ── CONTAGEM POR FILTRO ─────────────────────────────────────────────
+   Pequeno número junto a cada chip (tipo/destaque/cozinha), a indicar
+   quantos estabelecimentos ficam visíveis se esse filtro for aplicado
+   (mantendo os outros filtros já ativos). */
+.chip-count{opacity:.65;font-weight:700;margin-left:2px}
+.tbtn.active .chip-count,.dbtn.active .chip-count{opacity:.85}
 /* Name */
 .c-name{font-size:clamp(16px,4vw,21px);font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.2px}
 .c-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -5585,6 +5592,7 @@ function atualizarLabelMapaGlobal(){
     : '🗺️ Mini-mapa: VISÍVEL (toca para ocultar em tudo)';
 }
 document.addEventListener('DOMContentLoaded', atualizarLabelMapaGlobal);
+document.addEventListener('DOMContentLoaded', () => setTimeout(atualizarContagensChips, 0));
 
 function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
 function labelParaDestaque(codigo){
@@ -5708,6 +5716,7 @@ function renderDestaqueChips(){
     const selected=cfg.selected();
     linha.querySelectorAll(`.${cfg.cls}`).forEach(b=>b.classList.toggle('active',b.dataset.d!=='ALL' && selected.has(b.dataset.d)));
   });
+  atualizarContagensChips();
 }
 
 // Não há uma lista fixa de "tipos de cozinha": cada estabelecimento tem
@@ -7209,6 +7218,7 @@ function renderCuisineChips(){
     TIPOS_COZINHA.map(c => `<option value="${c}">${c}</option>`).join('');
   sel.value = TIPOS_COZINHA.includes(atual) ? atual : 'ALL';
   if (aCoz !== 'ALL' && !TIPOS_COZINHA.includes(aCoz)) filterCozinha('ALL');
+  atualizarContagensChips();
 }
 
 // Lista as cidades que já existem nos dados (nome "bonito" + chave
@@ -8835,6 +8845,85 @@ function cardMatchesDestaque(card){
   return Array.from(aDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? flagship : destaques.includes(d));
 }
 
+/* ── CONTAGEM DE ESTABELECIMENTOS POR FILTRO ────────────────────────
+   Mostra, junto a cada chip de filtro, quantos estabelecimentos
+   ficariam visíveis se esse filtro fosse aplicado — mantendo os
+   OUTROS filtros já ativos (cidade, pesquisa, favoritos, restantes
+   categorias). É o mesmo princípio das contagens de facetas em sites
+   como Booking/Airbnb. Calculado a partir de ESTABELECIMENTOS (os
+   dados), não do DOM, para funcionar mesmo antes dos cartões serem
+   construídos (renderização preguiçosa). */
+function tipoMatchCodigo(tipoStr, codigo){
+  const tipo=(tipoStr||'').toUpperCase();
+  if(codigo==='NIGHTLIFE') return tipo.includes('NIGHTLIFE');
+  return tipo.includes(codigo);
+}
+function estabMatchesTipoAtual(e){
+  if(aTiposSelecionados.size===0) return true;
+  return Array.from(aTiposSelecionados).some(t=>tipoMatchCodigo(e.tipo,t));
+}
+function estabMatchesDestaqueAtual(e){
+  if(aDestaquesSelecionados.size===0) return true;
+  const destaques=(e.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
+  return Array.from(aDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? !!e.flagship : destaques.includes(d));
+}
+function contarEstabelecimentosPara(opts){
+  opts = opts || {};
+  const q=(document.getElementById('q')?.value||'').toLowerCase().trim();
+  let n=0;
+  (typeof ESTABELECIMENTOS!=='undefined' ? ESTABELECIMENTOS : []).forEach(e=>{
+    const city=normalizarCidadeRoadbook(e.cidade||'');
+    const tipo=(e.tipo||'').toUpperCase();
+    const cozinha=(e.cozinha||'').trim();
+    const destaquesArr=(e.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
+    let ok=true;
+    if(aApenasFavoritos && !ehFavorito(e.id)) ok=false;
+    if(ok && aC!=='ALL' && city!==normalizarCidadeRoadbook(aC)) ok=false;
+    if(ok){
+      if(opts.tipo==='skip'){ /* não filtra por tipo */ }
+      else if(opts.tipo) ok=tipoMatchCodigo(tipo,opts.tipo);
+      else ok=estabMatchesTipoAtual(e);
+    }
+    if(ok){
+      if(opts.destaque==='skip'){ /* não filtra por destaque */ }
+      else if(opts.destaque) ok=(opts.destaque==='FLAGSHIP') ? !!e.flagship : destaquesArr.includes(opts.destaque);
+      else ok=estabMatchesDestaqueAtual(e);
+    }
+    const restauranteEfetivo = opts.tipo==='RESTAURANTE' || (!opts.tipo && aTiposSelecionados.has('RESTAURANTE'));
+    if(ok && restauranteEfetivo){
+      const cozAlvo = Object.prototype.hasOwnProperty.call(opts,'cozinha') ? opts.cozinha : aCoz;
+      if(cozAlvo && cozAlvo!=='ALL' && cozinha!==cozAlvo && !cozinha.startsWith(cozAlvo+' - ')) ok=false;
+    }
+    if(ok && q){
+      const name=(e.nome||'').toLowerCase();
+      if(!name.includes(q) && !city.toLowerCase().includes(q) && !tipo.toLowerCase().includes(q) && !destaquesArr.join(',').toLowerCase().includes(q)) ok=false;
+    }
+    if(ok) n++;
+  });
+  return n;
+}
+function atualizarContagensChips(){
+  document.querySelectorAll('#typeRow .tbtn').forEach(b=>{
+    const codigo=b.dataset.t;
+    const n=contarEstabelecimentosPara(codigo==='ALL' ? {tipo:'skip'} : {tipo:codigo});
+    b.querySelector('.chip-count')?.remove();
+    b.insertAdjacentHTML('beforeend', ` <span class="chip-count">${n}</span>`);
+  });
+  document.querySelectorAll('#highlightRow .dbtn').forEach(b=>{
+    const codigo=b.dataset.d;
+    const n=contarEstabelecimentosPara(codigo==='ALL' ? {destaque:'skip'} : {destaque:codigo});
+    b.querySelector('.chip-count')?.remove();
+    b.insertAdjacentHTML('beforeend', ` <span class="chip-count">${n}</span>`);
+  });
+  const cuisineSel=document.getElementById('cuisineSelect');
+  if(cuisineSel){
+    Array.from(cuisineSel.options).forEach(opt=>{
+      const n=contarEstabelecimentosPara({tipo:'RESTAURANTE', cozinha:opt.value});
+      opt.textContent = opt.textContent.replace(/\s*\(\d+\)$/,'') + ` (${n})`;
+    });
+  }
+}
+
 // ── FAVORITOS (guardados no dispositivo, sem precisar de conta) ──────
 function listarFavoritos(){
   try{ return JSON.parse(localStorage.getItem('roadbook_favoritos')||'[]'); }
@@ -8923,6 +9012,7 @@ function applyFilters(){
     g.style.display=(p&&p.classList.contains('hidden'))?'none':'grid';
   });
   document.getElementById('noRes').style.display=vis.size===0?'flex':'none';
+  atualizarContagensChips();
 }
 
 const obs=new IntersectionObserver(e=>e.forEach(x=>{
@@ -8941,11 +9031,33 @@ function feedCentroVisivelY(){
   const nav=66+(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'))||0);
   return (topo+(window.innerHeight-nav))/2;
 }
+
+// Scroll suave com easing próprio: o "behavior:'smooth'" nativo do
+// browser varia muito de aparelho para aparelho (em vários WebViews
+// Android é praticamente instantâneo, sem qualquer suavização). Esta
+// função dá sempre a mesma sensação de desaceleração suave, em
+// qualquer browser/telemóvel.
+let scrollSuaveFrameId=null;
+function easeSuave(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+function scrollSuaveTo(destinoY, duracaoMs=420){
+  if(scrollSuaveFrameId) cancelAnimationFrame(scrollSuaveFrameId);
+  const inicioY=window.scrollY;
+  const distancia=destinoY-inicioY;
+  if(Math.abs(distancia)<1) return;
+  const t0=performance.now();
+  function passo(agora){
+    const t=Math.min(1,(agora-t0)/duracaoMs);
+    window.scrollTo(0, inicioY+distancia*easeSuave(t));
+    scrollSuaveFrameId = t<1 ? requestAnimationFrame(passo) : null;
+  }
+  scrollSuaveFrameId=requestAnimationFrame(passo);
+}
+
 function feedCentrarCard(card){
   const centroAlvo=feedCentroVisivelY();
   const r=card.getBoundingClientRect();
   const centroCard=r.top+r.height/2;
-  window.scrollBy({top: centroCard-centroAlvo, behavior:'smooth'});
+  scrollSuaveTo(window.scrollY + (centroCard-centroAlvo));
 }
 // Enquanto isto for true, a "rede de segurança" abaixo não mexe no
 // scroll — evita que ela dispare A MEIO de um swipe (enquanto o
