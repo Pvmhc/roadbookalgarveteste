@@ -63,22 +63,70 @@ if ('serviceWorker' in navigator) {
 <meta name="theme-color" content="#042E1B">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<!-- Mini-mapa nos cartões: Leaflet + OpenStreetMap (gratuito, sem API key) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;scroll-behavior:smooth}
+/* Só na lista de estabelecimentos (depois de escolheres uma cidade):
+   scroll tipo TikTok — cada scroll avança para o estabelecimento
+   seguinte e para sempre centrado no ecrã. O resto da página (capa,
+   mapa, rodapé) continua com scroll livre normal. */
+body:has(#vSec.open){overscroll-behavior-y:contain;scroll-behavior:auto}
+body.vsec-open{overscroll-behavior-y:contain;scroll-behavior:auto}
 .card{scroll-margin-top:70px}
-/* Lista de estabelecimentos: scroll contínuo normal (como
-   Google Maps/TripAdvisor/Booking) — vários cartões parcialmente
-   visíveis ao mesmo tempo, sem snap forçado a ecrã inteiro. No
-   telemóvel os cartões ficam mais compactos (foto mais baixa) para
-   caber mais informação visível de cada vez. */
+/* No telemóvel: cada estabelecimento ocupa o ecrã todo e fica
+   ancorado ao TOPO (logo abaixo da barra de filtros), tal como no
+   TikTok — em vez de ficar "a meio", cortado por cima e por baixo.
+   scroll-snap-stop:always obriga a parar em CADA card, um de cada
+   vez, mesmo com um swipe rápido/forte. body.vsec-open é um
+   fallback via JS para telemóveis cujo browser não suporte :has()
+   — tem de ser uma regra CSS SEPARADA da de :has(), senão um
+   browser sem suporte para :has() deita fora a regra toda. */
 @media(max-width:768px){
-  .card .photos{
-    max-height:220px;
+  body:has(#vSec.open){
+    scroll-padding-top:54px;
+    scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
+  }
+  body.vsec-open{
+    scroll-padding-top:54px;
+    scroll-padding-bottom:calc(66px + env(safe-area-inset-bottom));
+  }
+  body:has(#vSec.open) .card{
+    scroll-snap-align:center;
+    scroll-snap-stop:always;
+    scroll-margin-top:0;
+    scroll-margin-bottom:0;
+    height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom,0px));
+  }
+  body.vsec-open .card{
+    scroll-snap-align:center;
+    scroll-snap-stop:always;
+    scroll-margin-top:0;
+    scroll-margin-bottom:0;
+    height:calc(100dvh - 54px - 66px - env(safe-area-inset-bottom,0px));
+  }
+  /* A foto grande fica com uma proporção equilibrada (não esticada
+     verticalmente) e o texto por baixo cresce para ocupar o resto do
+     espaço, sem deixar bocado em branco. */
+  body:has(#vSec.open) .card .photos,
+  body.vsec-open .card .photos{
+    flex:1 1 auto;
+    max-height:44vh;
     min-height:170px;
+  }
+  body:has(#vSec.open) .card .photos .slideshow,
+  body.vsec-open .card .photos .slideshow{
+    flex:1 1 auto;
+    height:auto;
+    min-height:0;
+  }
+  body:has(#vSec.open) .card .photos .slide-thumbs,
+  body.vsec-open .card .photos .slide-thumbs{
+    flex:0 0 auto;
+  }
+  body:has(#vSec.open) .card .cbody,
+  body.vsec-open .card .cbody{
+    flex:1 1 auto;
+    overflow-y:auto;
   }
 }
 :root{
@@ -293,7 +341,7 @@ body.admin-mode .card-edit-btn{display:flex}
 /* Right panel / card body */
 .cbody{padding:16px;flex:1;display:flex;flex-direction:column;gap:8px}
 /* Destaques independentes da tipologia */
-.card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:2px}
+.card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
 .fl-badge,.destaque-badge{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;width:fit-content;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .badge-icon{width:11px;height:11px;flex:none;display:block}
 .fl-badge{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
@@ -308,13 +356,6 @@ body.admin-mode .card-edit-btn{display:flex}
 .dbtn.destaque-color-btn::before,.so-chip.destaque-color-btn::before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:rgb(var(--dc))}
 .dbtn.destaque-color-btn.active,.dbtn.destaque-color-btn:hover,.so-chip.destaque-color-btn.active,.so-chip.destaque-color-btn:hover{background:rgb(var(--dc));border-color:#fff;color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(var(--dc),.35)}
 .dbtn.destaque-color-btn.active::before,.dbtn.destaque-color-btn:hover::before,.so-chip.destaque-color-btn.active::before,.so-chip.destaque-color-btn:hover::before{background:#fff}
-
-/* ── CONTAGEM POR FILTRO ─────────────────────────────────────────────
-   Pequeno número junto a cada chip (tipo/destaque/cozinha), a indicar
-   quantos estabelecimentos ficam visíveis se esse filtro for aplicado
-   (mantendo os outros filtros já ativos). */
-.chip-count{opacity:.65;font-weight:700;margin-left:2px}
-.tbtn.active .chip-count,.dbtn.active .chip-count{opacity:.85}
 /* Name */
 .c-name{font-size:clamp(16px,4vw,21px);font-weight:800;color:var(--white);line-height:1.2;letter-spacing:-.2px}
 .c-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -343,35 +384,6 @@ body.admin-mode .card-edit-btn{display:flex}
 /* Feedback fica sozinho numa linha discreta, à direita — já não compete
    com a classificação, que volta a ficar colada ao preço (como pediram). */
 .c-feedback-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-
-/* ── MINI-MAPA DO CARTÃO ───────────────────────────────────────────
-   Preview do local com Leaflet + OpenStreetMap (gratuito). Só é
-   inicializado quando o cartão entra em vista (ver initCardMinimap
-   no JS), para não criar 130+ instâncias de mapa de uma vez.
-   O mapa não é interativo (sem drag/zoom) — é só um preview que,
-   ao ser tocado, abre o Google Maps. */
-.c-minimap-wrap{margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid #E4E9E6;box-shadow:0 2px 10px rgba(20,35,28,.05)}
-.c-minimap{position:relative;height:130px;background:#EAF3EC}
-.c-minimap .leaflet-container{background:#EAF3EC;cursor:pointer}
-.c-minimap .leaflet-control-container{display:none}
-.c-minimap-skel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font:700 11px Inter,sans-serif;color:#7A8580}
-.c-minimap-pin{width:30px;height:30px;border-radius:50% 50% 50% 0;background:#C4342B;transform:rotate(-45deg);
-  box-shadow:0 3px 8px rgba(196,52,43,.4);display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.c-minimap-pin svg{transform:rotate(45deg);width:13px;height:13px;fill:#fff}
-.c-minimap-cta{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff}
-.c-minimap-cta .c-mm-addr{font:600 11.5px Inter,sans-serif;color:#526059;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px}
-.c-minimap-cta .c-mm-go{font:800 11.5px Inter,sans-serif;color:#087A3B;white-space:nowrap;flex-shrink:0}
-
-/* ── DICA "VER FICHA COMPLETA" ─────────────────────────────────────
-   O cartão inteiro já é clicável (onclick abre a ficha), mas nada
-   o dizia visualmente — só o cursor:pointer, que não existe em
-   ecrã tátil. Esta linha discreta no fundo do cartão é o sinal
-   universal (Booking, Airbnb, TripAdvisor) de que há mais a ver. */
-.c-open-hint{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:10px;
-  font:700 11px Inter,sans-serif;letter-spacing:.3px;color:#7A8580}
-.c-open-chev{color:#087A3B;font-weight:800;transition:transform .15s ease}
-.card:hover .c-open-chev, .card:active .c-open-chev{transform:translateX(3px)}
 .c-icon-row{display:flex;align-items:center;gap:8px}
 .c-icon-btn{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radiusSm);border:1px solid var(--border);background:var(--glass);color:var(--softwhite);cursor:pointer;transition:var(--dur-fast) var(--ease)}
 .c-icon-btn svg{width:16px;height:16px;fill:none}
@@ -381,6 +393,30 @@ body.admin-mode .card-edit-btn{display:flex}
 .comment-btn{flex-shrink:0;display:flex;align-items:center;gap:5px;background:none;border:none;padding:4px 2px;margin:0;width:auto;color:var(--softwhite);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.2px;cursor:pointer;opacity:.85;transition:var(--dur-fast) var(--ease)}
 .comment-btn svg{width:15px;height:15px;flex-shrink:0}
 .comment-btn:hover{opacity:1;color:var(--gold)}
+/* "Ver ficha completa" — link de chamada à ação, encostado ao fundo
+   do corpo do cartão (margin-top:auto), para preencher o espaço que
+   sobrar em vez de ficar em branco, e deixar claro que há mais
+   informação (morada, telefone, horário...) por trás de um toque. */
+.c-ver-ficha{
+  margin-top:auto;
+  padding-top:12px;
+  margin-left:-16px;
+  margin-right:-16px;
+  padding-left:16px;
+  padding-right:16px;
+  border-top:1px solid var(--border);
+  background:none;
+  cursor:pointer;
+  width:calc(100% + 32px);
+  text-align:center;
+  font-family:'Inter',sans-serif;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.3px;
+  color:var(--green);
+  transition:var(--dur-fast) var(--ease);
+}
+.c-ver-ficha:hover{opacity:.8}
 /* Type badge */
 .c-type-box{border:1px solid var(--gold);border-radius:100px;padding:4px 12px;display:inline-block;width:fit-content;background:rgba(228,185,63,.08)}
 .c-type-txt{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
@@ -623,7 +659,7 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 .card-ov-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .card-ov-sep{height:2px;background:rgba(255,255,255,.18);flex-shrink:0}
 .card-ov-info{padding:22px 20px 0}
-.card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;margin-bottom:12px}
+.card-ov-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .card-ov-fl,.card-ov-destaque{display:inline-flex;align-items:center;gap:5px;color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;padding:4px 10px;border-radius:100px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .card-ov-fl .badge-icon,.card-ov-destaque .badge-icon{width:11px;height:11px}
 .card-ov-fl{background:linear-gradient(135deg,var(--red),#a80014);box-shadow:0 3px 10px rgba(228,0,26,.35)}
@@ -767,20 +803,38 @@ footer p.legal-link a{color:inherit;text-decoration:underline;opacity:.8;cursor:
 .rb-beer-loader .rb-bolha2{animation:rbSubirBolha 1.5s ease-in infinite;animation-delay:.5s}
 .rb-beer-loader .rb-bolha3{animation:rbSubirBolha 1.1s ease-in infinite;animation-delay:.9s}
 
-/* ── LAYOUT EM ECRÃS MAIORES ────────────────────────────────────────
-   A lista de estabelecimentos usa sempre scroll contínuo normal
-   (telemóvel, tablet ou PC) — aqui só garantimos que o scroll da
-   página funciona bem em ecrãs maiores e que os cartões não ficam
-   esticados de mais em ecrãs largos. */
+/* ── SCROLL RESPONSIVO: feed tipo TikTok em ecrãs maiores ──────────
+   Mantém o comportamento do telemóvel também em foldables, tablets,
+   portáteis e monitores. A capa/mapa/rodapé continuam com scroll livre.
+   Em ecrãs largos os cards ficam centrados no espaço disponível. ─── */
 @media (min-width:769px){
   html, body {
     overflow-y:auto !important;
     height:auto !important;
     min-height:100%;
   }
+  body:has(#vSec.open),
+  body.vsec-open {
+    overscroll-behavior-y:auto !important;
+    scroll-behavior:smooth !important;
+    scroll-snap-type:none !important;
+  }
+  body:has(#vSec.open) .card,
+  body.vsec-open .card {
+    scroll-margin-top:0 !important;
+    scroll-margin-bottom:0 !important;
+  }
+  body:has(#vSec.open), body.vsec-open {
+    scroll-padding-top:54px;
+    scroll-padding-bottom:20px;
+  }
 }
+
+/* Foldables/tablets em modo aberto: aproveita melhor a largura sem
+   deixar o card excessivamente esticado. */
 @media (min-width:769px) and (max-width:1400px){
-  .card { max-width:760px; margin-left:auto; margin-right:auto; }
+  body:has(#vSec.open) .card,
+  body.vsec-open .card { max-width:760px; margin-left:auto; margin-right:auto; }
 }
 
 /* PUSH CAMPAIGN */
@@ -845,6 +899,33 @@ body.light-theme .map-legend-dot { background:rgba(255,255,255,.9) !important; }
 .card-ov-contact-icon{transition:transform var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease)}
 body.dark-theme .card-ov-contact-icon{background:rgba(255,255,255,.10);color:#7BE0A5;box-shadow:inset 0 0 0 1px rgba(123,224,165,.16)}
 body.dark-theme .card-ov-contact-item:not(.static):hover .card-ov-contact-icon{background:rgba(123,224,165,.16)}
+/* Estrutura + cores do cartão "Contactos e Localização" com base nas
+   variáveis do tema — antes só existia dentro da folha do tema claro,
+   que fica completamente desativada no tema escuro, e por isso estes
+   cartões ficavam sem fundo, sem cantos arredondados e sem espaçamento
+   nenhum no modo escuro. Com variáveis, adapta-se sozinho a qualquer
+   tema, tal como o ícone já fazia. */
+.card-ov-contact-item{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:11px 12px;margin:0 0 7px;border:1px solid var(--border);border-radius:var(--radiusSm);background:var(--glass);color:var(--white);text-decoration:none;box-shadow:0 2px 8px rgba(20,35,28,.04)}
+.card-ov-contact-item:hover:not(.static){border-color:var(--green);background:var(--glassStrong)}
+.card-ov-contact-item.static{cursor:default}
+.card-ov-contact-item span:nth-child(2){display:flex;flex-direction:column;min-width:0;flex:1}
+.card-ov-contact-item small{font:700 8px Inter,sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:var(--softwhite);margin-bottom:2px}
+.card-ov-contact-item strong{font:600 12px Inter,sans-serif;color:var(--white);line-height:1.35;overflow-wrap:anywhere}
+.card-ov-contact-item>b{font:700 19px Inter,sans-serif;color:var(--softwhite)}
+/* Título de secção ("CONTACTOS E LOCALIZAÇÃO", "CLASSIFICAÇÃO DO
+   FEEDBACK") e o resumo de classificação do feedback — mesmo
+   problema: só existiam na folha do tema claro (desativada no
+   escuro), por isso ficavam sem cor/estilo nenhum no modo escuro. */
+.card-ov-section-title{font:800 9px Inter,sans-serif;letter-spacing:1.8px;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.card-ov-feedback-summary{display:flex;align-items:center;gap:12px}
+.card-ov-feedback-score{font:800 27px Poppins,sans-serif;color:var(--white);line-height:1}
+.card-ov-feedback-stars{color:var(--gold);letter-spacing:1px;font-size:15px}
+.card-ov-feedback-label{font:700 11px Inter,sans-serif;color:var(--softwhite);margin-top:3px}
+.card-ov-feedback-empty{font:600 12px Inter,sans-serif;color:var(--softwhite)}
+.card-ov-feedback-criteria{margin-top:11px;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.card-ov-feedback-criterion{background:var(--glass);border-radius:8px;padding:8px 9px}
+.card-ov-feedback-criterion span{display:block;font:700 9px Inter,sans-serif;color:var(--softwhite);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-ov-feedback-criterion strong{font:800 12px Inter,sans-serif;color:var(--white)}
 </style>
 
 <style id="rb-light-footer-visibility">
@@ -1142,7 +1223,6 @@ function abrirInfoLegal(){
   <button onclick="fecharAdminMenu(); openEditorEmail()">📧 Campanha de email</button>
   <button onclick="fecharAdminMenu(); abrirEditorEstabelecimento(null)">➕ Adicionar estabelecimento</button>
   <button id="adminPrecoGlobalBtn" onclick="alternarPrecoGlobal()">💶 Preçário Global: VISÍVEL (toca para ocultar em tudo)</button>
-  <button id="adminMapaGlobalBtn" onclick="alternarMapaGlobal()">🗺️ Mini-mapa: VISÍVEL (toca para ocultar em tudo)</button>
   <button onclick="fecharAdminMenu(); preencherCoordenadasEmFalta()">🎯 Preencher coordenadas em falta (a partir do Maps)</button>
   <button id="adminResetBtn" style="display: block;" onclick="fecharAdminMenu(); reporDadosOriginais()">↺ Repor dados do ficheiro</button>
   <button class="admin-menu-close" onclick="fecharAdminMenu()">Fechar</button>
@@ -5504,27 +5584,6 @@ function atualizarLabelPrecoGlobal(){
 }
 document.addEventListener('DOMContentLoaded', atualizarLabelPrecoGlobal);
 
-// MAPA_OCULTO_GLOBAL: quando ativo (painel de admin), esconde o
-// mini-mapa em TODOS os cartões, sem precisar de mexer em cada
-// estabelecimento — segue o mesmo padrão do Preçário Global.
-let MAPA_OCULTO_GLOBAL = localStorage.getItem('roadbook_mapa_oculto_global') === '1';
-
-function alternarMapaGlobal(){
-  MAPA_OCULTO_GLOBAL = !MAPA_OCULTO_GLOBAL;
-  localStorage.setItem('roadbook_mapa_oculto_global', MAPA_OCULTO_GLOBAL ? '1' : '0');
-  atualizarLabelMapaGlobal();
-  if (estabelecimentosRenderizados) renderEstabelecimentos();
-}
-function atualizarLabelMapaGlobal(){
-  const btn = document.getElementById('adminMapaGlobalBtn');
-  if (!btn) return;
-  btn.textContent = MAPA_OCULTO_GLOBAL
-    ? '🗺️ Mini-mapa: OCULTO (toca para voltar a mostrar)'
-    : '🗺️ Mini-mapa: VISÍVEL (toca para ocultar em tudo)';
-}
-document.addEventListener('DOMContentLoaded', atualizarLabelMapaGlobal);
-document.addEventListener('DOMContentLoaded', () => setTimeout(atualizarContagensChips, 0));
-
 function formatarNomeDestaque(codigo){ return codigo.replace(/_/g,' ').toLowerCase().split(' ').filter(Boolean).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' '); }
 function labelParaDestaque(codigo){
   return iconeDestaqueHtml(codigo)+' '+nomeDestaqueTexto(codigo);
@@ -5647,7 +5706,6 @@ function renderDestaqueChips(){
     const selected=cfg.selected();
     linha.querySelectorAll(`.${cfg.cls}`).forEach(b=>b.classList.toggle('active',b.dataset.d!=='ALL' && selected.has(b.dataset.d)));
   });
-  atualizarContagensChips();
 }
 
 // Não há uma lista fixa de "tipos de cozinha": cada estabelecimento tem
@@ -7149,7 +7207,6 @@ function renderCuisineChips(){
     TIPOS_COZINHA.map(c => `<option value="${c}">${c}</option>`).join('');
   sel.value = TIPOS_COZINHA.includes(atual) ? atual : 'ALL';
   if (aCoz !== 'ALL' && !TIPOS_COZINHA.includes(aCoz)) filterCozinha('ALL');
-  atualizarContagensChips();
 }
 
 // Lista as cidades que já existem nos dados (nome "bonito" + chave
@@ -8467,25 +8524,12 @@ function renderEstabelecimentos(){
   <span class="comment-btn-txt">Feedback</span>
 </button>`;
 
-      // Mini-mapa: só é construído se o estabelecimento tiver coordenadas
-      // (lat/lng) e o "Mini-mapa Global" (menu de admin) não estiver
-      // ativo a ocultar em todo o site.
-      const minimapHtml = (!MAPA_OCULTO_GLOBAL && e.lat && e.lng) ? `<div class="c-minimap-wrap">
-  <div class="c-minimap" id="mm-${e.id}" data-lat="${e.lat}" data-lng="${e.lng}" data-maps-url="${e.maps_url||''}" onclick="event.stopPropagation(); if('${e.maps_url||''}') window.open('${e.maps_url||''}','_blank')">
-    <div class="c-minimap-skel">A carregar mapa…</div>
-  </div>
-  <div class="c-minimap-cta" onclick="event.stopPropagation(); if('${e.maps_url||''}') window.open('${e.maps_url||''}','_blank')">
-    <span class="c-mm-addr">${e.morada || formatarNomeCidade(e.cidade)}</span>
-    <span class="c-mm-go">Como chegar ›</span>
-  </div>
-</div>` : '';
-
       html += `<div class="card" id="${e.id}" data-city="${e.cidade}" data-tipo="${e.tipo}" data-cozinha="${e.cozinha||''}" data-flagship="${isFL}" data-preco="${e.preco||''}" data-preco-oculto="${!!e.precoOculto}" data-rating="${e.rating||''}" data-rating-count="${e.ratingCount||''}" data-destaques="${e.destaques||''}" data-morada="${e.morada||''}" data-estacionamento="${e.estacionamento||''}" data-maps-url="${e.maps_url||''}" data-telefone="${e.telefone||''}" data-horario="${e.horario||''}" data-instagram="${e.instagram||''}" data-info-extra="${escapeHtmlAttr(JSON.stringify(normalizarInfoExtra(e.informacoes_extra)))}" onclick="openCardOverlay('${e.id}')">
 <button class="card-edit-btn" title="Editar" onclick="event.stopPropagation(); abrirEditorEstabelecimento('${e.id}')">✎</button>
 <div class="photos">${foto1html}<div class="photo-type-overlay">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</div></div>
 <div class="cbody">
-<div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
 ${badgesHtml}
+<div class="c-name-row"><h3 class="c-name">${e.nome}</h3><div class="c-meta-group">${precoInline}${ratingInline ? `<div class="c-rating-row">${ratingInline}</div>` : ''}</div></div>
 <div class="c-accent"></div>
 <div class="c-type-box"><span class="c-type-txt">${splitTipos(e.tipo).map(t => labelParaTipo(t)).join(' · ')}${e.cozinha ? ' · ' + e.cozinha : ''}</span></div>
 <div class="c-city"><svg class="c-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${formatarNomeCidade(e.cidade)}<span class="c-dist" data-lat="${e.lat||''}" data-lng="${e.lng||''}">${(userLoc && e.lat && e.lng) ? ' · ' + distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng).toFixed(distanciaKm(userLoc.lat, userLoc.lng, e.lat, e.lng) < 10 ? 1 : 0) + ' km' : ''}</span></div>
@@ -8493,8 +8537,7 @@ ${badgesHtml}
   <button class="c-icon-btn c-fav-icon-btn${ehFavorito(e.id)?' on':''}" data-fav-id="${e.id}" title="Guardar nos favoritos" onclick="event.stopPropagation(); toggleFavorito('${e.id}', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.6 9.4 20.8 10.3 16.4 14.5 17.4 20.7 12 17.7 6.6 20.7 7.6 14.5 3.2 10.3 9.4 9.4Z"/></svg></button>
   <button class="c-icon-btn" title="Partilhar" onclick="event.stopPropagation(); partilharEstabelecimento('${e.id}', '${(e.nome||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="19" r="2.3"/><path d="M8.1 10.6 15.9 6.4M8.1 13.4l7.8 4.2"/></svg></button>
 </div></div>
-${minimapHtml}
-<div class="c-open-hint">Ver ficha completa <span class="c-open-chev">›</span></div>
+<button class="c-ver-ficha" onclick="event.stopPropagation(); openCardOverlay('${e.id}')">Ver ficha completa <span aria-hidden="true">›</span></button>
 </div>
 </div>`;
     });
@@ -8526,10 +8569,6 @@ ${minimapHtml}
         if (firstSrc) { firstImg.src = firstSrc; firstImg.onload = () => firstImg.classList.add('img-loaded'); }
         if (firstImg.dataset.src) firstImg.removeAttribute('data-src');
       }
-      // Mini-mapa: mesmo princípio dos fotos — só cria a instância do
-      // Leaflet quando o cartão realmente entra em vista.
-      const minimapEl = x.target.querySelector('.c-minimap');
-      if (minimapEl) initCardMinimap(minimapEl);
       obs.unobserve(x.target);
     }
   }), {threshold:.04, rootMargin:'400px 0px'});
@@ -8549,33 +8588,6 @@ ${minimapHtml}
   // bloqueia o render — os cards já aparecem com foto1..4 se existirem,
   // e são atualizados assim que as fotos da pasta chegarem).
   carregarFotosDrivePastas();
-}
-
-/* ── MINI-MAPA DO CARTÃO (Leaflet + OpenStreetMap) ──────────────────
-   Preview estático (sem drag/zoom) do local do estabelecimento.
-   Gratuito, sem API key — usa os tiles públicos do OpenStreetMap.
-   Se o site vier a ter muito tráfego, convém trocar para um provider
-   de tiles com uso comercial garantido (ex: MapTiler, Mapbox), já
-   que o OSM pede que o uso dos tiles públicos seja moderado. */
-function initCardMinimap(el){
-  if (!el || el.dataset.mmInit) return;
-  el.dataset.mmInit = '1';
-  const lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
-  if (!lat || !lng || typeof L === 'undefined') return;
-  const map = L.map(el, {
-    center: [lat, lng], zoom: 15,
-    zoomControl:false, dragging:false, scrollWheelZoom:false,
-    doubleClickZoom:false, touchZoom:false, boxZoom:false, keyboard:false, attributionControl:false
-  });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
-  const icon = L.divIcon({
-    className:'', html:'<div class="c-minimap-pin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></div>',
-    iconSize:[30,30], iconAnchor:[15,30]
-  });
-  L.marker([lat, lng], {icon, interactive:false}).addTo(map);
-  // Garante que o Leaflet mede corretamente o tamanho do contentor
-  // depois de ficar visível (senão o mapa fica cortado/mal centrado).
-  setTimeout(() => map.invalidateSize(), 50);
 }
 
 /* ── RENDERIZAÇÃO PREGUIÇOSA ────────────────────────────────────────
@@ -8776,85 +8788,6 @@ function cardMatchesDestaque(card){
   return Array.from(aDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? flagship : destaques.includes(d));
 }
 
-/* ── CONTAGEM DE ESTABELECIMENTOS POR FILTRO ────────────────────────
-   Mostra, junto a cada chip de filtro, quantos estabelecimentos
-   ficariam visíveis se esse filtro fosse aplicado — mantendo os
-   OUTROS filtros já ativos (cidade, pesquisa, favoritos, restantes
-   categorias). É o mesmo princípio das contagens de facetas em sites
-   como Booking/Airbnb. Calculado a partir de ESTABELECIMENTOS (os
-   dados), não do DOM, para funcionar mesmo antes dos cartões serem
-   construídos (renderização preguiçosa). */
-function tipoMatchCodigo(tipoStr, codigo){
-  const tipo=(tipoStr||'').toUpperCase();
-  if(codigo==='NIGHTLIFE') return tipo.includes('NIGHTLIFE');
-  return tipo.includes(codigo);
-}
-function estabMatchesTipoAtual(e){
-  if(aTiposSelecionados.size===0) return true;
-  return Array.from(aTiposSelecionados).some(t=>tipoMatchCodigo(e.tipo,t));
-}
-function estabMatchesDestaqueAtual(e){
-  if(aDestaquesSelecionados.size===0) return true;
-  const destaques=(e.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
-  return Array.from(aDestaquesSelecionados).some(d=>d==='FLAGSHIP' ? !!e.flagship : destaques.includes(d));
-}
-function contarEstabelecimentosPara(opts){
-  opts = opts || {};
-  const q=(document.getElementById('q')?.value||'').toLowerCase().trim();
-  let n=0;
-  (typeof ESTABELECIMENTOS!=='undefined' ? ESTABELECIMENTOS : []).forEach(e=>{
-    const city=normalizarCidadeRoadbook(e.cidade||'');
-    const tipo=(e.tipo||'').toUpperCase();
-    const cozinha=(e.cozinha||'').trim();
-    const destaquesArr=(e.destaques||'').toUpperCase().split(',').map(x=>x.trim()).filter(Boolean);
-    let ok=true;
-    if(aApenasFavoritos && !ehFavorito(e.id)) ok=false;
-    if(ok && aC!=='ALL' && city!==normalizarCidadeRoadbook(aC)) ok=false;
-    if(ok){
-      if(opts.tipo==='skip'){ /* não filtra por tipo */ }
-      else if(opts.tipo) ok=tipoMatchCodigo(tipo,opts.tipo);
-      else ok=estabMatchesTipoAtual(e);
-    }
-    if(ok){
-      if(opts.destaque==='skip'){ /* não filtra por destaque */ }
-      else if(opts.destaque) ok=(opts.destaque==='FLAGSHIP') ? !!e.flagship : destaquesArr.includes(opts.destaque);
-      else ok=estabMatchesDestaqueAtual(e);
-    }
-    const restauranteEfetivo = opts.tipo==='RESTAURANTE' || (!opts.tipo && aTiposSelecionados.has('RESTAURANTE'));
-    if(ok && restauranteEfetivo){
-      const cozAlvo = Object.prototype.hasOwnProperty.call(opts,'cozinha') ? opts.cozinha : aCoz;
-      if(cozAlvo && cozAlvo!=='ALL' && cozinha!==cozAlvo && !cozinha.startsWith(cozAlvo+' - ')) ok=false;
-    }
-    if(ok && q){
-      const name=(e.nome||'').toLowerCase();
-      if(!name.includes(q) && !city.toLowerCase().includes(q) && !tipo.toLowerCase().includes(q) && !destaquesArr.join(',').toLowerCase().includes(q)) ok=false;
-    }
-    if(ok) n++;
-  });
-  return n;
-}
-function atualizarContagensChips(){
-  document.querySelectorAll('#typeRow .tbtn').forEach(b=>{
-    const codigo=b.dataset.t;
-    const n=contarEstabelecimentosPara(codigo==='ALL' ? {tipo:'skip'} : {tipo:codigo});
-    b.querySelector('.chip-count')?.remove();
-    b.insertAdjacentHTML('beforeend', ` <span class="chip-count">${n}</span>`);
-  });
-  document.querySelectorAll('#highlightRow .dbtn').forEach(b=>{
-    const codigo=b.dataset.d;
-    const n=contarEstabelecimentosPara(codigo==='ALL' ? {destaque:'skip'} : {destaque:codigo});
-    b.querySelector('.chip-count')?.remove();
-    b.insertAdjacentHTML('beforeend', ` <span class="chip-count">${n}</span>`);
-  });
-  const cuisineSel=document.getElementById('cuisineSelect');
-  if(cuisineSel){
-    Array.from(cuisineSel.options).forEach(opt=>{
-      const n=contarEstabelecimentosPara({tipo:'RESTAURANTE', cozinha:opt.value});
-      opt.textContent = opt.textContent.replace(/\s*\(\d+\)$/,'') + ` (${n})`;
-    });
-  }
-}
-
 // ── FAVORITOS (guardados no dispositivo, sem precisar de conta) ──────
 function listarFavoritos(){
   try{ return JSON.parse(localStorage.getItem('roadbook_favoritos')||'[]'); }
@@ -8943,13 +8876,142 @@ function applyFilters(){
     g.style.display=(p&&p.classList.contains('hidden'))?'none':'grid';
   });
   document.getElementById('noRes').style.display=vis.size===0?'flex':'none';
-  atualizarContagensChips();
 }
 
 const obs=new IntersectionObserver(e=>e.forEach(x=>{
   if(x.isIntersecting){x.target.classList.add('vis');obs.unobserve(x.target);}
 }),{threshold:.04});
 document.querySelectorAll('.card').forEach(c=>obs.observe(c));
+
+// ── REDE DE SEGURANÇA: garante que o scroll no feed (telemóvel) fica
+// SEMPRE com o card CENTRADO no espaço visível (entre a barra de
+// filtros e a barra de navegação de baixo), um de cada vez.
+// scroll-snap-stop:always já obriga a isto na maioria dos browsers
+// modernos; isto corrige o resto (browsers/webviews mais antigos que
+// ignorem scroll-snap-stop). ──
+function feedCentroVisivelY(){
+  const topo=54;
+  const nav=66+(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'))||0);
+  return (topo+(window.innerHeight-nav))/2;
+}
+function feedCentrarCard(card){
+  const centroAlvo=feedCentroVisivelY();
+  const r=card.getBoundingClientRect();
+  const centroCard=r.top+r.height/2;
+  window.scrollBy({top: centroCard-centroAlvo, behavior:'smooth'});
+}
+// Enquanto isto for true, a "rede de segurança" abaixo não mexe no
+// scroll — evita que ela dispare A MEIO de um swipe (enquanto o
+// telemóvel ainda está a fazer scroll por inércia) e "lute" com a
+// correção do próprio swipe, o que dava o efeito de roleta/aos saltos.
+let feedGestoAtivo=false;
+function corrigirSnapFeedEstabelecimentos(){
+  if(window.innerWidth>1400) return;
+  if(!document.body.classList.contains('vsec-open')) return;
+  if(feedGestoAtivo) return;
+  const cards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
+  if(!cards.length) return;
+  const centroAlvo=feedCentroVisivelY();
+  let alvo=null, menorDist=Infinity;
+  cards.forEach(c=>{
+    const r=c.getBoundingClientRect();
+    const dist=Math.abs((r.top+r.height/2)-centroAlvo);
+    if(dist<menorDist){menorDist=dist; alvo=c;}
+  });
+  if(alvo && menorDist>4) feedCentrarCard(alvo);
+}
+if('onscrollend' in window){
+  window.addEventListener('scrollend', corrigirSnapFeedEstabelecimentos);
+}else{
+  let feedScrollTimer=null;
+  window.addEventListener('scroll', ()=>{
+    clearTimeout(feedScrollTimer);
+    feedScrollTimer=setTimeout(corrigirSnapFeedEstabelecimentos,120);
+  }, {passive:true});
+}
+
+// ── CONTROLO MANUAL DO SWIPE (não depende do CSS scroll-snap) ──────
+// Cada swipe avança/recua exatamente 1 estabelecimento, mesmo que o
+// browser do telemóvel não respeite scroll-snap-type/scroll-snap-stop,
+// e deixa-o sempre CENTRADO no espaço visível.
+function feedAtivoAgora(){
+  return document.body.classList.contains('vsec-open');
+}
+function feedIndiceMaisProximo(cards){
+  const centroAlvo=feedCentroVisivelY();
+  let idx=0, menorDist=Infinity;
+  cards.forEach((c,i)=>{
+    const r=c.getBoundingClientRect();
+    const dist=Math.abs((r.top+r.height/2)-centroAlvo);
+    if(dist<menorDist){menorDist=dist; idx=i;}
+  });
+  return idx;
+}
+let feedToqueInicioY=null, feedToqueInicioX=null, feedToqueIndiceInicio=0, feedToqueCards=[], feedToqueId=0;
+window.addEventListener('touchstart', e=>{
+  if(!feedAtivoAgora()) return;
+  feedToqueCards=Array.from(document.querySelectorAll('.card')).filter(c=>c.offsetParent!==null && !c.classList.contains('hidden'));
+  if(!feedToqueCards.length){ feedToqueInicioY=null; return; }
+  feedToqueId++; // invalida qualquer correção pendente de um toque anterior
+  feedGestoAtivo=true;
+  feedToqueInicioY=e.touches[0].clientY;
+  feedToqueInicioX=e.touches[0].clientX;
+  feedToqueIndiceInicio=feedIndiceMaisProximo(feedToqueCards);
+}, {passive:true});
+window.addEventListener('touchend', e=>{
+  if(feedToqueInicioY===null || !feedToqueCards.length) return;
+  const inicioY=feedToqueInicioY, inicioX=feedToqueInicioX, indiceInicio=feedToqueIndiceInicio, cards=feedToqueCards, meuId=feedToqueId;
+  feedToqueInicioY=null;
+  const fimY=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:inicioY;
+  const fimX=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientX:inicioX;
+  const deltaY=inicioY-fimY;
+  const deltaX=inicioX-fimX;
+  // Se o gesto foi mais para os lados do que para cima/baixo, é para
+  // trocar de FOTO dentro do cartão (slideshow), não para mudar de
+  // cartão — ignora, para não ficar sensível de mais ao deslizar as
+  // fotos com um bocadinho de deriva vertical no dedo.
+  if(Math.abs(deltaX)>Math.abs(deltaY)){ feedGestoAtivo=false; return; }
+  if(Math.abs(deltaY)<12){ feedGestoAtivo=false; return; } // toque simples num botão — não mexer
+  const direcaoGesto = deltaY>0 ? 1 : -1;
+  // espera o scroll nativo (e o eventual momentum) assentar e só ENTÃO
+  // decide onde parar: usa o card mais próximo do centro NESSE momento
+  // (e não um passo fixo a partir de onde o dedo tocou). Assim, um
+  // swipe rápido que avance vários cards para no mais perto do scroll,
+  // em vez de ser forçado de volta para perto do início.
+  let ultimaPos=window.scrollY, paradasSeguidas=0, tentativas=0;
+  const verificarAssentou=()=>{
+    if(meuId!==feedToqueId) return; // um novo toque começou entretanto — cancela
+    tentativas++;
+    if(window.scrollY===ultimaPos){
+      paradasSeguidas++;
+      if(paradasSeguidas>=3 || tentativas>90){
+        let alvoIdx=feedIndiceMaisProximo(cards);
+        // se o momentum não moveu o suficiente para mudar de card
+        // (ex.: swipe curto e lento), garante pelo menos 1 passo na
+        // direção do gesto — mantém o comportamento "1 swipe = 1 card"
+        if(alvoIdx===indiceInicio) alvoIdx=Math.max(0,Math.min(cards.length-1, indiceInicio+direcaoGesto));
+        feedCentrarCard(cards[alvoIdx]);
+        // só liberta a "rede de segurança" depois da correção suave
+        // acabar de facto (dá tempo à animação smooth-scroll)
+        setTimeout(()=>{ if(meuId===feedToqueId) feedGestoAtivo=false; },500);
+        return;
+      }
+    }else{
+      paradasSeguidas=0; ultimaPos=window.scrollY;
+    }
+    requestAnimationFrame(verificarAssentou);
+  };
+  requestAnimationFrame(verificarAssentou);
+}, {passive:true});
+
+/* ── SCROLL NO PC / TABLET ────────────────────────────────────────
+   No computador deixamos a roda do rato e o trackpad ao browser.
+   Não usamos preventDefault aqui: isso bloqueava o scroll nativo do PC.
+   O scroll-snap fica reservado ao modo mobile, onde o swipe já funciona. */
+if(window.matchMedia('(min-width:769px)').matches){
+  document.documentElement.style.scrollSnapType='none';
+  document.body.style.scrollSnapType='none';
+}
 
 /* ── BOTTOM NAV ─────────────────────────────────────────────────── */
 function goHome(){
@@ -9123,8 +9185,8 @@ function openCardOverlay(cardId){
   document.getElementById('cardOvBody').innerHTML=`
     ${photosHtml}
     <div class="card-ov-info">
-      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${metaGroupOvHtml}</div>
       ${badgesOv}
+      <div class="card-ov-name-row"><div class="card-ov-name">${name}</div>${metaGroupOvHtml}</div>
       <div class="card-ov-actions-row">
         <button class="card-ov-action-btn${ehFavorito(cardId)?' on':''}" id="cardOvFavBtn" onclick="toggleFavoritoOverlay('${cardId}')">
           <span id="cardOvFavIcon">${ehFavorito(cardId)?'★':'☆'}</span> Guardar
@@ -9785,8 +9847,7 @@ body{
   background:#fff;
 }
 .tbtn{
-  background:#fff;
-  border-color:#DDE4E0;
+  background:#fff;  border-color:#DDE4E0;
   color:#4E5A54;
 }
 .tbtn.active,.tbtn:hover{
@@ -9825,18 +9886,21 @@ body{
 .ch-cnt{color:#087A3B}
 
 /* ── CARTÕES DE ESTABELECIMENTOS ─────────────────────────────────── */
-/* Cada estabelecimento como um cartão bem distinto (fundo branco,
-   cantos arredondados, sombra suave) sobre o fundo cinza da lista —
-   o padrão que a Booking/Airbnb/TripAdvisor usam para separar
-   claramente um estabelecimento do seguinte num scroll contínuo. */
+/* Sem caixa branca + sombra à volta de cada cartão (o padrão genérico de
+   "cartão de app SaaS") — em vez disso, um traço fino a separar cada
+   estabelecimento, como numa página de guia impresso. A foto continua a
+   sangrar até à margem, que é o que já funcionava bem. */
 .card{
-  background:#fff;
-  border:1px solid #E2E7E4;
-  border-radius:var(--radius);
-  box-shadow:0 2px 10px rgba(20,35,28,.06);
+  background:transparent;
+  border:none;
+  border-bottom:1px solid #E2E7E4;
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
 }
 .card:hover{
-  box-shadow:0 6px 18px rgba(20,35,28,.10);
+  border-color:#E2E7E4;
+  box-shadow:none;
 }
 .card-edit-btn{
   background:rgba(255,255,255,.94);
