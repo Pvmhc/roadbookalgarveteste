@@ -9825,21 +9825,18 @@ body{
 .ch-cnt{color:#087A3B}
 
 /* ── CARTÕES DE ESTABELECIMENTOS ─────────────────────────────────── */
-/* Sem caixa branca + sombra à volta de cada cartão (o padrão genérico de
-   "cartão de app SaaS") — em vez disso, um traço fino a separar cada
-   estabelecimento, como numa página de guia impresso. A foto continua a
-   sangrar até à margem, que é o que já funcionava bem. */
+/* Cada estabelecimento como um cartão bem distinto (fundo branco,
+   cantos arredondados, sombra suave) sobre o fundo cinza da lista —
+   o padrão que a Booking/Airbnb/TripAdvisor usam para separar
+   claramente um estabelecimento do seguinte num scroll contínuo. */
 .card{
-  background:transparent;
-  border:none;
-  border-bottom:1px solid #E2E7E4;
-  border-radius:0;
-  box-shadow:none;
-  backdrop-filter:none;
+  background:#fff;
+  border:1px solid #E2E7E4;
+  border-radius:var(--radius);
+  box-shadow:0 2px 10px rgba(20,35,28,.06);
 }
 .card:hover{
-  border-color:#E2E7E4;
-  box-shadow:none;
+  box-shadow:0 6px 18px rgba(20,35,28,.10);
 }
 .card-edit-btn{
   background:rgba(255,255,255,.94);
